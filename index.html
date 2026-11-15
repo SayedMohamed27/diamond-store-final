@@ -12,7 +12,7 @@
   <!-- FontAwesome 6 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <!-- Main Stylesheet -->
-  <link rel="stylesheet" href="styles.css?v=20261114g" />
+  <link rel="stylesheet" href="styles.css?v=20261115a" />
 </head>
 <body>
 
@@ -84,14 +84,10 @@
     <nav class="header-cat-bar">
       <div class="container cat-bar-inner">
         <ul class="primary-nav" id="headerCatNav">
-          <li><a href="#catalogSection" data-cat="all" class="active" onclick="selectCategory('all', true); return false;"><i class="fa-solid fa-border-all"></i> جميع الأقسام</a></li>
-          <li><a href="#catalogSection" data-cat="sandwich" onclick="selectCategory('sandwich', true); return false;"><i class="fa-solid fa-bread-slice"></i> ساندوتش ميكر وجريل</a></li>
-          <li><a href="#catalogSection" data-cat="airfryer" onclick="selectCategory('airfryer', true); return false;"><i class="fa-solid fa-fire-burner"></i> قلايات هوائية</a></li>
-          <li><a href="#catalogSection" data-cat="oven" onclick="selectCategory('oven', true); return false;"><i class="fa-solid fa-temperature-high"></i> أفران ومايكروويف</a></li>
-          <li><a href="#catalogSection" data-cat="blender" onclick="selectCategory('blender', true); return false;"><i class="fa-solid fa-blender"></i> خلاطات وعجانات وكبات</a></li>
-          <li><a href="#catalogSection" data-cat="coffee" onclick="selectCategory('coffee', true); return false;"><i class="fa-solid fa-mug-hot"></i> القهوة والغلايات</a></li>
-          <li><a href="#catalogSection" data-cat="home" onclick="selectCategory('home', true); return false;"><i class="fa-solid fa-shirt"></i> مكاوي ومكانس</a></li>
-          <li><a href="#catalogSection" data-cat="care" onclick="selectCategory('care', true); return false;"><i class="fa-solid fa-wand-magic-sparkles"></i> العناية بالشعر</a></li>
+          <li><a href="#catalogSection" data-cat="kitchen" onclick="selectCategory('kitchen', true); return false;"><i class="fa-solid fa-blender"></i> أجهزة المطبخ</a></li>
+          <li><a href="#catalogSection" data-cat="home" onclick="selectCategory('home', true); return false;"><i class="fa-solid fa-shirt"></i> الأجهزة المنزلية</a></li>
+          <li><a href="#catalogSection" data-cat="care" onclick="selectCategory('care', true); return false;"><i class="fa-solid fa-wand-magic-sparkles"></i> العناية الشخصية</a></li>
+          <li><a href="#catalogSection" data-cat="contact" onclick="selectCategory('contact', true); return false;"><i class="fa-solid fa-headset"></i> قسم اتصل بنا</a></li>
         </ul>
 
         <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
@@ -761,12 +757,10 @@
         <div class="footer-col">
           <h4 class="footer-orange-heading">أقسام الموقع:</h4>
           <ul class="footer-links">
-            <li><a href="#catalogSection" onclick="selectCategory('all', true)">المتجر</a></li>
-            <li><a href="#categoriesSection">الأقسام</a></li>
-            <li><a href="#catalogSection" onclick="selectCategory('blender', true)">أجهزة المطبخ</a></li>
-            <li><a href="#catalogSection" onclick="selectCategory('care', true)">العناية الشخصية</a></li>
+            <li><a href="#catalogSection" onclick="selectCategory('kitchen', true)">أجهزة المطبخ</a></li>
             <li><a href="#catalogSection" onclick="selectCategory('home', true)">الأجهزة المنزلية</a></li>
-            <li><a href="#" onclick="openStoreWhatsappChat(); return false;">اتصل بنا</a></li>
+            <li><a href="#catalogSection" onclick="selectCategory('care', true)">العناية الشخصية</a></li>
+            <li><a href="#" onclick="selectCategory('contact', true); return false;">قسم اتصل بنا</a></li>
           </ul>
         </div>
 

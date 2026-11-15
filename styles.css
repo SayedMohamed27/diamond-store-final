@@ -5,14 +5,14 @@
    ============================================================================ */
 
 :root {
-  --brand: #E85D04;
-  --brand-dark: #C84B00;
-  --brand-strong: #C84B00;
-  --brand-light: #FF7B29;
-  --brand-soft: #FFF5EE;
-  --brand-tint: #FFE2CC;
-  --brand-glow: rgba(232, 93, 4, 0.24);
-  --accent-gold: #F48C06;
+  --brand: #F97316;
+  --brand-dark: #EA580C;
+  --brand-strong: #EA580C;
+  --brand-light: #FB923C;
+  --brand-soft: #FFF7ED;
+  --brand-tint: #FFEDD5;
+  --brand-glow: rgba(249, 115, 22, 0.22);
+  --accent-gold: #FB923C;
 
   --bg-white: #ffffff;
   --bg-page: #faf9f6;
@@ -7171,21 +7171,39 @@ h1, h2, h3, h4, h5, h6,
   color: #141810 !important;
 }
 
-/* Hero Price Spotlight — Clean Light Badge with Large Black Price */
+/* Hero Price Spotlight — Centered Clean Light Badge with Large Black Price */
 .hero-price-spotlight {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  gap: 6px !important;
+  padding: 14px 20px !important;
+  border-radius: 16px !important;
   background: #ffffff !important;
   border: 2px solid var(--brand) !important;
-  box-shadow: 0 12px 28px rgba(27, 33, 20, 0.08) !important;
+  box-shadow: 0 12px 28px rgba(24, 21, 18, 0.07) !important;
 }
 
 .hero-price-spotlight .price-spotlight-lbl {
   color: var(--brand-dark) !important;
   font-weight: 800 !important;
+  margin: 0 auto !important;
+}
+
+.hero-price-spotlight .price-spotlight-val {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  text-align: center !important;
 }
 
 .hero-price-spotlight .price-spotlight-val strong,
 #heroMetricPrice {
-  font-size: 2rem !important;
+  font-size: 2.15rem !important;
+  line-height: 1.15 !important;
   color: #000000 !important;
   font-weight: 900 !important;
 }
@@ -7193,6 +7211,38 @@ h1, h2, h3, h4, h5, h6,
 .hero-price-spotlight .price-spotlight-sub {
   color: var(--text-body) !important;
   font-weight: 700 !important;
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+}
+
+/* Larger Hero 5-Image Slide Navigation Arrows & Counter */
+.hero-slide-ctrl-pill,
+.stage-top-hud .hero-slide-ctrl-pill {
+  padding: 6px 12px !important;
+  border-radius: 15px !important;
+  font-size: 0.92rem !important;
+  font-weight: 900 !important;
+  gap: 12px !important;
+}
+
+.hero-arrow-btn {
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 11px !important;
+  font-size: 0.98rem !important;
+  background: var(--brand) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.32) !important;
+}
+
+.hero-arrow-btn:hover {
+  background: var(--brand-light) !important;
+  border-color: #ffffff !important;
+  transform: scale(1.08) !important;
 }
 
 .thumb-price {
@@ -7892,9 +7942,22 @@ h1, h2, h3, h4, h5, h6,
   .pdp-price-current {
     font-size: 1.85rem !important;
   }
+  .hero-price-spotlight {
+    padding: 12px 14px !important;
+  }
   .hero-price-spotlight .price-spotlight-val strong,
   #heroMetricPrice {
-    font-size: 1.55rem !important;
+    font-size: 1.65rem !important;
+  }
+  .stage-top-hud .hero-slide-ctrl-pill {
+    padding: 5px 10px !important;
+    font-size: 0.84rem !important;
+    gap: 8px !important;
+  }
+  .hero-arrow-btn {
+    width: 34px !important;
+    height: 34px !important;
+    font-size: 0.88rem !important;
   }
   .egy-reviews-grid {
     grid-template-columns: 1fr;
@@ -7906,96 +7969,96 @@ h1, h2, h3, h4, h5, h6,
 }
 
 /* ============================================================================
-   6. ORANGE BACKGROUND BEHIND HEADER & 3D SHOWCASE (#E85D04 THEME)
+   6. ORANGE BACKGROUND BEHIND HEADER & 3D SHOWCASE (LIGHTER #F97316 THEME)
       + ONE-BY-ONE RIGHT UTILITY TICKER
       + MULTI-CARD AUTO-MOVING CUSTOMER REVIEWS CAROUSEL
       + "صفحات تهمك" FOOTER & FULL RETURN/EXCHANGE POLICY MODAL
    ============================================================================ */
 
-/* --- A. Warm Orange Background Behind Top Bar, Header & 3D Hero Showcase --- */
+/* --- A. Warm Lighter Orange Background Behind Top Bar, Header & 3D Hero Showcase --- */
 .top-utility-bar {
-  background: linear-gradient(90deg, #8F3200 0%, #E85D04 50%, #8F3200 100%) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important;
+  background: linear-gradient(90deg, #D9530F 0%, #F97316 50%, #D9530F 100%) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.25) !important;
   color: #ffffff !important;
-  box-shadow: 0 4px 16px rgba(232, 93, 4, 0.22);
+  box-shadow: 0 4px 16px rgba(249, 115, 22, 0.2);
 }
 
 .site-header {
-  background: linear-gradient(180deg, #FFF0E3 0%, #FFE3CC 100%) !important;
-  border-bottom: 1.5px solid #F4B993 !important;
-  box-shadow: 0 8px 26px rgba(232, 93, 4, 0.12) !important;
+  background: linear-gradient(180deg, #FFF8F1 0%, #FFEDD8 100%) !important;
+  border-bottom: 1.5px solid #F8CBA6 !important;
+  box-shadow: 0 8px 26px rgba(249, 115, 22, 0.1) !important;
 }
 
 .site-header.scrolled {
-  background: rgba(255, 236, 220, 0.96) !important;
+  background: rgba(255, 244, 232, 0.96) !important;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
 }
 
 .header-cat-bar {
-  background: linear-gradient(90deg, #FFE0C4 0%, #FFD2AD 50%, #FFE0C4 100%) !important;
-  border-top: 1px solid rgba(232, 93, 4, 0.22) !important;
+  background: linear-gradient(90deg, #FFEAD2 0%, #FFDFBE 50%, #FFEAD2 100%) !important;
+  border-top: 1px solid rgba(249, 115, 22, 0.2) !important;
 }
 
 .header-search-wrap input {
   background: #ffffff !important;
-  border-color: rgba(232, 93, 4, 0.32) !important;
+  border-color: rgba(249, 115, 22, 0.28) !important;
 }
 
 .hero-showcase {
   background:
-    radial-gradient(circle at 20% 22%, rgba(232, 93, 4, 0.28) 0%, transparent 46%),
-    radial-gradient(circle at 78% 32%, rgba(255, 123, 41, 0.25) 0%, transparent 52%),
-    linear-gradient(180deg, #FFDCC0 0%, #FFEAD6 52%, #FFF5EC 100%) !important;
-  border-bottom: 1.5px solid #F4B993 !important;
+    radial-gradient(circle at 20% 22%, rgba(249, 115, 22, 0.22) 0%, transparent 46%),
+    radial-gradient(circle at 78% 32%, rgba(251, 146, 60, 0.2) 0%, transparent 52%),
+    linear-gradient(180deg, #FFE8D1 0%, #FFF2E4 52%, #FFF9F3 100%) !important;
+  border-bottom: 1.5px solid #F8CBA6 !important;
 }
 
 .hero-exhibition-layout .hero-gallery-card {
   background:
-    radial-gradient(circle at 50% 42%, #FFF7F0 0%, #FFE4CE 58%, #FFD1B0 100%) !important;
-  border: 2px solid rgba(232, 93, 4, 0.38) !important;
+    radial-gradient(circle at 50% 42%, #FFFAF5 0%, #FFEEE0 58%, #FFE0C4 100%) !important;
+  border: 2px solid rgba(249, 115, 22, 0.34) !important;
   box-shadow:
-    0 24px 56px rgba(232, 93, 4, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+    0 24px 56px rgba(249, 115, 22, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.92) !important;
 }
 
 .stage-ambient-backlight {
-  background: radial-gradient(circle, rgba(232, 93, 4, 0.42) 0%, rgba(255, 123, 41, 0.18) 48%, transparent 72%) !important;
+  background: radial-gradient(circle, rgba(249, 115, 22, 0.36) 0%, rgba(251, 146, 60, 0.15) 48%, transparent 72%) !important;
 }
 
 .hero-exhibition-layout .hero-3d-halo {
-  border-color: rgba(232, 93, 4, 0.35) !important;
-  box-shadow: 0 0 55px rgba(232, 93, 4, 0.28), inset 0 0 35px rgba(232, 93, 4, 0.18) !important;
+  border-color: rgba(249, 115, 22, 0.32) !important;
+  box-shadow: 0 0 55px rgba(249, 115, 22, 0.24), inset 0 0 35px rgba(249, 115, 22, 0.14) !important;
 }
 
 .pedestal-upward-glow {
-  background: radial-gradient(ellipse at center, rgba(232, 93, 4, 0.42) 0%, rgba(255, 123, 41, 0.14) 55%, transparent 75%) !important;
+  background: radial-gradient(ellipse at center, rgba(249, 115, 22, 0.36) 0%, rgba(251, 146, 60, 0.12) 55%, transparent 75%) !important;
 }
 
 .pedestal-disc-top {
-  background: radial-gradient(ellipse at 50% 42%, #ffffff 0%, #FFE4CE 62%, #F6B282 100%) !important;
-  border-color: rgba(232, 93, 4, 0.55) !important;
-  box-shadow: 0 0 28px rgba(232, 93, 4, 0.32), inset 0 2px 8px rgba(255, 255, 255, 0.9) !important;
+  background: radial-gradient(ellipse at 50% 42%, #ffffff 0%, #FFEDE0 62%, #F9C49A 100%) !important;
+  border-color: rgba(249, 115, 22, 0.48) !important;
+  box-shadow: 0 0 28px rgba(249, 115, 22, 0.26), inset 0 2px 8px rgba(255, 255, 255, 0.9) !important;
 }
 
 .pedestal-disc-side {
-  background: linear-gradient(90deg, #B84300 0%, #E85D04 30%, #FF8A3D 50%, #E85D04 70%, #B84300 100%) !important;
+  background: linear-gradient(90deg, #D9530F 0%, #F97316 30%, #FB923C 50%, #F97316 70%, #D9530F 100%) !important;
 }
 
 .hero-exhibition-layout .hero-3d-mode-bar {
   background: linear-gradient(135deg, #2B1406 0%, #4A2008 100%) !important;
-  border: 1.5px solid rgba(255, 138, 61, 0.45) !important;
-  box-shadow: 0 14px 32px rgba(184, 67, 0, 0.26) !important;
+  border: 1.5px solid rgba(251, 146, 60, 0.45) !important;
+  box-shadow: 0 14px 32px rgba(217, 83, 15, 0.22) !important;
 }
 
 .stage-telemetry-pill {
   background: rgba(43, 20, 6, 0.88) !important;
-  border-color: rgba(255, 138, 61, 0.45) !important;
+  border-color: rgba(251, 146, 60, 0.45) !important;
 }
 
 .hero-thumb-sidebar {
-  background: rgba(255, 248, 242, 0.92) !important;
-  border: 1.5px solid rgba(232, 93, 4, 0.28) !important;
+  background: rgba(255, 250, 245, 0.94) !important;
+  border: 1.5px solid rgba(249, 115, 22, 0.25) !important;
 }
 
 /* --- B. Top Utility Bar 100% Automatic Rightward Lifecycle Animation (No Arrows) --- */

@@ -104,9 +104,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const qParam = params.get('q');
 
   if (catParam) {
-    state.activeCategory = catParam;
+    if (catParam === 'contact') {
+      setTimeout(() => handleContactCategoryAction(qParam || 'info'), 250);
+    } else {
+      state.activeCategory = catParam;
+    }
   }
-  if (qParam) {
+  if (qParam && catParam !== 'contact') {
     state.searchQuery = qParam;
     const catSearch = document.getElementById('catalogSearchInput');
     const headSearch = document.getElementById('headerSearchInput');
@@ -125,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   if (document.getElementById('productsGrid')) {
     renderCatalogGrid();
-    if ((catParam && catParam !== 'all') || qParam) {
+    if (((catParam && catParam !== 'all' && catParam !== 'contact') || qParam) && catParam !== 'contact') {
       setTimeout(() => {
         document.getElementById('catalogSection')?.scrollIntoView({ behavior: 'smooth' });
       }, 250);
@@ -155,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Live sync if Admin Panel (admin.html) updates catalog/settings in another tab
   window.addEventListener('storage', (e) => {
-    if (['daimond_catalog_v4', 'daimond_categories_v4', 'daimond_hero_v4', 'daimond_hero_v5', 'daimond_hero_v6', 'daimond_settings_v4'].includes(e.key)) {
+    if (['daimond_catalog_v4', 'daimond_categories_v4', 'daimond_categories_v5', 'daimond_hero_v4', 'daimond_hero_v5', 'daimond_hero_v6', 'daimond_settings_v4'].includes(e.key)) {
       if (e.key === 'daimond_settings_v4') state.bundleInitialized = false;
       loadAllStoreData();
       applyDynamicCMSSettings();
@@ -831,22 +835,75 @@ window.closeHeaderCategoryDropdown = function() {
   });
 };
 
+window.handleContactCategoryAction = function(actionKey = 'info', labelText = '') {
+  closeHeaderCategoryDropdown();
+  const key = String(actionKey || '').toLowerCase();
+  const lbl = String(labelText || '');
+  if (key === 'whatsapp' || lbl.includes('واتساب')) {
+    if (typeof openStorePolicyModal === 'function') {
+      openStorePolicyModal('contact');
+    } else if (typeof openStoreWhatsappChat === 'function') {
+      openStoreWhatsappChat();
+    }
+    return;
+  }
+  if (key === 'refund' || lbl.includes('استرجاع') || lbl.includes('استبدال')) {
+    if (typeof openStorePolicyModal === 'function') openStorePolicyModal('refund');
+    return;
+  }
+  if (key === 'service' || key === 'warranty' || lbl.includes('صيانة') || lbl.includes('ضمان')) {
+    if (typeof openStorePolicyModal === 'function') openStorePolicyModal('warranty');
+    return;
+  }
+  if (typeof openStorePolicyModal === 'function') {
+    openStorePolicyModal('contact');
+  } else if (typeof openStoreWhatsappChat === 'function') {
+    openStoreWhatsappChat();
+  }
+};
+
+function deriveQueryFromSubItem(sub) {
+  const explicit = String(sub.query || '').trim();
+  if (explicit) return explicit;
+  const lbl = String(sub.label || '').trim();
+  if (!lbl || /^(عرض\s*كل|جميع|كل\s)/i.test(lbl)) return '';
+  // Extract primary appliance keyword if admin left the query field blank
+  const stopWords = new Set(['كهربائية', 'كهربائيه', 'احترافية', 'احترافيه', 'سوكاني', 'اصلية', 'اصليه', 'ديجيتال', 'استانلس', 'ثقيلة', 'ثقيله', 'حديثة', 'حديثه', 'منزلية', 'منزليه']);
+  const words = lbl.split(/\s+/).filter(w => w.length > 1 && !stopWords.has(w));
+  return words[0] || lbl;
+}
+
 function buildCategoryDropdownInnerHTML(cat) {
   const isHomePage = !!document.getElementById('catalogSection');
   const icon = (cat.icon || 'fa-cube').replace(/[^a-zA-Z0-9_-]/g, '');
   const subItems = Array.isArray(cat.subItems) && cat.subItems.length
     ? cat.subItems
-    : [{ label: `عرض كل ${cat.name}`, cat: cat.id, query: '', icon }];
+    : (cat.id === 'contact'
+        ? [
+            { label: 'تواصل مباشر عبر واتساب', cat: 'contact', query: 'whatsapp', icon: 'fa-comment-dots' },
+            { label: 'طلب استبدال أو استرجاع (14 يوم)', cat: 'contact', query: 'refund', icon: 'fa-rotate-left' },
+            { label: 'عناوين مراكز صيانة سوكاني المعتمدة', cat: 'contact', query: 'service', icon: 'fa-screwdriver-wrench' }
+          ]
+        : [{ label: `عرض كل ${cat.name}`, cat: cat.id, query: '', icon }]);
 
-  const catProducts = (cat.id === 'all'
-    ? state.products
-    : state.products.filter(p => p.category === cat.id)
-  ).slice(0, 3);
+  const catProducts = cat.id === 'contact'
+    ? []
+    : state.products.filter(p => doesProductMatchCategory(p, cat.id)).slice(0, 3);
 
   const subLinksHTML = subItems.map(sub => {
     const sIcon = (sub.icon || 'fa-angle-left').replace(/[^a-zA-Z0-9_-]/g, '');
     const sCat = sub.cat || cat.id;
-    const sQuery = sub.query || '';
+    const sQuery = sCat === 'contact' ? (sub.query || 'info') : deriveQueryFromSubItem(sub);
+
+    if (sCat === 'contact') {
+      return `
+        <button type="button" class="cat-dropdown-item" onclick="handleContactCategoryAction('${escapeHTML(sQuery)}', '${escapeHTML(sub.label)}'); event.stopPropagation();">
+          <span class="cat-dd-item-lbl"><i class="fa-solid ${sIcon}"></i> ${escapeHTML(sub.label)}</span>
+          <i class="fa-solid fa-arrow-left cat-dd-arrow"></i>
+        </button>
+      `;
+    }
+
     if (isHomePage) {
       return `
         <button type="button" class="cat-dropdown-item" onclick="filterBySubCategory('${escapeHTML(sCat)}', '${escapeHTML(sQuery)}'); event.stopPropagation();">
@@ -864,7 +921,16 @@ function buildCategoryDropdownInnerHTML(cat) {
     `;
   }).join('');
 
-  const topModelsHTML = catProducts.length ? `
+  const topModelsHTML = cat.id === 'contact' ? `
+    <div class="cat-dropdown-models">
+      <div class="cat-dd-models-title">خدمة عملاء Daimond Store المباشرة:</div>
+      <div style="display:grid; gap:8px;">
+        <button type="button" class="btn-brand" style="width:100%; justify-content:center; padding:10px 14px; font-size:0.84rem; border-radius:12px;" onclick="openStoreWhatsappChat(); closeHeaderCategoryDropdown();">
+          <i class="fa-brands fa-whatsapp" style="font-size:1.05rem;"></i> محادثة فورية عبر واتساب
+        </button>
+      </div>
+    </div>
+  ` : (catProducts.length ? `
     <div class="cat-dropdown-models">
       <div class="cat-dd-models-title">أبرز الأجهزة المتوفرة في القسم:</div>
       <div class="cat-dd-models-grid">
@@ -879,11 +945,13 @@ function buildCategoryDropdownInnerHTML(cat) {
         `).join('')}
       </div>
     </div>
-  ` : '';
+  ` : '');
 
-  const viewAllAction = isHomePage
-    ? `onclick="filterBySubCategory('${escapeHTML(cat.id)}', ''); event.stopPropagation();"`
-    : ` onclick="window.location.href='index.html?cat=${encodeURIComponent(cat.id)}#catalogSection'"`;
+  const viewAllAction = cat.id === 'contact'
+    ? `onclick="handleContactCategoryAction('info'); event.stopPropagation();"`
+    : (isHomePage
+        ? `onclick="filterBySubCategory('${escapeHTML(cat.id)}', ''); event.stopPropagation();"`
+        : `onclick="window.location.href='index.html?cat=${encodeURIComponent(cat.id)}#catalogSection'"`);
 
   return `
     <div class="cat-dropdown-panel" id="catDropdownPanelCard">
@@ -892,7 +960,7 @@ function buildCategoryDropdownInnerHTML(cat) {
           <span><i class="fa-solid ${icon}"></i> ${escapeHTML(cat.navTitle || cat.name)}</span>
           <div style="display:flex; align-items:center; gap:8px;">
             <button type="button" class="cat-dd-viewall-btn" ${viewAllAction}>
-              عرض الكل <i class="fa-solid fa-arrow-left"></i>
+              ${cat.id === 'contact' ? 'تواصل معنا' : 'عرض الكل'} <i class="fa-solid fa-arrow-left"></i>
             </button>
             <button type="button" class="cat-dd-close-btn" onclick="closeHeaderCategoryDropdown(); event.stopPropagation();" aria-label="إغلاق القائمة">
               <i class="fa-solid fa-xmark"></i>
@@ -965,6 +1033,10 @@ window.handleHeaderCategoryClick = function(evt, catId, liEl) {
 
   // On desktop when dropdown is already open via hover, clicking selects the category and scrolls
   closeHeaderCategoryDropdown();
+  if (catId === 'contact') {
+    handleContactCategoryAction('info');
+    return false;
+  }
   if (document.getElementById('catalogSection')) {
     selectCategory(catId, true);
   } else {
@@ -980,7 +1052,7 @@ function renderHeaderCategoriesNav() {
   ensureHeaderDropdownHost();
 
   nav.innerHTML = cats.map(cat => {
-    const label = cat.navTitle || (cat.id === 'all' ? 'الأجهزة المنزلية' : cat.name);
+    const label = cat.navTitle || cat.name;
     const icon = (cat.icon || 'fa-cube').replace(/[^a-zA-Z0-9_-]/g, '');
     const active = state.activeCategory === cat.id ? 'active' : '';
 
@@ -1004,6 +1076,10 @@ function renderHeaderCategoriesNav() {
 
 window.filterBySubCategory = function(catId, query = '') {
   closeHeaderCategoryDropdown();
+  if (catId === 'contact') {
+    handleContactCategoryAction(query || 'info');
+    return;
+  }
   if (!document.getElementById('catalogSection')) {
     const url = `index.html?cat=${encodeURIComponent(catId || 'all')}${query ? `&q=${encodeURIComponent(query)}` : ''}#catalogSection`;
     window.location.href = url;
@@ -1047,19 +1123,21 @@ function renderCategoriesGrid() {
   const cats = state.categories.length ? state.categories : DEFAULT_CATEGORIES;
 
   container.innerHTML = cats.map((cat, idx) => {
-    const count = cat.id === 'all'
-      ? state.products.length
-      : state.products.filter(p => p.category === cat.id).length;
+    const isContact = cat.id === 'contact';
+    const count = isContact
+      ? 0
+      : state.products.filter(p => doesProductMatchCategory(p, cat.id)).length;
+    const badgeLabel = isContact ? 'خدمة العملاء 24/7' : `${count} جهاز`;
 
     return `
-      <div class="cat-visual-card reveal-up ${state.activeCategory === cat.id ? 'active' : ''}"
+      <div class="cat-visual-card reveal-up ${!isContact && state.activeCategory === cat.id ? 'active' : ''}"
            style="--delay: ${idx * 40}ms"
            onclick="selectCategory('${cat.id}', true)">
         <div class="cat-thumb-circle">
           <img src="${escapeHTML(cat.image)}" alt="${escapeHTML(cat.name)}" loading="lazy" onerror="this.onerror=null;this.src='assets/products/hero-showcase.jpg'" />
         </div>
         <div class="cat-card-title">${escapeHTML(cat.name)}</div>
-        <span class="cat-card-count">${count} جهاز</span>
+        <span class="cat-card-count">${badgeLabel}</span>
       </div>
     `;
   }).join('');
@@ -1073,7 +1151,14 @@ function renderCategoriesGrid() {
 }
 
 window.selectCategory = function(catId, scroll = false) {
+  if (catId === 'contact') {
+    handleContactCategoryAction('info');
+    return;
+  }
   state.activeCategory = catId;
+  state.searchQuery = '';
+  const headSearch = document.getElementById('headerSearchInput');
+  if (headSearch) headSearch.value = '';
   if (state.activeWorkspaceTab === 'compare') {
     switchStoreWorkspaceTab('catalog', false);
   }
@@ -1100,7 +1185,7 @@ window.selectCategory = function(catId, scroll = false) {
 function getFilteredProducts() {
   return state.products
     .filter(p => {
-      const matchCat = state.activeCategory === 'all' || p.category === state.activeCategory;
+      const matchCat = doesProductMatchCategory(p, state.activeCategory);
       const matchSearch = smartProductSearchMatch(p, state.searchQuery);
       const matchPrice = Number(p.price) <= state.maxPrice;
       return matchCat && matchSearch && matchPrice;
@@ -1182,7 +1267,13 @@ function renderCatalogGrid() {
 
   const list = getFilteredProducts();
   if (countEl) {
-    countEl.textContent = `إجمالي المعروض: ${list.length} جهاز`;
+    const activeCatObj = (state.categories || []).find(c => c.id === state.activeCategory);
+    const activeCatLabel = activeCatObj ? (activeCatObj.navTitle || activeCatObj.name) : '';
+    const hasFilter = (state.activeCategory && state.activeCategory !== 'all') || !!state.searchQuery;
+    const filterInfo = hasFilter
+      ? ` <span style="color:var(--brand-dark); font-size:0.84rem;">(${activeCatLabel ? escapeHTML(activeCatLabel) : 'الكل'}${state.searchQuery ? ' • ' + escapeHTML(state.searchQuery) : ''})</span> <button type="button" onclick="resetCatalogFilters()" style="margin-right:8px; background:var(--brand-soft); border:1px solid var(--brand-tint); color:var(--brand-dark); padding:3px 10px; border-radius:99px; font-family:inherit; font-size:0.76rem; font-weight:800; cursor:pointer;"><i class="fa-solid fa-rotate-left"></i> عرض كل المنتجات</button>`
+      : '';
+    countEl.innerHTML = `إجمالي المعروض: ${list.length} جهاز${filterInfo}`;
   }
 
   if (list.length === 0) {
@@ -3720,21 +3811,44 @@ window.openStorePolicyModal = function(policyKey = 'refund') {
       </div>
     `;
   } else if (policyKey === 'contact') {
+    const waNum = getStoreWhatsapp();
     mainContentHTML = `
       <div class="policy-hero-banner">
-        <span class="policy-badge"><i class="fa-solid fa-headset"></i> خدمة العملاء السريعة</span>
-        <h2>اتصل بنا — فريق دعم دايموند ستور (${escapeHTML(storeName)})</h2>
-        <p>متواجدين يومياً للرد على استفساراتكم ومتابعة الطلبات والاستبدال والاسترجاع.</p>
+        <span class="policy-badge"><i class="fa-solid fa-headset"></i> خدمة العملاء السريعة 24/7</span>
+        <h2>قسم اتصل بنا — فريق دعم دايموند ستور (${escapeHTML(storeName)})</h2>
+        <p>متواجدين يومياً للرد الفوري على استفساراتكم، حجز الطلبات، باكدج العروسة، ومتابعة الشحن والضمان.</p>
+      </div>
+      <div class="policy-cards-grid">
+        <div class="policy-info-card highlight-card">
+          <h4><i class="fa-brands fa-whatsapp"></i> التواصل المباشر عبر واتساب</h4>
+          <p class="policy-lead-text">تواصل مباشرة مع فريق مبيعات وخدمة عملاء <strong>${escapeHTML(storeName)}</strong> للرد السريع وتأكيد الطلبات:</p>
+          <div style="margin-top:12px;">
+            <button type="button" class="policy-wa-btn exchange" style="width:100%; justify-content:center;" onclick="openStoreWhatsappChat()">
+              <i class="fa-brands fa-whatsapp"></i> محادثة فورية عبر واتساب (${escapeHTML(waNum)})
+            </button>
+          </div>
+        </div>
+        <div class="policy-info-card">
+          <h4><i class="fa-solid fa-clock"></i> مواعيد العمل وخدمة الشحن</h4>
+          <ul>
+            <li><i class="fa-solid fa-check"></i> <strong>خدمة العملاء والواتساب:</strong> متاحون يومياً طوال أيام الأسبوع.</li>
+            <li><i class="fa-solid fa-check"></i> <strong>الشحن والتوصيل:</strong> شحن مجاني تماماً لجميع محافظات مصر خلال 24 - 48 ساعة.</li>
+            <li><i class="fa-solid fa-check"></i> <strong>الضمان الرسمي:</strong> ${escapeHTML(warrantyTxt)}.</li>
+          </ul>
+        </div>
       </div>
       <div class="policy-cta-banner">
-        <h4>تواصل معنا مباشرة عبر واتساب أو فيسبوك</h4>
+        <div class="policy-cta-text">
+          <h3>خدمات سريعة للعملاء</h3>
+          <p>اختر الخدمة المطلوبة للتوجه مباشرة أو فتح محادثة واتساب مخصصة:</p>
+        </div>
         <div class="policy-wa-actions">
           <button type="button" class="policy-wa-btn exchange" onclick="openStoreWhatsappChat()">
-            <i class="fa-brands fa-whatsapp"></i> محادثة خدمة العملاء واتساب
+            <i class="fa-brands fa-whatsapp"></i> استفسار عن منتج أو باكدج العروسة
           </button>
-          <a href="https://www.facebook.com" target="_blank" rel="noopener" class="policy-wa-btn refund" style="text-decoration:none;">
-            <i class="fa-brands fa-facebook-f"></i> صفحتنا الرسمية على فيسبوك
-          </a>
+          <button type="button" class="policy-wa-btn refund" onclick="openStorePolicyModal('refund')">
+            <i class="fa-solid fa-rotate-left"></i> طلب استبدال أو استرجاع (14 يوم)
+          </button>
         </div>
       </div>
     `;

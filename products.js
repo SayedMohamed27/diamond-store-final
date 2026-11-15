@@ -32,123 +32,95 @@ const DEFAULT_STORE_SETTINGS = {
 
 const DEFAULT_CATEGORIES = [
   {
-    id: 'all',
-    name: 'جميع المنتجات',
-    navTitle: 'الأجهزة المنزلية',
-    enName: 'All Appliances',
-    subtitle: 'تشكيلة سوكاني الكاملة',
-    icon: 'fa-border-all',
-    image: 'assets/products/hero-showcase.jpg',
-    subItems: [
-      { label: 'خلاطات كهربائية احترافية', cat: 'blender', query: 'خلاط', icon: 'fa-blender' },
-      { label: 'عجانات استانلس ثقيلة', cat: 'blender', query: 'عجان', icon: 'fa-bowl-food' },
-      { label: 'كبات ومفارم لحوم', cat: 'blender', query: 'كبة', icon: 'fa-utensils' },
-      { label: 'قلايات هوائية ديجيتال', cat: 'airfryer', query: '', icon: 'fa-fire-burner' },
-      { label: 'ساندوتش ميكر وجريل ووافل', cat: 'sandwich', query: '', icon: 'fa-bread-slice' },
-      { label: 'أفران كهربائية ومايكروويف', cat: 'oven', query: '', icon: 'fa-temperature-high' },
-      { label: 'ماكينات القهوة والغلايات', cat: 'coffee', query: '', icon: 'fa-mug-hot' },
-      { label: 'مكاوي بخار ومكانس كهربائية', cat: 'home', query: '', icon: 'fa-shirt' },
-      { label: 'أجهزة العناية الشخصية والشعر', cat: 'care', query: '', icon: 'fa-wand-magic-sparkles' }
-    ]
-  },
-  {
-    id: 'sandwich',
-    name: 'ساندوتش ميكر وجريل',
-    enName: 'Sandwich & Waffle Makers',
-    subtitle: '7×1 و 3×1 ووافل وشوايات',
-    icon: 'fa-bread-slice',
-    image: 'assets/products/sandwich.jpg',
-    subItems: [
-      { label: 'ساندوتش ميكر 7×1 متعدد الغيارات', cat: 'sandwich', query: '7×1', icon: 'fa-layer-group' },
-      { label: 'شوايات بانيني وجريل 2000 وات', cat: 'sandwich', query: 'جريل', icon: 'fa-fire' },
-      { label: 'ماكينة وافل بلجيكي تيفال', cat: 'sandwich', query: 'وافل', icon: 'fa-stroopwafel' },
-      { label: 'عرض كل أجهزة الساندوتش ميكر', cat: 'sandwich', query: '', icon: 'fa-border-all' }
-    ]
-  },
-  {
-    id: 'airfryer',
-    name: 'قلايات هوائية',
-    enName: 'Digital Air Fryers',
-    subtitle: 'طهي صحي بدون زيت حتى 11 لتر',
-    icon: 'fa-fire-burner',
-    image: 'assets/products/airfryer.jpg',
-    subItems: [
-      { label: 'قلايات هوائية جامبو (8.5 لتر - 11 لتر)', cat: 'airfryer', query: 'لتر', icon: 'fa-maximize' },
-      { label: 'قلايات ديجيتال شاشة لمس', cat: 'airfryer', query: 'ديجيتال', icon: 'fa-tablet-screen-button' },
-      { label: 'قلايات بنافذة رؤية مضيئة', cat: 'airfryer', query: 'نافذة', icon: 'fa-eye' },
-      { label: 'عرض كل القلايات الهوائية', cat: 'airfryer', query: '', icon: 'fa-border-all' }
-    ]
-  },
-  {
-    id: 'oven',
-    name: 'أفران ومايكروويف',
-    enName: 'Ovens & Microwaves',
-    subtitle: 'أفران شواية ومايكروويف ديجيتال',
-    icon: 'fa-temperature-high',
-    image: 'assets/products/oven.jpg',
-    subItems: [
-      { label: 'أفران كهربائية بشواية ومروحة', cat: 'oven', query: 'فرن', icon: 'fa-temperature-high' },
-      { label: 'مايكروويف ديجيتال بالشواية', cat: 'oven', query: 'مايكروويف', icon: 'fa-microchip' },
-      { label: 'عرض كل الأفران والمايكروويف', cat: 'oven', query: '', icon: 'fa-border-all' }
-    ]
-  },
-  {
-    id: 'blender',
-    name: 'خلاطات وعجانات وكبات',
-    enName: 'Blenders, Mixers & Choppers',
-    subtitle: 'قوة فرم وعجن حتى 6000 وات',
+    id: 'kitchen',
+    name: 'أجهزة المطبخ',
+    navTitle: 'أجهزة المطبخ',
+    enName: 'Kitchen Appliances',
+    subtitle: 'خلاطات، كبات، عجانات، قلايات هوائية، ساندوتش ميكر، أفران وماكينات قهوة',
     icon: 'fa-blender',
     image: 'assets/products/blender.jpg',
     subItems: [
-      { label: 'خلاطات كهربائية وجرش ثلج', cat: 'blender', query: 'خلاط', icon: 'fa-blender' },
-      { label: 'عجانات احترافية استانلس', cat: 'blender', query: 'عجان', icon: 'fa-bowl-food' },
-      { label: 'كبات فرم لحوم وخضروات', cat: 'blender', query: 'كبة', icon: 'fa-utensils' },
-      { label: 'هاند بليندر ومضارب يدوية', cat: 'blender', query: 'هاند', icon: 'fa-wand-sparkles' },
-      { label: 'عرض كل الخلاطات والعجانات', cat: 'blender', query: '', icon: 'fa-border-all' }
-    ]
-  },
-  {
-    id: 'coffee',
-    name: 'القهوة والغلايات',
-    enName: 'Coffee & Kettles',
-    subtitle: 'ماكينات إسبريسو وغلايات مياه',
-    icon: 'fa-mug-hot',
-    image: 'assets/products/coffee.jpg',
-    subItems: [
-      { label: 'ماكينات إسبريسو وكابتشينو', cat: 'coffee', query: 'إسبريسو', icon: 'fa-mug-saucer' },
-      { label: 'غلايات مياه استانلس وبيركس', cat: 'coffee', query: 'غلاية', icon: 'fa-Glass-water' },
-      { label: 'كنك قهوة تركي بالكهرباء', cat: 'coffee', query: 'قهوة', icon: 'fa-mug-hot' },
-      { label: 'عرض كل أجهزة القهوة والغلايات', cat: 'coffee', query: '', icon: 'fa-border-all' }
+      { label: 'خلاطات كهربائية احترافية', cat: 'kitchen', query: 'خلاط', icon: 'fa-blender' },
+      { label: 'كبات ومفارم لحوم', cat: 'kitchen', query: 'كبة', icon: 'fa-utensils' },
+      { label: 'عجانات استانلس ثقيلة', cat: 'kitchen', query: 'عجان', icon: 'fa-bowl-food' },
+      { label: 'قلايات هوائية ديجيتال', cat: 'kitchen', query: 'قلاية', icon: 'fa-fire-burner' },
+      { label: 'ساندوتش ميكر وجريل ووافل', cat: 'kitchen', query: 'ساندوتش', icon: 'fa-bread-slice' },
+      { label: 'أفران كهربائية ومايكروويف', cat: 'kitchen', query: 'فرن', icon: 'fa-temperature-high' },
+      { label: 'ماكينات القهوة والغلايات', cat: 'kitchen', query: 'قهوة', icon: 'fa-mug-hot' },
+      { label: 'عرض كل أجهزة المطبخ', cat: 'kitchen', query: '', icon: 'fa-border-all' }
     ]
   },
   {
     id: 'home',
-    name: 'مكاوي بخار ومكانس',
-    enName: 'Home & Garment Care',
-    subtitle: 'مكاوي عمودية ومكانس كهربائية',
+    name: 'الأجهزة المنزلية',
+    navTitle: 'الأجهزة المنزلية',
+    enName: 'Home Appliances',
+    subtitle: 'مكاوي بخار سيراميك وعمودية ومكانس كهربائية وأجهزة المنزل',
     icon: 'fa-shirt',
     image: 'assets/products/home.jpg',
     subItems: [
       { label: 'مكاوي بخار سيراميك وعمودية', cat: 'home', query: 'مكواة', icon: 'fa-shirt' },
       { label: 'مكانس كهربائية برميلية وعصا', cat: 'home', query: 'مكنسة', icon: 'fa-broom' },
-      { label: 'عرض كل أجهزة العناية بالمنزل', cat: 'home', query: '', icon: 'fa-border-all' }
+      { label: 'عرض كل الأجهزة المنزلية', cat: 'home', query: '', icon: 'fa-border-all' }
     ]
   },
   {
     id: 'care',
-    name: 'العناية الشخصية والشعر',
-    enName: 'Hair & Personal Care',
-    subtitle: 'مكاوي سيراميك ومجففات شعر',
+    name: 'العناية الشخصية',
+    navTitle: 'العناية الشخصية',
+    enName: 'Personal Care',
+    subtitle: 'مكاوي شعر سيراميك، مجففات شعر، استايلر وأجهزة العناية الشخصية',
     icon: 'fa-wand-magic-sparkles',
     image: 'assets/products/care.jpg',
     subItems: [
       { label: 'مكواة شعر سيراميك وبيبي ليس', cat: 'care', query: 'مكواة', icon: 'fa-wand-magic-sparkles' },
       { label: 'سشوار ومجففات شعر احترافية', cat: 'care', query: 'مجفف', icon: 'fa-wind' },
       { label: 'فرشاة شعر حرارية ومصففات', cat: 'care', query: 'فرشاة', icon: 'fa-spa' },
-      { label: 'عرض كل أجهزة العناية بالشعر', cat: 'care', query: '', icon: 'fa-border-all' }
+      { label: 'عرض كل أجهزة العناية الشخصية', cat: 'care', query: '', icon: 'fa-border-all' }
+    ]
+  },
+  {
+    id: 'contact',
+    name: 'قسم اتصل بنا',
+    navTitle: 'قسم اتصل بنا',
+    enName: 'Contact Us',
+    subtitle: 'تواصل مباشر مع خدمة عملاء Daimond Store عبر واتساب ومراكز الصيانة',
+    icon: 'fa-headset',
+    image: 'assets/logo.jpg',
+    subItems: [
+      { label: 'تواصل مباشر عبر واتساب', cat: 'contact', query: 'whatsapp', icon: 'fa-comment-dots' },
+      { label: 'طلب استبدال أو استرجاع (14 يوم)', cat: 'contact', query: 'refund', icon: 'fa-rotate-left' },
+      { label: 'عناوين مراكز صيانة سوكاني المعتمدة', cat: 'contact', query: 'service', icon: 'fa-screwdriver-wrench' },
+      { label: 'أرقام ومواعيد خدمة العملاء', cat: 'contact', query: 'info', icon: 'fa-phone-volume' }
     ]
   }
 ];
+
+const KITCHEN_SUB_CATEGORY_IDS = ['kitchen', 'sandwich', 'airfryer', 'oven', 'blender', 'coffee'];
+
+function doesProductMatchCategory(prod, catId) {
+  if (!prod) return false;
+  if (!catId || catId === 'all') return true;
+  if (catId === 'contact') return false;
+  const pCat = String(prod.category || '').toLowerCase();
+  const target = String(catId || '').toLowerCase();
+  if (target === 'kitchen') {
+    return KITCHEN_SUB_CATEGORY_IDS.includes(pCat);
+  }
+  if (KITCHEN_SUB_CATEGORY_IDS.includes(target) && pCat === 'kitchen') {
+    const keywordMap = {
+      sandwich: 'ساندوتش جريل وافل بانيني',
+      airfryer: 'قلايه هوائيه ايرفراير',
+      oven: 'فرن مايكروويف شوايه',
+      blender: 'خلاط كبه عجان هاند بليندر مضرب مفرمه',
+      coffee: 'قهوه اسبريسو غلايه كاتل كنكه'
+    };
+    const kw = keywordMap[target] || '';
+    const text = normalizeArabicText(`${prod.name || ''} ${prod.categoryLabel || ''} ${prod.subCategory || ''}`);
+    return kw.split(' ').some(w => w && text.includes(w));
+  }
+  return pCat === target;
+}
 
 const DEFAULT_PRODUCTS = [
   // ==================== 1. SANDWICH MAKERS & GRILLS ====================
@@ -1170,6 +1142,41 @@ function normalizeArabicText(text) {
     .trim();
 }
 
+function stemArabicApplianceToken(token) {
+  if (!token) return token;
+  const map = {
+    'خلاطات': 'خلاط',
+    'الخلاطات': 'خلاط',
+    'عجانات': 'عجان',
+    'العجانات': 'عجان',
+    'كبات': 'كبه',
+    'الكبات': 'كبه',
+    'مفارم': 'فرم',
+    'المفارم': 'فرم',
+    'قلايات': 'قلايه',
+    'القلايات': 'قلايه',
+    'افران': 'فرن',
+    'الافران': 'فرن',
+    'شوايات': 'شوايه',
+    'الشوايات': 'شوايه',
+    'غلايات': 'غلايه',
+    'الغلايات': 'غلايه',
+    'ماكينات': 'ماكينه',
+    'الماكينات': 'ماكينه',
+    'مكاوي': 'مكواه',
+    'المكاوي': 'مكواه',
+    'مكانس': 'مكنسه',
+    'المكانس': 'مكنسه',
+    'مجففات': 'مجفف',
+    'المجففات': 'مجفف',
+    'سشوارات': 'سشوار',
+    'مصففات': 'مصفف',
+    'ساندوتشات': 'ساندوتش',
+    'دفايات': 'دفايه'
+  };
+  return map[token] || token;
+}
+
 function smartProductSearchMatch(product, rawQuery) {
   if (!rawQuery || !rawQuery.trim()) return true;
   const normalizedQuery = normalizeArabicText(rawQuery);
@@ -1183,6 +1190,7 @@ function smartProductSearchMatch(product, rawQuery) {
     product.model,
     product.model ? product.model.replace(/[^a-zA-Z0-9]/g, '') : '',
     product.categoryLabel,
+    product.subCategory,
     product.category,
     product.wattage,
     product.capacity,
@@ -1192,9 +1200,12 @@ function smartProductSearchMatch(product, rawQuery) {
     featuresStr
   ].join(' '));
 
-  // Split query into words so writing "ميكر" or "قلايه ديجيتال" or any letter matches anywhere in the text
+  // Split query into words so writing "ميكر" or "قلايه ديجيتال" or plural "خلاطات / كبات" matches anywhere in the text
   const tokens = normalizedQuery.split(' ').filter(Boolean);
-  return tokens.every(token => corpus.includes(token));
+  return tokens.every(token => {
+    const stemmed = stemArabicApplianceToken(token);
+    return corpus.includes(token) || corpus.includes(stemmed);
+  });
 }
 
 // ============================================================================
@@ -1271,24 +1282,31 @@ function saveStoreProducts(list) {
 }
 
 function getStoreCategories() {
-  const saved = localStorage.getItem('daimond_categories_v4');
+  const saved = localStorage.getItem('daimond_categories_v5');
   if (saved) {
     try {
       const parsed = JSON.parse(saved);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        // Merge subItems and navTitle from DEFAULT_CATEGORIES so dropdown menus always work
         return parsed.map(c => {
           const def = DEFAULT_CATEGORIES.find(d => d.id === c.id);
-          return def ? { ...def, ...c, navTitle: c.navTitle || def.navTitle, subItems: c.subItems || def.subItems } : c;
+          return def ? {
+            ...def,
+            ...c,
+            navTitle: c.navTitle || def.navTitle,
+            subItems: Array.isArray(c.subItems) ? c.subItems : def.subItems
+          } : c;
         });
       }
     } catch (e) {}
   }
-  return DEFAULT_CATEGORIES;
+  return DEFAULT_CATEGORIES.map(c => ({
+    ...c,
+    subItems: Array.isArray(c.subItems) ? c.subItems.map(s => ({ ...s })) : []
+  }));
 }
 
 function saveStoreCategories(list) {
-  return safeSetItem('daimond_categories_v4', JSON.stringify(list));
+  return safeSetItem('daimond_categories_v5', JSON.stringify(list));
 }
 
 function getHeroSlides() {

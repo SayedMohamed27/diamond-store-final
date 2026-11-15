@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Re-render only when store data changes in another tab (ignore cart/wishlist changes,
   // otherwise the forms being edited here get overwritten while typing)
-  const ADMIN_SYNC_KEYS = ['daimond_catalog_v4', 'daimond_categories_v4', 'daimond_hero_v4', 'daimond_hero_v5', 'daimond_hero_v6', 'daimond_settings_v4', 'daimond_orders', 'daimond_coupons'];
+  const ADMIN_SYNC_KEYS = ['daimond_catalog_v4', 'daimond_categories_v4', 'daimond_categories_v5', 'daimond_hero_v4', 'daimond_hero_v5', 'daimond_hero_v6', 'daimond_settings_v4', 'daimond_orders', 'daimond_coupons'];
   window.addEventListener('storage', (e) => {
     if (e.key !== null && !ADMIN_SYNC_KEYS.includes(e.key)) return;
     loadAdminAllData();
@@ -133,10 +133,10 @@ function renderOverviewAnalytics() {
   // Category distribution bars
   const chartEl = document.getElementById('overviewCategoryChart');
   if (chartEl) {
-    const cats = adminState.categories.filter(c => c.id !== 'all');
+    const cats = adminState.categories.filter(c => c.id !== 'all' && c.id !== 'contact');
     const totalProds = Math.max(1, adminState.products.length);
     chartEl.innerHTML = cats.map(c => {
-      const count = adminState.products.filter(p => p.category === c.id).length;
+      const count = adminState.products.filter(p => doesProductMatchCategory(p, c.id)).length;
       const pct = Math.round((count / totalProds) * 100);
       return `
         <div class="cat-bar-row">
@@ -174,7 +174,7 @@ function renderOverviewAnalytics() {
 
 // ==================== 2. ADVANCED PRODUCTS MANAGEMENT ====================
 function populateCategorySelects() {
-  const cats = adminState.categories.filter(c => c.id !== 'all');
+  const cats = adminState.categories.filter(c => c.id !== 'all' && c.id !== 'contact');
   const formSelect = document.getElementById('pCat');
   const filterSelect = document.getElementById('adminProdCatFilter');
   const quickCatSelect = document.getElementById('catQuickSelect');
@@ -196,7 +196,7 @@ function populateCategorySelects() {
   if (quickCatSelect) {
     const curQuick = quickCatSelect.value;
     quickCatSelect.innerHTML = `<option value="">-- اختر قسماً لتعديل فروع القائمة المنسدلة الخاصة به --</option>` +
-      adminState.categories.map(c => `<option value="${escapeHTML(c.id)}">${escapeHTML(c.navTitle || c.name)} (${escapeHTML(c.id)})</option>`).join('');
+      adminState.categories.map((c, i) => `<option value="${escapeHTML(c.id)}">${i + 1}- ${escapeHTML(c.navTitle || c.name)} (${escapeHTML(c.id)})</option>`).join('');
     if (curQuick) quickCatSelect.value = curQuick;
   }
 
@@ -454,7 +454,10 @@ window.editAdminProduct = function(id) {
   document.getElementById('editProdId').value = p.id;
   document.getElementById('pName').value = p.name || '';
   document.getElementById('pModel').value = p.model || '';
-  document.getElementById('pCat').value = p.category || 'sandwich';
+  const mappedCat = ['sandwich', 'airfryer', 'oven', 'blender', 'coffee', 'kitchen'].includes(p.category)
+    ? (adminState.categories.some(c => c.id === p.category) ? p.category : 'kitchen')
+    : (p.category || 'kitchen');
+  document.getElementById('pCat').value = mappedCat;
   document.getElementById('pBadge').value = p.badge || '';
   document.getElementById('pPrice').value = p.price || '';
   document.getElementById('pOldPrice').value = p.oldPrice || '';
@@ -517,7 +520,7 @@ window.renderAdminProductsTable = function() {
   const catFilter = document.getElementById('adminProdCatFilter')?.value || 'all';
 
   const filtered = adminState.products.filter(p => {
-    const matchCat = catFilter === 'all' || p.category === catFilter;
+    const matchCat = doesProductMatchCategory(p, catFilter);
     const matchSearch = smartProductSearchMatch(p, q);
     return matchCat && matchSearch;
   });
@@ -573,6 +576,11 @@ window.renderAdminProductsTable = function() {
 // ==================== 3. CATEGORIES & DROPDOWN SUB-ITEMS MANAGEMENT ====================
 adminState.editingSubItems = [];
 
+window.updateSubItemFieldInCurrentCategory = function(idx, field, val) {
+  if (!Array.isArray(adminState.editingSubItems) || !adminState.editingSubItems[idx]) return;
+  adminState.editingSubItems[idx][field] = val;
+};
+
 window.renderAdminSubItemsEditor = function() {
   const box = document.getElementById('adminSubItemsListContainer');
   if (!box) return;
@@ -581,7 +589,7 @@ window.renderAdminSubItemsEditor = function() {
   if (list.length === 0) {
     box.innerHTML = `
       <div style="padding:12px; background:#ffffff; border:1px dashed var(--border-strong); border-radius:10px; font-size:0.82rem; color:var(--text-muted); text-align:center;">
-        لا توجد فروع منسدلة مضافة لهذا القسم حالياً. استخدم الحقول بالأعلى لإضافة فرع جديد (مثل: خلاطات، عجانات، كبات...).
+        لا توجد أقسام فرعية مضافة لهذا القسم حالياً. استخدم الحقول بالأعلى لإضافة قسم فرعي جديد (مثل: خلاطات، عجانات، كبات...).
       </div>
     `;
     return;
@@ -589,12 +597,17 @@ window.renderAdminSubItemsEditor = function() {
 
   box.innerHTML = list.map((sub, idx) => `
     <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; background:#ffffff; border:1px solid var(--border); border-radius:10px; padding:8px 12px;">
-      <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-        <span style="width:24px; height:24px; border-radius:50%; background:var(--brand-soft); color:var(--brand-dark); font-size:0.74rem; font-weight:900; display:inline-flex; align-items:center; justify-content:center;">${idx + 1}</span>
+      <div style="display:flex; align-items:center; gap:8px; flex:1; flex-wrap:wrap; min-width:240px;">
+        <span style="width:24px; height:24px; border-radius:50%; background:var(--brand-soft); color:var(--brand-dark); font-size:0.74rem; font-weight:900; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">${idx + 1}</span>
         <i class="fa-solid ${escapeHTML(sub.icon || 'fa-angle-left')}" style="color:var(--brand);"></i>
-        <strong style="font-size:0.86rem; color:var(--text-dark);">${escapeHTML(sub.label)}</strong>
-        <span class="sku-tag" style="font-size:0.7rem;">قسم: ${escapeHTML(sub.cat || 'نفس القسم')}</span>
-        ${sub.query ? `<span class="card-badge" style="font-size:0.7rem;">فلتر البحث: "${escapeHTML(sub.query)}"</span>` : `<span style="font-size:0.72rem; color:var(--text-muted);">(يعرض كل القسم)</span>`}
+        <input type="text" class="form-input" value="${escapeHTML(sub.label)}"
+               oninput="updateSubItemFieldInCurrentCategory(${idx}, 'label', this.value)"
+               placeholder="اسم القسم الفرعي"
+               style="flex:1; min-width:170px; padding:6px 10px; font-size:0.84rem; font-weight:800;" />
+        <input type="text" class="form-input" value="${escapeHTML(sub.query || '')}"
+               oninput="updateSubItemFieldInCurrentCategory(${idx}, 'query', this.value)"
+               placeholder="كلمة الفلترة (اختياري)"
+               style="width:155px; padding:6px 10px; font-size:0.78rem;" />
       </div>
       <div style="display:flex; align-items:center; gap:5px;">
         <button type="button" class="tool-btn" style="height:28px; width:28px; padding:0; font-size:0.72rem;" onclick="moveSubItemInCurrentCategory(${idx}, -1)" title="تحريك لأعلى" ${idx === 0 ? 'disabled style="opacity:0.4;"' : ''}>
@@ -615,11 +628,11 @@ window.addSubItemToCurrentCategory = function() {
   const lblInput = document.getElementById('subItemLabelInput');
   const qInput = document.getElementById('subItemQueryInput');
   const catSel = document.getElementById('subItemTargetCatSelect');
-  const curCatId = (document.getElementById('catIdInput')?.value || '').trim().toLowerCase() || 'all';
+  const curCatId = (document.getElementById('catIdInput')?.value || '').trim().toLowerCase() || 'kitchen';
 
   const label = (lblInput?.value || '').trim();
   if (!label) {
-    showAdminToast('من فضلك اكتب اسم الفرع الذي سيظهر في القائمة المنسدلة (مثال: خلاطات كهربائية)');
+    showAdminToast('من فضلك اكتب اسم القسم الفرعي الذي سيظهر في القائمة المنسدلة (مثال: خلاطات كهربائية)');
     lblInput?.focus();
     return;
   }
@@ -637,7 +650,7 @@ window.addSubItemToCurrentCategory = function() {
   if (lblInput) lblInput.value = '';
   if (qInput) qInput.value = '';
   renderAdminSubItemsEditor();
-  showAdminToast(`تمت إضافة الفرع "${label}" — اضغط "حفظ القسم وفروعه" لتطبيقه على الموقع`);
+  showAdminToast(`تمت إضافة القسم الفرعي "${label}" — اضغط "حفظ القسم وفروعه" لتطبيقه على الموقع`);
 };
 
 window.removeSubItemFromCurrentCategory = function(idx) {
@@ -785,10 +798,12 @@ function renderAdminCategoriesTable() {
     renderAdminSubItemsEditor();
   }
 
-  tbody.innerHTML = adminState.categories.map(c => {
-    const count = c.id === 'all'
-      ? adminState.products.length
-      : adminState.products.filter(p => p.category === c.id).length;
+  tbody.innerHTML = adminState.categories.map((c, idx) => {
+    const isContact = c.id === 'contact';
+    const count = isContact
+      ? 0
+      : adminState.products.filter(p => doesProductMatchCategory(p, c.id)).length;
+    const countLabel = isContact ? 'خدمة العملاء' : `${count} جهاز`;
     const subs = Array.isArray(c.subItems) ? c.subItems : [];
     const subsBadges = subs.length
       ? subs.map(s => `<span class="card-badge" style="margin:2px; font-size:0.72rem; background:var(--brand-soft); color:var(--brand-dark); border:1px solid var(--brand-tint);">${escapeHTML(s.label)}</span>`).join('')
@@ -797,7 +812,7 @@ function renderAdminCategoriesTable() {
     return `
       <tr>
         <td><img src="${escapeHTML(c.image)}" onerror="this.onerror=null;this.src='assets/products/hero-showcase.jpg'" style="width:46px; height:46px; object-fit:contain; border-radius:50%; border:1px solid var(--border); background:#fff; padding:4px;" /></td>
-        <td><span class="sku-tag">${escapeHTML(c.id)}</span></td>
+        <td><span class="sku-tag">${idx + 1} • ${escapeHTML(c.id)}</span></td>
         <td>
           <div style="font-weight:900; color:var(--text-dark);">${escapeHTML(c.name)}</div>
           <div style="font-size:0.75rem; color:var(--brand-dark); font-weight:800;">بالهيدر: ${escapeHTML(c.navTitle || c.name)}</div>
@@ -809,7 +824,7 @@ function renderAdminCategoriesTable() {
             <i class="fa-solid fa-plus"></i> إضافة / تعديل فروع هذا القسم (${subs.length})
           </button>
         </td>
-        <td><strong>${count} جهاز</strong></td>
+        <td><strong>${countLabel}</strong></td>
         <td>
           <div style="display:flex; gap:6px;">
             <button class="tool-btn" style="height:32px; padding:0 10px; font-size:0.76rem;" onclick="editAdminCategory('${escapeHTML(c.id)}')">
@@ -1628,6 +1643,7 @@ window.factoryResetAllStoreData = function() {
   if (!confirm('هل تريد استعادة ضبط المصنع الافتراضي لجميع المنتجات والأقسام والإعدادات؟')) return;
   localStorage.removeItem('daimond_catalog_v4');
   localStorage.removeItem('daimond_categories_v4');
+  localStorage.removeItem('daimond_categories_v5');
   localStorage.removeItem('daimond_hero_v4');
   localStorage.removeItem('daimond_hero_v5');
   localStorage.removeItem('daimond_hero_v6');
