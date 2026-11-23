@@ -5,38 +5,657 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="noindex,nofollow" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
-  <title>إدارة Daimond Store</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Readex+Pro:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <title>لوحة إدارة Daimond Store الاحترافية | Supabase CMS</title>
+  <link rel="icon" href="../assets/logo.jpg" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="/vendor/fonts/google-fonts.css" rel="stylesheet">
+  <link rel="stylesheet" href="/vendor/css/all.min.css" />
+  <link rel="stylesheet" href="styles.css?v=20261115b" />
+  <script src="/vendor/supabase.min.js"></script>
   <script src="config.js"></script>
-  <script defer src="app.js"></script>
+  <script defer src="app.js?v=20261115b"></script>
 </head>
 <body>
-  <main class="page-shell">
+  <main class="page-shell" id="appShell">
+    <!-- 1. Setup Notice (Shown if config.js is missing or has placeholder) -->
     <section id="setupNotice" class="notice" hidden>
-      <h1>إعداد الاتصال بقاعدة البيانات</h1>
-      <p>انسخ config.example.js إلى config.js، ثم أضف رابط مشروع Supabase ومفتاح النشر العام (anon/publishable).</p>
-      <p class="warning">ممنوع وضع مفتاح service_role أو أي Secret Key في ملفات المتصفح.</p>
+      <h1><i class="fa-solid fa-triangle-exclamation"></i> إعداد الاتصال بقاعدة البيانات</h1>
+      <p class="muted">لوحة التحكم تتطلب إعداد ملف الاتصال بمشروع Supabase.</p>
+      <div style="margin-top:16px; background:#FAF8F5; border:1px solid var(--border); padding:16px; border-radius:12px; font-size:0.88rem; line-height:1.7;">
+        <strong>خطوات التفعيل السريعة:</strong>
+        <ol style="margin-right:20px; margin-top:8px;">
+          <li>انسخ <code>admin-app/config.example.js</code> إلى <code>admin-app/config.js</code>.</li>
+          <li>ضع رابط مشروع Supabase (Project URL) ومفتاح النشر العام (Anon Key).</li>
+          <li>تأكد من تشغيل ملفات الـ migrations في Supabase SQL Editor.</li>
+        </ol>
+      </div>
+      <p class="warning"><i class="fa-solid fa-shield-halved"></i> تنبيه أمني: ممنوع نهائياً استخدام مفتاح service_role في ملفات المتصفح.</p>
     </section>
+
+    <!-- 2. Login Panel (Supabase Auth) -->
     <section id="loginPanel" class="panel auth-panel" hidden>
-      <div class="brand-mark">D</div><p class="eyebrow">DAIMOND STORE · ADMIN</p>
-      <h1>تسجيل دخول الإدارة</h1><p class="muted">الدخول مخصص للحسابات التي تم اعتمادها من مسؤول المتجر.</p>
+      <div class="brand-mark"><i class="fa-solid fa-gem"></i></div>
+      <p class="eyebrow">DAIMOND STORE · ADMIN PORTAL</p>
+      <h1>تسجيل دخول الإدارة</h1>
+      <p class="muted">سجل دخولك باستخدام حساب المشرف المعتمد في Supabase Auth.</p>
       <form id="loginForm">
-        <label for="email">البريد الإلكتروني</label><input id="email" name="email" type="email" autocomplete="username" required />
-        <label for="password">كلمة المرور</label><input id="password" name="password" type="password" autocomplete="current-password" required />
-        <button type="submit" id="loginButton">دخول آمن</button>
-      </form><p id="loginMessage" class="message" role="status" aria-live="polite"></p>
+        <div>
+          <label for="email">البريد الإلكتروني</label>
+          <input id="email" name="email" type="email" autocomplete="username" placeholder="admin@daimondstore.com" required />
+        </div>
+        <div>
+          <label for="password">كلمة المرور</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" placeholder="••••••••" required />
+        </div>
+        <button type="submit" id="loginButton"><i class="fa-solid fa-lock"></i> دخول آمن</button>
+      </form>
+      <p id="loginMessage" class="message" role="status" aria-live="polite"></p>
     </section>
-    <section id="dashboardPanel" class="panel dashboard" hidden>
-      <header class="dashboard-header"><div><p class="eyebrow">DAIMOND STORE · CONTROL CENTER</p><h1>لوحة الإدارة</h1><p id="signedInAs" class="muted"></p></div><button id="logoutButton" class="secondary" type="button">تسجيل الخروج</button></header>
-      <div class="status-card"><span class="status-dot"></span><div><strong>تم تأمين جلسة الدخول</strong><p>تم التحقق من حسابك ومن صلاحية الإدارة من قاعدة البيانات.</p></div></div>
-      <div class="next-step"><h2>المرحلة الأولى جاهزة</h2><p>دي نسخة الإدارة المنفصلة كبداية آمنة. ربط المنتجات والطلبات والإعدادات بقاعدة البيانات هيتم بعد إعداد مشروع Supabase وتشغيل ملف الجداول والسياسات.</p></div>
-      <p id="dashboardMessage" class="message" role="status" aria-live="polite"></p>
+
+    <!-- 3. Dashboard Panel -->
+    <section id="dashboardPanel" hidden>
+      <!-- Top Header -->
+      <header class="dashboard-header">
+        <div class="header-user-info">
+          <div class="brand-mark" style="width:44px; height:44px; font-size:20px;"><i class="fa-solid fa-gem"></i></div>
+          <div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <h1 style="font-size:1.3rem; margin:0;">لوحة تحكم Daimond Store</h1>
+              <span id="roleBadge" class="user-badge">مشرف</span>
+            </div>
+            <p id="signedInAs" class="muted" style="font-size:0.8rem; margin:0;"></p>
+          </div>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <a href="../index.html" target="_blank" class="btn-outline btn-sm" style="text-decoration:none;">
+            <i class="fa-solid fa-store"></i> عرض المتجر
+          </a>
+          <button id="logoutButton" class="btn-secondary btn-sm" type="button">
+            <i class="fa-solid fa-right-from-bracket"></i> تسجيل الخروج
+          </button>
+        </div>
+      </header>
+
+      <!-- Navigation Tabs -->
+      <nav class="admin-nav-bar">
+        <button class="nav-tab-btn active" data-tab="overview">
+          <i class="fa-solid fa-chart-pie"></i> نظرة عامة
+        </button>
+        <button class="nav-tab-btn" data-tab="products">
+          <i class="fa-solid fa-boxes-stacked"></i> المنتجات
+          <span id="badgeProductsCount" class="nav-badge-pill">0</span>
+        </button>
+        <button class="nav-tab-btn" data-tab="categories">
+          <i class="fa-solid fa-layer-group"></i> الأقسام والفئات
+        </button>
+        <button class="nav-tab-btn" data-tab="orders">
+          <i class="fa-solid fa-bag-shopping"></i> الطلبات
+          <span id="badgeOrdersCount" class="nav-badge-pill">0</span>
+        </button>
+        <button class="nav-tab-btn" data-tab="hero">
+          <i class="fa-solid fa-images"></i> سلايدر الهيرو
+        </button>
+        <button class="nav-tab-btn" data-tab="coupons">
+          <i class="fa-solid fa-ticket"></i> الكوبونات
+        </button>
+        <button class="nav-tab-btn" data-tab="settings">
+          <i class="fa-solid fa-sliders"></i> إعدادات المتجر والنسخ
+        </button>
+      </nav>
+
+      <!-- TAB 1: OVERVIEW -->
+      <section id="tab-overview" class="tab-section active">
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-icon orange"><i class="fa-solid fa-boxes-stacked"></i></div>
+            <div>
+              <div class="kpi-value" id="kpiTotalProducts">0</div>
+              <div class="kpi-label">إجمالي أجهزة الكتالوج</div>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon green"><i class="fa-solid fa-circle-check"></i></div>
+            <div>
+              <div class="kpi-value" id="kpiInStockProducts">0</div>
+              <div class="kpi-label">أجهزة متوفرة بالمخزن</div>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon blue"><i class="fa-solid fa-bag-shopping"></i></div>
+            <div>
+              <div class="kpi-value" id="kpiTotalOrders">0</div>
+              <div class="kpi-label">إجمالي الطلبات المسجلة</div>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon amber"><i class="fa-solid fa-money-bill-wave"></i></div>
+            <div>
+              <div class="kpi-value" id="kpiTotalRevenue">0 ج.م</div>
+              <div class="kpi-label">إجمالي المبيعات المؤكدة</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-header">
+            <h2><i class="fa-solid fa-clock-rotate-left"></i> أحدث الطلبات الواردة</h2>
+            <button class="btn-outline btn-sm" onclick="switchTab('orders')">عرض كل الطلبات</button>
+          </div>
+          <div class="table-responsive">
+            <table id="overviewOrdersTable">
+              <thead>
+                <tr>
+                  <th>رقم الطلب</th>
+                  <th>العميل</th>
+                  <th>المحافظة</th>
+                  <th>طريقة الدفع</th>
+                  <th>الإجمالي</th>
+                  <th>الحالة</th>
+                  <th>التاريخ</th>
+                </tr>
+              </thead>
+              <tbody id="overviewOrdersBody">
+                <tr><td colspan="7" style="text-align:center; padding:24px;" class="muted">جارٍ تحميل أحدث الطلبات...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: PRODUCTS -->
+      <section id="tab-products" class="tab-section">
+        <div class="section-card">
+          <div class="section-header">
+            <h2><i class="fa-solid fa-boxes-stacked"></i> كتالوج منتجات سوكاني</h2>
+            <button class="btn-brand" id="btnAddProduct"><i class="fa-solid fa-plus"></i> إضافة جهاز جديد</button>
+          </div>
+
+          <div class="toolbar">
+            <div class="search-box">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="prodSearchInput" placeholder="بحث بالاسم أو الموديل..." />
+            </div>
+            <div style="min-width:180px;">
+              <select id="prodCategoryFilter">
+                <option value="all">كل الأقسام</option>
+                <option value="kitchen">أجهزة المطبخ</option>
+                <option value="home">الأجهزة المنزلية</option>
+                <option value="care">العناية الشخصية</option>
+              </select>
+            </div>
+            <div style="min-width:140px;">
+              <select id="prodStockFilter">
+                <option value="all">كل الحالات</option>
+                <option value="inStock">المتوفر فقط</option>
+                <option value="outStock">نفذ من المخزن</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>الصورة</th>
+                  <th>الموديل</th>
+                  <th>اسم الجهاز</th>
+                  <th>القسم</th>
+                  <th>السعر</th>
+                  <th>المخزون</th>
+                  <th>الحالة</th>
+                  <th>إجراءات</th>
+                </tr>
+              </thead>
+              <tbody id="productsTableBody">
+                <tr><td colspan="8" style="text-align:center; padding:24px;" class="muted">جارٍ تحميل المنتجات...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: CATEGORIES -->
+      <section id="tab-categories" class="tab-section">
+        <div class="section-card">
+          <div class="section-header">
+            <h2><i class="fa-solid fa-layer-group"></i> الأقسام الرئيسية والفرعية</h2>
+            <p class="muted" style="margin:0;">الأقسام الأربعة المعتمدة للمتجر مع إدارة الفئات الفرعية لكل قسم.</p>
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>القسم</th>
+                  <th>العنوان بالعربية</th>
+                  <th>الأيقونة</th>
+                  <th>عدد الفئات الفرعية</th>
+                  <th>الترتيب</th>
+                  <th>إجراءات</th>
+                </tr>
+              </thead>
+              <tbody id="categoriesTableBody">
+                <tr><td colspan="6" style="text-align:center; padding:24px;" class="muted">جارٍ تحميل الأقسام...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: ORDERS -->
+      <section id="tab-orders" class="tab-section">
+        <div class="section-card">
+          <div class="section-header">
+            <h2><i class="fa-solid fa-bag-shopping"></i> إدارة ومتابعة الطلبات</h2>
+            <button class="btn-outline btn-sm" id="btnRefreshOrders"><i class="fa-solid fa-arrows-rotate"></i> تحديث</button>
+          </div>
+
+          <div class="toolbar">
+            <div class="search-box">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="orderSearchInput" placeholder="بحث برقم الطلب أو اسم العميل أو الهاتف..." />
+            </div>
+            <div style="min-width:180px;">
+              <select id="orderStatusFilter">
+                <option value="all">كل الحالات</option>
+                <option value="جديد">جديد</option>
+                <option value="قيد التجهيز">قيد التجهيز</option>
+                <option value="تم الشحن">تم الشحن</option>
+                <option value="تم التوصيل">تم التوصيل</option>
+                <option value="ملغي">ملغي</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>رقم الطلب</th>
+                  <th>العميل</th>
+                  <th>الهاتف</th>
+                  <th>المحافظة</th>
+                  <th>طريقة الدفع</th>
+                  <th>الإجمالي</th>
+                  <th>الحالة</th>
+                  <th>التاريخ</th>
+                  <th>إجراءات</th>
+                </tr>
+              </thead>
+              <tbody id="ordersTableBody">
+                <tr><td colspan="9" style="text-align:center; padding:24px;" class="muted">جارٍ تحميل الطلبات...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 5: HERO SLIDES -->
+      <section id="tab-hero" class="tab-section">
+        <div class="section-card">
+          <div class="section-header">
+            <h2><i class="fa-solid fa-images"></i> شرائح سلايدر الهيرو الرئيسي</h2>
+            <p class="muted" style="margin:0;">الـ 5 أجهزة المميزة المعروضة في مقدمة المتجر مع الأسعار والمواصفات.</p>
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>الرقم</th>
+                  <th>الصورة</th>
+                  <th>العنوان</th>
+                  <th>الموديل</th>
+                  <th>القدرة / السعة</th>
+                  <th>السعر</th>
+                  <th>الحالة</th>
+                  <th>إجراءات</th>
+                </tr>
+              </thead>
+              <tbody id="heroSlidesTableBody">
+                <tr><td colspan="8" style="text-align:center; padding:24px;" class="muted">جارٍ تحميل الشرائح...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 6: COUPONS -->
+      <section id="tab-coupons" class="tab-section">
+        <div class="section-card">
+          <div class="section-header">
+            <h2><i class="fa-solid fa-ticket"></i> كوبونات وأكواد الخصم</h2>
+            <button class="btn-brand" id="btnAddCoupon"><i class="fa-solid fa-plus"></i> إضافة كود خصم</button>
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>كود الخصم</th>
+                  <th>نوع الخصم</th>
+                  <th>القيمة</th>
+                  <th>الحد الأدنى للطلب</th>
+                  <th>مرات الاستخدام</th>
+                  <th>الحالة</th>
+                  <th>إجراءات</th>
+                </tr>
+              </thead>
+              <tbody id="couponsTableBody">
+                <tr><td colspan="7" style="text-align:center; padding:24px;" class="muted">جارٍ تحميل الكوبونات...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 7: SETTINGS & MIGRATION -->
+      <section id="tab-settings" class="tab-section">
+        <div class="section-card">
+          <div class="section-header">
+            <h2><i class="fa-solid fa-sliders"></i> إعدادات المتجر وبيانات الاتصال</h2>
+          </div>
+          <form id="storeSettingsForm">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="setStoreName">اسم المتجر</label>
+                <input id="setStoreName" type="text" required />
+              </div>
+              <div class="form-group">
+                <label for="setWhatsapp">رقم واتساب المعتمد لتلقي الطلبات</label>
+                <input id="setWhatsapp" type="text" placeholder="201000000000" required />
+              </div>
+              <div class="form-group full">
+                <label for="setWarranty">نص الضمان الرسمي</label>
+                <input id="setWarranty" type="text" required />
+              </div>
+              <div class="form-group full">
+                <label for="setShipping">نص الشحن المجاني</label>
+                <input id="setShipping" type="text" required />
+              </div>
+              <div class="form-group">
+                <label for="setVodafone">رقم فودافون كاش / المحافظ</label>
+                <input id="setVodafone" type="text" />
+              </div>
+              <div class="form-group">
+                <label for="setInstapay">عنوان إنستا باي (Handle / Number)</label>
+                <input id="setInstapay" type="text" />
+              </div>
+              <div class="form-group full">
+                <label for="setTopBar1">شريط الإعلانات العلوي 1</label>
+                <input id="setTopBar1" type="text" />
+              </div>
+              <div class="form-group full">
+                <label for="setTopBar2">شريط الإعلانات العلوي 2</label>
+                <input id="setTopBar2" type="text" />
+              </div>
+
+              <!-- Rate Limit Configuration -->
+              <div class="form-group full" style="margin-top:10px; padding-top:14px; border-top:1px solid var(--border);">
+                <h3 style="font-size:1rem; margin-bottom:8px; color:var(--brand-dark);"><i class="fa-solid fa-shield-halved"></i> حماية الطلبات (Rate Limit القابل للضبط)</h3>
+                <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                  <input type="checkbox" id="setRateLimitEnabled" checked style="width:auto;" />
+                  <span>تفعيل الحد الأقصى للطلبات لكل رقم هاتف (لمنع الطلبات الوهمية المتكررة)</span>
+                </label>
+              </div>
+              <div class="form-group">
+                <label for="setRateLimitMaxOrders">الحد الأقصى لعدد الطلبات</label>
+                <input id="setRateLimitMaxOrders" type="number" min="1" max="100" value="3" required />
+              </div>
+              <div class="form-group">
+                <label for="setRateLimitWindowMinutes">النافذة الزمنية (بالدقائق)</label>
+                <input id="setRateLimitWindowMinutes" type="number" min="1" max="1440" value="10" required />
+              </div>
+
+              <!-- Bride Bundle Configuration -->
+              <div class="form-group full" style="margin-top:10px; padding-top:14px; border-top:1px solid var(--border);">
+                <h3 style="font-size:1rem; margin-bottom:8px; color:var(--brand-dark);"><i class="fa-solid fa-gift"></i> إعدادات خصم باكدج العروسة</h3>
+                <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                  <input type="checkbox" id="setBundleEnabled" checked style="width:auto;" />
+                  <span>تفعيل قسم وخصومات باكدج العروسة في المتجر</span>
+                </label>
+              </div>
+              <div class="form-group">
+                <label for="setBundleTier2">خصم جهازين (%)</label>
+                <input id="setBundleTier2" type="number" min="0" max="90" value="10" />
+              </div>
+              <div class="form-group">
+                <label for="setBundleTier3">خصم 3 أجهزة (%)</label>
+                <input id="setBundleTier3" type="number" min="0" max="90" value="18" />
+              </div>
+              <div class="form-group">
+                <label for="setBundleTier4">خصم 4 أجهزة فأكثر (%)</label>
+                <input id="setBundleTier4" type="number" min="0" max="90" value="25" />
+              </div>
+              <div class="form-group">
+                <label for="setBundleCustomFixedPrice">سعر ثابت مخصص للباكدج الافتراضي (0 = نسبة مئوية)</label>
+                <input id="setBundleCustomFixedPrice" type="number" min="0" value="0" />
+              </div>
+            </div>
+            <div style="margin-top:20px; display:flex; justify-content:flex-end;">
+              <button type="submit" id="btnSaveSettings"><i class="fa-solid fa-floppy-disk"></i> حفظ الإعدادات</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- LocalStorage Migration Tool -->
+        <div class="section-card" style="border-right: 4px solid var(--info);">
+          <div class="section-header">
+            <h2><i class="fa-solid fa-cloud-arrow-up"></i> أداة مزامنة ونقل بيانات المتصفح القديمة (LocalStorage Import)</h2>
+          </div>
+          <p class="muted" style="margin-bottom:16px;">
+            لو كنت قد قمت بتعديل منتجات أو أقسام أو أسعار سابقاً على جهازك في لوحة التحكم القديمة، يمكنك بضغطة زر رفع هذه البيانات إلى قاعدة بيانات Supabase ليراها جميع زوار الموقع مباشرة.
+          </p>
+          <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <button type="button" class="btn-outline" id="btnInspectLocalData"><i class="fa-solid fa-magnifying-glass"></i> فحص بيانات المتصفح الحالية</button>
+            <button type="button" class="btn-brand" id="btnImportLocalData"><i class="fa-solid fa-upload"></i> رفع ومزامنة البيانات مع Supabase الآن</button>
+          </div>
+          <div id="localDataInspectBox" style="margin-top:14px; font-size:0.85rem;" hidden></div>
+        </div>
+      </section>
     </section>
-    <footer>© Daimond Store · لوحة إدارة مستقلة</footer>
+
+    <!-- MODAL: ADD / EDIT PRODUCT -->
+    <div class="modal-overlay" id="productModal">
+      <div class="modal-box">
+        <div class="modal-header">
+          <h3 id="productModalTitle"><i class="fa-solid fa-box"></i> تعديل بيانات الجهاز</h3>
+          <button type="button" class="modal-close" onclick="closeAdminModal('productModal')">&times;</button>
+        </div>
+        <form id="productForm">
+          <input type="hidden" id="pIsEdit" value="false" />
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="pId">كود المعرف (ID)</label>
+              <input id="pId" type="text" required placeholder="sk-10085" />
+            </div>
+            <div class="form-group">
+              <label for="pModel">رقم الموديل (Model)</label>
+              <input id="pModel" type="text" required placeholder="SK-10085" />
+            </div>
+            <div class="form-group full">
+              <label for="pName">اسم الجهاز بالكامل</label>
+              <input id="pName" type="text" required placeholder="قلاية سوكاني الديجيتال الهوائية 360°" />
+            </div>
+            <div class="form-group">
+              <label for="pCategory">القسم الرئيسي</label>
+              <select id="pCategory" required>
+                <option value="kitchen">أجهزة المطبخ</option>
+                <option value="home">الأجهزة المنزلية</option>
+                <option value="care">العناية الشخصية</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="pCategoryLabel">اسم الفئة المعروض</label>
+              <input id="pCategoryLabel" type="text" placeholder="قلايات هوائية ديجيتال" />
+            </div>
+            <div class="form-group">
+              <label for="pPrice">السعر الرسمي الحالي (ج.م)</label>
+              <input id="pPrice" type="number" step="1" min="0" required placeholder="3850" />
+            </div>
+            <div class="form-group">
+              <label for="pOldPrice">السعر قبل الخصم (ج.م)</label>
+              <input id="pOldPrice" type="number" step="1" min="0" placeholder="4500" />
+            </div>
+            <div class="form-group">
+              <label for="pWattage">القدرة الكهربائية (Wattage)</label>
+              <input id="pWattage" type="text" placeholder="2200W" />
+            </div>
+            <div class="form-group">
+              <label for="pCapacity">السعة (Capacity)</label>
+              <input id="pCapacity" type="text" placeholder="7.5 لتر" />
+            </div>
+            <div class="form-group">
+              <label for="pBadge">شارة التميز (Badge)</label>
+              <input id="pBadge" type="text" placeholder="الأكثر مبيعاً" />
+            </div>
+            <div class="form-group">
+              <label for="pStockQty">الكمية بالمخزن</label>
+              <input id="pStockQty" type="number" min="0" value="100" />
+            </div>
+            <div class="form-group full">
+              <label for="pImage">رابط الصورة الرئيسية</label>
+              <div style="display:flex; gap:8px;">
+                <input id="pImage" type="text" required placeholder="assets/products/airfryer.jpg" />
+                <label class="btn-outline btn-sm" style="margin:0; cursor:pointer; display:flex; align-items:center;">
+                  <i class="fa-solid fa-cloud-arrow-up"></i> رفع صورة
+                  <input type="file" id="pImageUpload" accept="image/*" style="display:none;" />
+                </label>
+              </div>
+            </div>
+            <div class="form-group full">
+              <label for="pShortDesc">وصف مختصر للجهاز</label>
+              <textarea id="pShortDesc" rows="3" placeholder="اكتب نبذة تسويقية عن الجهاز..."></textarea>
+            </div>
+            <div class="form-group full">
+              <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                <input type="checkbox" id="pInStock" checked style="width:auto;" />
+                <span>الجهاز متوفر حالياً بالمخزن وجاهز للشحن الفوري</span>
+              </label>
+            </div>
+          </div>
+          <div style="margin-top:20px; display:flex; justify-content:flex-end; gap:10px;">
+            <button type="button" class="btn-outline" onclick="closeAdminModal('productModal')">إلغاء</button>
+            <button type="submit" id="btnSaveProduct"><i class="fa-solid fa-check"></i> حفظ الجهاز</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL: ORDER DETAILS -->
+    <div class="modal-overlay" id="orderModal">
+      <div class="modal-box">
+        <div class="modal-header">
+          <h3><i class="fa-solid fa-receipt"></i> تفاصيل الطلب <span id="modalOrderCode" style="color:var(--brand-dark);"></span></h3>
+          <button type="button" class="modal-close" onclick="closeAdminModal('orderModal')">&times;</button>
+        </div>
+        <div id="modalOrderDetailsBody"></div>
+        <div style="margin-top:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <label for="modalOrderStatusSelect" style="margin:0;">تحديث حالة الطلب:</label>
+            <select id="modalOrderStatusSelect" style="width:auto;">
+              <option value="جديد">جديد</option>
+              <option value="قيد التجهيز">قيد التجهيز</option>
+              <option value="تم الشحن">تم الشحن</option>
+              <option value="تم التوصيل">تم التوصيل</option>
+              <option value="ملغي">ملغي</option>
+              <option value="مؤجل">مؤجل</option>
+            </select>
+            <button type="button" class="btn-brand btn-sm" id="btnUpdateOrderStatus">تحديث</button>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <a id="modalOrderWaBtn" target="_blank" rel="noopener" class="btn-outline btn-sm" style="text-decoration:none;">
+              <i class="fa-brands fa-whatsapp"></i> تواصل عبر واتساب
+            </a>
+            <button type="button" class="btn-secondary btn-sm" onclick="closeAdminModal('orderModal')">إغلاق</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: EDIT CATEGORY & SUBCATEGORIES -->
+    <div class="modal-overlay" id="categoryModal">
+      <div class="modal-box">
+        <div class="modal-header">
+          <h3 id="categoryModalTitle"><i class="fa-solid fa-layer-group"></i> تعديل القسم والفئات الفرعية</h3>
+          <button type="button" class="modal-close" onclick="closeAdminModal('categoryModal')">&times;</button>
+        </div>
+        <form id="categoryForm">
+          <input type="hidden" id="catIdInput" />
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="catNameInput">اسم القسم بالعربية</label>
+              <input id="catNameInput" type="text" required />
+            </div>
+            <div class="form-group">
+              <label for="catIconInput">أيقونة FontAwesome</label>
+              <input id="catIconInput" type="text" placeholder="fa-blender" />
+            </div>
+            <div class="form-group full">
+              <label for="catSubtitleInput">الوصف الفرعي للقسم</label>
+              <input id="catSubtitleInput" type="text" />
+            </div>
+            <div class="form-group full">
+              <label for="catSubItemsInput">الفئات الفرعية (كل سطر بصيغة: الاسم | كلمة البحث | الأيقونة)</label>
+              <textarea id="catSubItemsInput" rows="7" placeholder="خلاطات كهربائية احترافية | خلاط | fa-blender"></textarea>
+            </div>
+          </div>
+          <div style="margin-top:20px; display:flex; justify-content:flex-end; gap:10px;">
+            <button type="button" class="btn-outline" onclick="closeAdminModal('categoryModal')">إلغاء</button>
+            <button type="submit" id="btnSaveCategory"><i class="fa-solid fa-check"></i> حفظ القسم والفئات</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL: EDIT HERO SLIDE -->
+    <div class="modal-overlay" id="heroSlideModal">
+      <div class="modal-box">
+        <div class="modal-header">
+          <h3 id="heroSlideModalTitle"><i class="fa-solid fa-images"></i> تعديل شريحة الهيرو</h3>
+          <button type="button" class="modal-close" onclick="closeAdminModal('heroSlideModal')">&times;</button>
+        </div>
+        <form id="heroSlideForm">
+          <input type="hidden" id="hsIdInput" />
+          <div class="form-grid">
+            <div class="form-group full">
+              <label for="hsTitleInput">عنوان الشريحة الرئيسي</label>
+              <input id="hsTitleInput" type="text" required />
+            </div>
+            <div class="form-group full">
+              <label for="hsSubtitleInput">الوصف التفصيلي للشريحة</label>
+              <textarea id="hsSubtitleInput" rows="2"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="hsModelInput">رقم الموديل</label>
+              <input id="hsModelInput" type="text" />
+            </div>
+            <div class="form-group">
+              <label for="hsPriceInput">السعر المعروض</label>
+              <input id="hsPriceInput" type="text" placeholder="3,850 ج.م" />
+            </div>
+            <div class="form-group">
+              <label for="hsPowerInput">القدرة</label>
+              <input id="hsPowerInput" type="text" placeholder="2200W" />
+            </div>
+            <div class="form-group">
+              <label for="hsCapacityInput">السعة / الميزة</label>
+              <input id="hsCapacityInput" type="text" placeholder="7.5 Liters" />
+            </div>
+            <div class="form-group full">
+              <label for="hsImageInput">رابط الصورة</label>
+              <input id="hsImageInput" type="text" required />
+            </div>
+          </div>
+          <div style="margin-top:20px; display:flex; justify-content:flex-end; gap:10px;">
+            <button type="button" class="btn-outline" onclick="closeAdminModal('heroSlideModal')">إلغاء</button>
+            <button type="submit" id="btnSaveHeroSlide"><i class="fa-solid fa-check"></i> حفظ الشريحة</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="admin-toast-stack" id="adminToastStack"></div>
+
+    <footer>© Daimond Store · مركز التحكم وإدارة المتجر الإلكتروني · Supabase Backend</footer>
   </main>
 </body>
 </html>

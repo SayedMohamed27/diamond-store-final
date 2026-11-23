@@ -6,11 +6,10 @@
   <title id="pdpPageTitle">تفاصيل المنتج | Daimond Store — أجهزة سوكاني</title>
   <link rel="icon" href="assets/logo.jpg" />
   <!-- Google Fonts: Readex Pro + Tajawal + Cairo + Plus Jakarta Sans -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;700;800;900&family=Plus+Jakarta+Sans:wght@700;800&family=Readex+Pro:wght@400;500;600;700&family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="/vendor/fonts/google-fonts.css" rel="stylesheet">
   <!-- FontAwesome 6 -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="/vendor/css/all.min.css" />
   <!-- Main Stylesheet -->
   <link rel="stylesheet" href="styles.css?v=20261115a" />
 </head>
@@ -471,7 +470,10 @@
   <div class="toast-stack" id="toastStack"></div>
 
   <!-- Scripts -->
-  <script src="products.js?v=20261114g"></script>
-  <script src="app.js?v=20261114g"></script>
+  <script src="/vendor/supabase.min.js"></script>
+  <script src="supabase-config.js"></script>
+  <script src="store-data.js?v=20261115a"></script>
+  <script src="products.js?v=20261115a"></script>
+  <script src="app.js?v=20261115a"></script>
 </body>
 </html>

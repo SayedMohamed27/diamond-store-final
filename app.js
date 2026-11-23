@@ -202,6 +202,34 @@ function loadAllStoreData() {
   }
   sanitizeStoredSelections();
   syncPriceSliderBounds();
+
+  // Async sync from Supabase if configured
+  if (window.DaimondStoreData && window.DaimondStoreData.isConfigured()) {
+    window.DaimondStoreData.loadCatalog().then(catalog => {
+      if (catalog && catalog.source === 'supabase') {
+        state.products = catalog.products;
+        state.categories = catalog.categories;
+        state.heroSlides = catalog.heroSlides;
+        state.settings = catalog.settings;
+        sanitizeStoredSelections();
+        syncPriceSliderBounds();
+        applyDynamicCMSSettings();
+        renderHeaderCategoriesNav();
+        if (document.getElementById('heroStudioStage')) renderHeroSlide(state.activeHeroSlide);
+        if (document.getElementById('categoriesGrid')) renderCategoriesGrid();
+        if (document.getElementById('productsGrid')) renderCatalogGrid();
+        if (typeof renderCompareStudioTab === 'function') renderCompareStudioTab();
+        if (document.getElementById('bundleItemsGrid')) renderBundleSection();
+        if (typeof updateCartView === 'function') updateCartView();
+        if (typeof updateCounters === 'function') updateCounters();
+        if (document.getElementById('productDetailPageRoot') && typeof initProductDetailsPage === 'function') {
+          initProductDetailsPage();
+        }
+      }
+    }).catch(err => {
+      console.warn('[Daimond] Catalog sync notice:', err);
+    });
+  }
 }
 
 function formatBrandNameHTML(rawName) {
@@ -2440,7 +2468,9 @@ function calculateTotals() {
 
   let discount = 0;
   const coupon = state.appliedCoupon;
-  if (coupon && coupon.bundleIds) {
+  if (coupon && coupon.serverDiscount != null) {
+    discount = Math.round(Number(coupon.serverDiscount));
+  } else if (coupon && coupon.bundleIds) {
     // Bundle coupon stays valid only while every bundle item is still in the cart
     const stillValid = coupon.bundleIds.every(id => state.cart.some(c => c.id === id));
     if (!stillValid) {
@@ -2514,12 +2544,47 @@ function updateCartView() {
   if (grandEl) grandEl.textContent = formatEGP(total);
 }
 
-window.applyPromoCoupon = function() {
+window.applyPromoCoupon = async function() {
   const code = (document.getElementById('promoInput')?.value || '').trim().toUpperCase();
   if (state.cart.length === 0) {
     showToast('أضف منتجات إلى السلة أولاً ثم طبّق كود الخصم');
     return;
   }
+  if (!code) {
+    showToast('يرجى إدخال كود الخصم');
+    return;
+  }
+
+  // If Supabase is connected, validate server-side via quote_cart RPC
+  if (window.DaimondStoreData && window.DaimondStoreData.isConfigured()) {
+    const currentBundleIds = Array.isArray(state.appliedCoupon?.bundleIds) ? state.appliedCoupon.bundleIds : null;
+    const res = await window.DaimondStoreData.quoteCart({
+      items: state.cart,
+      coupon: code,
+      bundleIds: currentBundleIds
+    });
+    if (res.success && res.quote) {
+      if (res.quote.coupon_valid) {
+        if (res.quote.discount_type === 'bundle' && currentBundleIds) {
+          showToast('خصم باكدج العروسة المطبق حالياً أكبر من قيمة الكوبون (لا يمكن الجمع بين خصمين)');
+          return;
+        }
+        state.appliedCoupon = {
+          code,
+          serverDiscount: res.quote.coupon_discount,
+          discountType: 'coupon'
+        };
+        updateCartView();
+        showToast(`تم تفعيل كود الخصم ${escapeHTML(code)} بنجاح`);
+        return;
+      } else {
+        showToast(res.quote.coupon_message || 'كود الخصم غير صحيح أو غير متاح حالياً');
+        return;
+      }
+    }
+  }
+
+  // Local fallback
   const customCoupons = readJSONStorage('daimond_coupons', { DAIMOND10: 10, SOKANY15: 15, BRIDE25: 25 });
   const pct = Number(customCoupons[code]);
   if (code && pct > 0 && pct <= 100) {
@@ -3301,7 +3366,7 @@ window.openCheckoutWindow = function() {
   openModal('checkoutModal');
 };
 
-window.submitCustomerOrder = function(e) {
+window.submitCustomerOrder = async function(e) {
   e.preventDefault();
   if (state.cart.length === 0) {
     showToast('السلة فارغة، لا يمكن إرسال طلب بدون منتجات');
@@ -3320,20 +3385,77 @@ window.submitCustomerOrder = function(e) {
     return;
   }
 
-  const { subtotal, discount, total } = calculateTotals();
-  // Free shipping across all governorates as requested by the user
-  const shipping = 0;
-  const finalAmount = total + shipping;
-  const orderCode = 'DM-' + Math.floor(100000 + Math.random() * 900000);
+  const btnSubmit = document.querySelector('#checkoutModal form button[type="submit"]');
+  if (btnSubmit) {
+    btnSubmit.disabled = true;
+    btnSubmit.textContent = 'جارٍ تسجيل وتأكيد الطلب...';
+  }
+
+  let finalOrderCode = 'DM-' + Math.floor(100000 + Math.random() * 900000);
+  let finalSubtotal = 0;
+  let finalDiscount = 0;
+  let finalAmount = 0;
+  let serverOrderRecorded = false;
 
   const itemsDetailed = state.cart.map(item => {
     const p = state.products.find(x => x.id === item.id);
     return p ? { id: p.id, model: p.model, name: p.name, qty: item.qty, price: p.price } : null;
   }).filter(Boolean);
 
+  // If Supabase is connected, call server-side create_order RPC
+  if (window.DaimondStoreData && window.DaimondStoreData.isConfigured()) {
+    try {
+      let uploadedProofPath = null;
+      if (pendingOrderScreenshotDataUrl) {
+        uploadedProofPath = await window.DaimondStoreData.uploadPaymentProof(pendingOrderScreenshotDataUrl);
+      }
+
+      const isBundleCoupon = Array.isArray(state.appliedCoupon?.bundleIds) && state.appliedCoupon.bundleIds.length > 0;
+      const serverRes = await window.DaimondStoreData.createOrder({
+        customer: {
+          customer: name,
+          phone,
+          gov,
+          address: addr,
+          payment: pay,
+          transferRef,
+          paymentScreenshotPath: uploadedProofPath
+        },
+        items: state.cart,
+        coupon: isBundleCoupon ? null : (state.appliedCoupon?.code || null),
+        bundleIds: isBundleCoupon ? state.appliedCoupon.bundleIds : null
+      });
+
+      if (serverRes.success && serverRes.result) {
+        finalOrderCode = serverRes.result.order_code;
+        finalSubtotal = Number(serverRes.result.subtotal) || 0;
+        finalDiscount = Number(serverRes.result.discount) || 0;
+        finalAmount = Number(serverRes.result.total) || 0;
+        serverOrderRecorded = true;
+      } else {
+        showToast(serverRes.error || 'تعذر تسجيل الطلب على السيرفر، يرجى المحاولة مرة أخرى');
+        if (btnSubmit) {
+          btnSubmit.disabled = false;
+          btnSubmit.textContent = 'تأكيد الطلب الآن';
+        }
+        return;
+      }
+    } catch (rpcErr) {
+      console.warn('[Daimond Checkout] Server RPC error, falling back to local recording:', rpcErr);
+    }
+  }
+
+  if (!serverOrderRecorded) {
+    const { subtotal, discount, total } = calculateTotals();
+    finalSubtotal = subtotal;
+    finalDiscount = discount;
+    finalAmount = total;
+  }
+
+  // Also record in localStorage for quick client-side reference
   const existingOrders = readJSONStorage('daimond_orders', []);
   existingOrders.unshift({
-    id: orderCode,
+    id: finalOrderCode,
     date: normalizeDigits(new Date().toLocaleString('en-GB')),
     customer: name,
     phone,
@@ -3343,8 +3465,8 @@ window.submitCustomerOrder = function(e) {
     transferRef,
     paymentScreenshot: pendingOrderScreenshotDataUrl || '',
     items: itemsDetailed,
-    subtotal,
-    discount,
+    subtotal: finalSubtotal,
+    discount: finalDiscount,
     coupon: state.appliedCoupon ? state.appliedCoupon.code : '',
     shipping: 0,
     warranty: state.settings?.warrantyText || 'ضمان معتمد رسمي من شركة المغربي لمدة سنة',
@@ -3358,16 +3480,16 @@ window.submitCustomerOrder = function(e) {
   const storeName = state.settings?.storeName || 'Daimond Store';
   const warrantyTxt = state.settings?.warrantyText || 'ضمان معتمد رسمي من شركة المغربي لمدة سنة';
   const waLines = itemsDetailed.map(i => `• ${i.name} (${i.model}) × ${i.qty}`).join('\n');
-  const discountLine = discount > 0 ? `\nالخصم: ${formatEGP(discount)}${state.appliedCoupon ? ` (${state.appliedCoupon.code})` : ''}` : '';
+  const discountLine = finalDiscount > 0 ? `\nالخصم: ${formatEGP(finalDiscount)}${state.appliedCoupon ? ` (${state.appliedCoupon.code})` : ''}` : '';
   const transferLine = isElectronicPay
     ? `\nبيانات التحويل: ${pay}${transferRef ? ` (محول من: ${transferRef})` : ''}\n📸 مرفق مع هذه الرسالة صورة (اسكرين شوت) إيصال التحويل لتأكيد الأوردر.`
     : '';
-  const waMsg = `مرحباً ${storeName}،\nأرغب في تأكيد طلبي رقم: ${orderCode}\nالاسم: ${name}\nالموبايل: ${phone}\nالمحافظة والعنوان: ${gov} - ${addr}\nطريقة الدفع: ${pay}${transferLine}\n\nالمنتجات:\n${waLines}${discountLine}\n\nالشحن: مجاني لجميع المحافظات (0 ج.م)\nالضمان: ${warrantyTxt}\nالإجمالي المطلوب: ${formatEGP(finalAmount)}`;
+  const waMsg = `مرحباً ${storeName}،\nأرغب في تأكيد طلبي رقم: ${finalOrderCode}\nالاسم: ${name}\nالموبايل: ${phone}\nالمحافظة والعنوان: ${gov} - ${addr}\nطريقة الدفع: ${pay}${transferLine}\n\nالمنتجات:\n${waLines}${discountLine}\n\nالشحن: مجاني لجميع المحافظات (0 ج.م)\nالضمان: ${warrantyTxt}\nالإجمالي المطلوب: ${formatEGP(finalAmount)}`;
 
   const resBox = document.getElementById('checkoutResultBox');
   resBox.style.display = 'block';
   resBox.innerHTML = `
-    <h4 style="color:var(--brand-dark); margin-bottom:6px;"><i class="fa-solid fa-circle-check"></i> تم تسجيل طلبك بنجاح رقم ${orderCode}</h4>
+    <h4 style="color:var(--brand-dark); margin-bottom:6px;"><i class="fa-solid fa-circle-check"></i> تم تسجيل طلبك بنجاح رقم ${finalOrderCode}</h4>
     <p style="font-size:0.86rem; color:var(--text-body);">الإجمالي الكلي: <strong>${formatEGP(finalAmount)}</strong> (شامل الشحن المجاني لجميع المحافظات + شهادة ضمان سنة كاملة)</p>
     ${isElectronicPay ? `
       <div style="margin-top:10px; background:#fffbeb; border:1.5px solid #f59e0b; border-radius:12px; padding:10px 14px; color:#92400e; font-size:0.84rem; font-weight:800;">
@@ -3384,6 +3506,10 @@ window.submitCustomerOrder = function(e) {
   `;
 
   // Prevent duplicate/empty submissions and reset the checkout state
+  if (btnSubmit) {
+    btnSubmit.disabled = false;
+    btnSubmit.textContent = 'تأكيد الطلب الآن';
+  }
   const form = document.querySelector('#checkoutModal form');
   if (form) {
     form.reset();

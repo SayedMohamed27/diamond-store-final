@@ -27,7 +27,10 @@ const DEFAULT_STORE_SETTINGS = {
   instapayAccountName: 'Daimond Store',
   instapayQrImage: '',
   vodafoneCashNumber: '01000000000',
-  paymentInstructions: 'بعد إتمام التحويل عبر إنستا باي أو المحفظة، يرجى أخذ لقطة شاشة (اسكرين شوت Screenshot) لإيصال التحويل وإرفاقها مع الطلب أو إرسالها مباشرة مع رسالة تأكيد الأوردر على واتساب ليتم شحن طلبك فوراً.'
+  paymentInstructions: 'بعد إتمام التحويل عبر إنستا باي أو المحفظة، يرجى أخذ لقطة شاشة (اسكرين شوت Screenshot) لإيصال التحويل وإرفاقها مع الطلب أو إرسالها مباشرة مع رسالة تأكيد الأوردر على واتساب ليتم شحن طلبك فوراً.',
+  rateLimitEnabled: true,
+  rateLimitMaxOrders: 3,
+  rateLimitWindowMinutes: 10
 };
 
 const DEFAULT_CATEGORIES = [
