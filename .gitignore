@@ -1,6 +1,11 @@
 # Local Supabase configuration
 /admin-app/config.js
+/supabase-config.js
+.env
+.env.local
 
 # Local tooling
 .DS_Store
 Thumbs.db
+.backups/
+node_modules/
