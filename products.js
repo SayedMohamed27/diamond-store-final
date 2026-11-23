@@ -1,16 +1,16 @@
 // ============================================================================
-// DAIMOND STORE - SOKANY OFFICIAL CATALOG, CMS SETTINGS & SMART ARABIC SEARCH
+// DIAMOND STORE - SOKANY OFFICIAL CATALOG, CMS SETTINGS & SMART ARABIC SEARCH
 // ============================================================================
 
 const DEFAULT_STORE_SETTINGS = {
-  storeName: 'Daimond Store',
+  storeName: 'Diamond Store',
   tagline: 'أجهزة SOKANY المنزلية الحديثة',
   whatsappNumber: '201000000000',
   warrantyText: 'ضمان معتمد رسمي من شركة المغربي لمدة سنة',
   shippingText: 'شحن مجاني لجميع المحافظات',
   topBarText1: 'شحن مجاني تماماً لجميع محافظات مصر خلال 24 - 48 ساعة',
   topBarText2: 'ضمان معتمد رسمي من شركة المغربي لمدة سنة على جميع الأجهزة',
-  topBarText3: 'خصم إضافي 10% باستخدام كود: DAIMOND10 — الدفع عند الاستلام',
+  topBarText3: 'خصم إضافي 10% باستخدام كود: DIAMOND10 — الدفع عند الاستلام',
   bundleEnabled: true,
   bundleKicker: 'باكدج العروسة والتوفير الذكي',
   bundleTitle: 'جهّزي مطبخك بأقوى باكدج عروسة بخصم يصل إلى 25% فوري',
@@ -21,10 +21,10 @@ const DEFAULT_STORE_SETTINGS = {
   bundleCustomFixedPrice: 0,
   bundleProductIds: ['sk-10085', 'sk-b907', 'sk-999n', 'sk-10071', 'sk-7027n', 'sk-4007', 'sk-09122'],
   bundleDefaultSelectedIds: ['sk-10085', 'sk-b907', 'sk-999n', 'sk-09122'],
-  instapayLink: 'https://ipn.eg/S/daimondstore/instapay/0000',
+  instapayLink: 'https://ipn.eg/S/diamondstore/instapay/0000',
   instapayNumber: '01000000000',
-  instapayHandle: 'daimondstore@instapay',
-  instapayAccountName: 'Daimond Store',
+  instapayHandle: 'diamondstore@instapay',
+  instapayAccountName: 'Diamond Store',
   instapayQrImage: '',
   vodafoneCashNumber: '01000000000',
   paymentInstructions: 'بعد إتمام التحويل عبر إنستا باي أو المحفظة، يرجى أخذ لقطة شاشة (اسكرين شوت Screenshot) لإيصال التحويل وإرفاقها مع الطلب أو إرسالها مباشرة مع رسالة تأكيد الأوردر على واتساب ليتم شحن طلبك فوراً.',
@@ -87,7 +87,7 @@ const DEFAULT_CATEGORIES = [
     name: 'قسم اتصل بنا',
     navTitle: 'قسم اتصل بنا',
     enName: 'Contact Us',
-    subtitle: 'تواصل مباشر مع خدمة عملاء Daimond Store عبر واتساب ومراكز الصيانة',
+    subtitle: 'تواصل مباشر مع خدمة عملاء Diamond Store عبر واتساب ومراكز الصيانة',
     icon: 'fa-headset',
     image: 'assets/logo.jpg',
     subItems: [
@@ -1261,7 +1261,7 @@ function upgradeProductWarranty(p) {
 }
 
 function getStoreProducts() {
-  const saved = localStorage.getItem('daimond_catalog_v4');
+  const saved = localStorage.getItem('diamond_catalog_v4');
   if (saved) {
     try {
       const parsed = JSON.parse(saved);
@@ -1281,11 +1281,11 @@ function getStoreProducts() {
 }
 
 function saveStoreProducts(list) {
-  return safeSetItem('daimond_catalog_v4', JSON.stringify(list));
+  return safeSetItem('diamond_catalog_v4', JSON.stringify(list));
 }
 
 function getStoreCategories() {
-  const saved = localStorage.getItem('daimond_categories_v5');
+  const saved = localStorage.getItem('diamond_categories_v5');
   if (saved) {
     try {
       const parsed = JSON.parse(saved);
@@ -1309,11 +1309,11 @@ function getStoreCategories() {
 }
 
 function saveStoreCategories(list) {
-  return safeSetItem('daimond_categories_v5', JSON.stringify(list));
+  return safeSetItem('diamond_categories_v5', JSON.stringify(list));
 }
 
 function getHeroSlides() {
-  const saved = localStorage.getItem('daimond_hero_v6');
+  const saved = localStorage.getItem('diamond_hero_v6');
   if (saved) {
     try {
       const parsed = JSON.parse(saved);
@@ -1340,19 +1340,19 @@ function getHeroSlides() {
 }
 
 function saveHeroSlides(list) {
-  return safeSetItem('daimond_hero_v6', JSON.stringify(list));
+  return safeSetItem('diamond_hero_v6', JSON.stringify(list));
 }
 
 function getStoreSettings() {
-  const saved = localStorage.getItem('daimond_settings_v4');
+  const saved = localStorage.getItem('diamond_settings_v4');
   if (saved) {
     try {
       const merged = { ...DEFAULT_STORE_SETTINGS, ...JSON.parse(saved) };
-      if (!merged.storeName || merged.storeName.trim() === 'daimond store') {
-        merged.storeName = 'Daimond Store';
+      if (!merged.storeName || merged.storeName.trim() === 'diamond store') {
+        merged.storeName = 'Diamond Store';
       }
-      if (!merged.instapayAccountName || merged.instapayAccountName.trim() === 'daimond store') {
-        merged.instapayAccountName = 'Daimond Store';
+      if (!merged.instapayAccountName || merged.instapayAccountName.trim() === 'diamond store') {
+        merged.instapayAccountName = 'Diamond Store';
       }
       if (!merged.warrantyText || LEGACY_WARRANTY_VALUES.has(merged.warrantyText.trim())) {
         merged.warrantyText = OFFICIAL_WARRANTY_TEXT;
@@ -1367,13 +1367,13 @@ function getStoreSettings() {
 }
 
 function saveStoreSettings(settingsObj) {
-  return safeSetItem('daimond_settings_v4', JSON.stringify(settingsObj));
+  return safeSetItem('diamond_settings_v4', JSON.stringify(settingsObj));
 }
 
 // ============================================================================
 // INDEXEDDB VIDEO STORAGE (ALLOWS ADMIN TO UPLOAD FULL MP4 VIDEOS OF ANY SIZE)
 // ============================================================================
-const VIDEO_DB_NAME = 'daimond_videos_db_v1';
+const VIDEO_DB_NAME = 'diamond_videos_db_v1';
 const VIDEO_STORE_NAME = 'product_videos';
 
 function openVideoDatabase() {
@@ -1428,5 +1428,5 @@ function deleteAdminVideoBlob(videoKey) {
 }
 
 // Legacy alias
-const DAIMOND_CATEGORIES = DEFAULT_CATEGORIES;
+const DIAMOND_CATEGORIES = DEFAULT_CATEGORIES;
 const HERO_SHOWCASE_SLIDES = DEFAULT_HERO_SLIDES;

@@ -1,7 +1,7 @@
 // ============================================================================
-// DAIMOND STORE - DATA LAYER ADAPTER (store-data.js)
+// DIAMOND STORE - DATA LAYER ADAPTER (store-data.js)
 // ============================================================================
-// Provides a resilient data layer for the Daimond Store frontend.
+// Provides a resilient data layer for the Diamond Store frontend.
 // Automatically connects to Supabase when configured, with seamless fallback
 // to local defaults if offline or unconfigured.
 // ============================================================================
@@ -10,7 +10,7 @@
   let supabaseClient = null;
 
   function isSupabaseConfigured() {
-    const cfg = window.DAIMOND_SUPABASE_CONFIG;
+    const cfg = window.DIAMOND_SUPABASE_CONFIG;
     return Boolean(
       cfg &&
       typeof cfg.url === 'string' &&
@@ -28,8 +28,8 @@
     if (!isSupabaseConfigured()) return null;
     if (!supabaseClient) {
       supabaseClient = window.supabase.createClient(
-        window.DAIMOND_SUPABASE_CONFIG.url,
-        window.DAIMOND_SUPABASE_CONFIG.anonKey,
+        window.DIAMOND_SUPABASE_CONFIG.url,
+        window.DIAMOND_SUPABASE_CONFIG.anonKey,
         {
           auth: {
             persistSession: false,
@@ -202,7 +202,7 @@
           settings
         };
       } catch (err) {
-        console.warn('[Daimond StoreData] Supabase catalog fetch failed, using local fallback:', err);
+        console.warn('[Diamond StoreData] Supabase catalog fetch failed, using local fallback:', err);
         return {
           source: 'local_fallback',
           products: getLocalFallbackProducts(),
@@ -231,7 +231,7 @@
         if (error) throw error;
         return { success: true, quote: data };
       } catch (err) {
-        console.warn('[Daimond StoreData] quote_cart RPC error:', err);
+        console.warn('[Diamond StoreData] quote_cart RPC error:', err);
         return { success: false, error: err.message || 'خطأ في حساب الأسعار من السيرفر' };
       }
     },
@@ -255,7 +255,7 @@
         if (error) throw error;
         return { success: true, result: data };
       } catch (err) {
-        console.error('[Daimond StoreData] create_order RPC error:', err);
+        console.error('[Diamond StoreData] create_order RPC error:', err);
         return { success: false, error: err.message || 'تعذر تسجيل الطلب على السيرفر' };
       }
     },
@@ -295,11 +295,11 @@
         if (error) throw error;
         return data?.path || filePath;
       } catch (err) {
-        console.warn('[Daimond StoreData] Payment proof upload error:', err);
+        console.warn('[Diamond StoreData] Payment proof upload error:', err);
         return null;
       }
     }
   };
 
-  window.DaimondStoreData = StoreData;
+  window.DiamondStoreData = StoreData;
 })();

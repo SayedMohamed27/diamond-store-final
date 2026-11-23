@@ -1,5 +1,5 @@
 // ============================================================================
-// DAIMOND STORE - FRONTEND SUPABASE CONFIGURATION TEMPLATE
+// DIAMOND STORE - FRONTEND SUPABASE CONFIGURATION TEMPLATE
 // ============================================================================
 // Instructions:
 // 1. Copy this file to "supabase-config.js" in the root directory.
@@ -8,7 +8,7 @@
 //    NEVER expose the "service_role" key in any frontend code or files.
 // ============================================================================
 
-window.DAIMOND_SUPABASE_CONFIG = {
+window.DIAMOND_SUPABASE_CONFIG = {
   // Example: "https://your-project-ref.supabase.co"
   url: "https://YOUR-PROJECT-REF.supabase.co",
 

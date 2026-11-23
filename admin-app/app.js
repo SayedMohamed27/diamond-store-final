@@ -1,10 +1,10 @@
 // ============================================================================
-// DAIMOND STORE - ADMIN APP DASHBOARD ENGINE (admin-app/app.js)
+// DIAMOND STORE - ADMIN APP DASHBOARD ENGINE (admin-app/app.js)
 // ============================================================================
 
 (() => {
   const $ = (id) => document.getElementById(id);
-  const config = window.DAIMOND_SUPABASE_CONFIG;
+  const config = window.DIAMOND_SUPABASE_CONFIG;
   const isReady = Boolean(
     config?.url &&
     config?.anonKey &&
@@ -593,7 +593,7 @@
 
     const itemsList = items || [];
     const waPhone = o.phone.startsWith("0") ? "2" + o.phone : o.phone;
-    const waText = `مرحباً ${o.customer}، نتواصل معك من متجر Daimond Store بخصوص طلبك رقم ${o.order_code}`;
+    const waText = `مرحباً ${o.customer}، نتواصل معك من متجر Diamond Store بخصوص طلبك رقم ${o.order_code}`;
     $("modalOrderWaBtn").href = `https://wa.me/${waPhone}?text=${encodeURIComponent(waText)}`;
 
     let receiptSignedUrl = null;
@@ -883,7 +883,7 @@
     if (error || !data) return;
 
     settingsCache = data.data || {};
-    $("setStoreName").value = settingsCache.storeName || "Daimond Store";
+    $("setStoreName").value = settingsCache.storeName || "Diamond Store";
     $("setWhatsapp").value = settingsCache.whatsappNumber || "201000000000";
     $("setWarranty").value = settingsCache.warrantyText || "ضمان معتمد رسمي من شركة المغربي لمدة سنة";
     $("setShipping").value = settingsCache.shippingText || "شحن مجاني لجميع المحافظات";
@@ -948,9 +948,9 @@
   $("btnInspectLocalData")?.addEventListener("click", () => {
     const box = $("localDataInspectBox");
     box.hidden = false;
-    const cat = localStorage.getItem("daimond_catalog_v4");
+    const cat = localStorage.getItem("diamond_catalog_v4");
     const parsedCat = cat ? JSON.parse(cat) : [];
-    const orders = localStorage.getItem("daimond_orders");
+    const orders = localStorage.getItem("diamond_orders");
     const parsedOrders = orders ? JSON.parse(orders) : [];
 
     box.innerHTML = `
@@ -964,7 +964,7 @@
   });
 
   $("btnImportLocalData")?.addEventListener("click", async () => {
-    const rawProds = localStorage.getItem("daimond_catalog_v4");
+    const rawProds = localStorage.getItem("diamond_catalog_v4");
     if (!rawProds) {
       showAdminToast("لا توجد منتجات محلية لنقلها في هذا المتصفح", "info");
       return;

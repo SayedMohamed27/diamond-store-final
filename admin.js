@@ -1,5 +1,5 @@
 // ============================================================================
-// DAIMOND STORE — PROFESSIONAL ADMIN DASHBOARD & CMS ENGINE (admin.js)
+// DIAMOND STORE — PROFESSIONAL ADMIN DASHBOARD & CMS ENGINE (admin.js)
 // Controls Products, Specs/Features, Categories, Hero Slides, Settings, Orders & Invoices
 // ============================================================================
 
@@ -24,11 +24,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Re-render only when store data changes in another tab (ignore cart/wishlist changes,
   // otherwise the forms being edited here get overwritten while typing)
-  const ADMIN_SYNC_KEYS = ['daimond_catalog_v4', 'daimond_categories_v4', 'daimond_categories_v5', 'daimond_hero_v4', 'daimond_hero_v5', 'daimond_hero_v6', 'daimond_settings_v4', 'daimond_orders', 'daimond_coupons'];
+  const ADMIN_SYNC_KEYS = ['diamond_catalog_v4', 'diamond_categories_v4', 'diamond_categories_v5', 'diamond_hero_v4', 'diamond_hero_v5', 'diamond_hero_v6', 'diamond_settings_v4', 'diamond_orders', 'diamond_coupons'];
   window.addEventListener('storage', (e) => {
     if (e.key !== null && !ADMIN_SYNC_KEYS.includes(e.key)) return;
     loadAdminAllData();
-    if (e.key === 'daimond_settings_v4') {
+    if (e.key === 'diamond_settings_v4') {
       populateSiteSettingsForm();
       renderAdminBrideBundleManager();
       updateNavBadges();
@@ -68,8 +68,8 @@ function loadAdminAllData() {
   adminState.categories = getStoreCategories();
   adminState.heroSlides = getHeroSlides();
   adminState.settings = getStoreSettings();
-  adminState.orders = readAdminJSON('daimond_orders', []);
-  adminState.coupons = readAdminJSON('daimond_coupons', { DAIMOND10: 10, SOKANY15: 15, BRIDE25: 25 });
+  adminState.orders = readAdminJSON('diamond_orders', []);
+  adminState.coupons = readAdminJSON('diamond_coupons', { DIAMOND10: 10, SOKANY15: 15, BRIDE25: 25 });
 }
 
 function renderAllAdminViews() {
@@ -895,7 +895,7 @@ window.renderAdminOrders = function() {
               <i class="fa-solid fa-print"></i> طباعة فاتورة
             </button>
 
-            <a href="https://wa.me/${waCustomerPhone}?text=${encodeURIComponent('مرحباً ' + o.customer + '، نتواصل معك من متجر daimond store بخصوص طلبك رقم ' + o.id)}"
+            <a href="https://wa.me/${waCustomerPhone}?text=${encodeURIComponent('مرحباً ' + o.customer + '، نتواصل معك من متجر diamond store بخصوص طلبك رقم ' + o.id)}"
                target="_blank" rel="noopener" class="tool-btn" style="height:34px; padding:0 12px; font-size:0.78rem; text-decoration:none; color:#15803d;">
               <i class="fa-brands fa-whatsapp"></i> واتساب العميل
             </a>
@@ -944,7 +944,7 @@ window.renderAdminOrders = function() {
 window.updateOrderStatus = function(idx, newStatus) {
   if (!adminState.orders[idx]) return;
   adminState.orders[idx].status = newStatus;
-  localStorage.setItem('daimond_orders', JSON.stringify(adminState.orders));
+  localStorage.setItem('diamond_orders', JSON.stringify(adminState.orders));
   renderAllAdminViews();
   showAdminToast(`تم تحديث حالة الطلب ${adminState.orders[idx].id} إلى "${newStatus}"`);
 };
@@ -952,7 +952,7 @@ window.updateOrderStatus = function(idx, newStatus) {
 window.deleteAdminOrder = function(idx) {
   if (!confirm('حذف هذا الطلب نهائياً؟')) return;
   adminState.orders.splice(idx, 1);
-  localStorage.setItem('daimond_orders', JSON.stringify(adminState.orders));
+  localStorage.setItem('diamond_orders', JSON.stringify(adminState.orders));
   renderAllAdminViews();
   showAdminToast('تم حذف الطلب');
 };
@@ -974,7 +974,7 @@ window.createDemoOrder = function() {
     total: sampleProd.price,
     status: 'جديد'
   });
-  localStorage.setItem('daimond_orders', JSON.stringify(adminState.orders));
+  localStorage.setItem('diamond_orders', JSON.stringify(adminState.orders));
   renderAllAdminViews();
   showAdminToast(`تم إنشاء طلب تجريبي رقم ${orderCode}`);
 };
@@ -1006,7 +1006,7 @@ window.printOrderInvoice = function(idx) {
     <html lang="ar" dir="rtl">
     <head>
       <meta charset="UTF-8" />
-      <title>فاتورة مبيعات وضمان رقم ${escapeHTML(o.id)} - Daimond Store</title>
+      <title>فاتورة مبيعات وضمان رقم ${escapeHTML(o.id)} - Diamond Store</title>
       <style>
         body { font-family: 'Tahoma', sans-serif; padding: 30px; color: #181512; }
         .inv-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #E85D04; padding-bottom: 16px; margin-bottom: 20px; }
@@ -1017,7 +1017,7 @@ window.printOrderInvoice = function(idx) {
     <body onload="window.print()">
       <div class="inv-header">
         <div>
-          <h1 style="margin:0; color:#E85D04;">${escapeHTML(adminState.settings.storeName || 'Daimond Store')}</h1>
+          <h1 style="margin:0; color:#E85D04;">${escapeHTML(adminState.settings.storeName || 'Diamond Store')}</h1>
           <p style="margin:4px 0 0;">${escapeHTML(adminState.settings.tagline || 'أجهزة سوكاني SOKANY المنزلية الحديثة')}</p>
         </div>
         <div style="text-align:left;">
@@ -1054,7 +1054,7 @@ window.printOrderInvoice = function(idx) {
 
       <div class="warranty-box">
         <strong>${escapeHTML(adminState.settings.warrantyText || 'ضمان معتمد رسمي من شركة المغربي لمدة سنة')}:</strong>
-        تضمن إدارة <strong>${escapeHTML(adminState.settings.storeName || 'Daimond Store')}</strong> الأجهزة الموضحة أعلاه بضمان معتمد رسمي من شركة المغربي لمدة سنة من تاريخ الفاتورة ضد عيوب الصناعة.
+        تضمن إدارة <strong>${escapeHTML(adminState.settings.storeName || 'Diamond Store')}</strong> الأجهزة الموضحة أعلاه بضمان معتمد رسمي من شركة المغربي لمدة سنة من تاريخ الفاتورة ضد عيوب الصناعة.
       </div>
     </body>
     </html>
@@ -1088,7 +1088,7 @@ window.viewOrderScreenshot = function(idx) {
 function populateSiteSettingsForm() {
   const s = adminState.settings;
   if (!s) return;
-  const storeName = s.storeName || 'Daimond Store';
+  const storeName = s.storeName || 'Diamond Store';
   document.getElementById('setStoreName').value = storeName;
   document.getElementById('setTagline').value = s.tagline || '';
   document.getElementById('setWhatsapp').value = s.whatsappNumber || '201000000000';
@@ -1118,9 +1118,9 @@ function populateSiteSettingsForm() {
   const payInst = document.getElementById('setPaymentInstructions');
   const qrPrev = document.getElementById('adminQrPreviewImg');
 
-  if (ipLink) ipLink.value = s.instapayLink || 'https://ipn.eg/S/daimondstore/instapay/0000';
+  if (ipLink) ipLink.value = s.instapayLink || 'https://ipn.eg/S/diamondstore/instapay/0000';
   if (ipNum) ipNum.value = s.instapayNumber || '01000000000';
-  if (ipHandle) ipHandle.value = s.instapayHandle || 'daimondstore@instapay';
+  if (ipHandle) ipHandle.value = s.instapayHandle || 'diamondstore@instapay';
   if (ipName) ipName.value = s.instapayAccountName || storeName;
   if (vfNum) vfNum.value = s.vodafoneCashNumber || '01000000000';
   if (ipQr) ipQr.value = s.instapayQrImage || '';
@@ -1215,10 +1215,10 @@ window.saveSiteSettingsForm = function(e) {
     bundleTier2: readTier('setTier2', 10),
     bundleTier3: readTier('setTier3', 18),
     bundleTier4: readTier('setTier4', 25),
-    instapayLink: (document.getElementById('setInstapayLink')?.value || '').trim() || 'https://ipn.eg/S/daimondstore/instapay/0000',
+    instapayLink: (document.getElementById('setInstapayLink')?.value || '').trim() || 'https://ipn.eg/S/diamondstore/instapay/0000',
     instapayNumber: normalizeDigits(document.getElementById('setInstapayNumber')?.value || '').trim() || '01000000000',
-    instapayHandle: (document.getElementById('setInstapayHandle')?.value || '').trim() || 'daimondstore@instapay',
-    instapayAccountName: (document.getElementById('setInstapayAccountName')?.value || '').trim() || 'daimond store',
+    instapayHandle: (document.getElementById('setInstapayHandle')?.value || '').trim() || 'diamondstore@instapay',
+    instapayAccountName: (document.getElementById('setInstapayAccountName')?.value || '').trim() || 'diamond store',
     instapayQrImage: (document.getElementById('setInstapayQr')?.value || '').trim(),
     vodafoneCashNumber: normalizeDigits(document.getElementById('setVodafoneCash')?.value || '').trim() || '01000000000',
     paymentInstructions: (document.getElementById('setPaymentInstructions')?.value || '').trim() || DEFAULT_STORE_SETTINGS.paymentInstructions
@@ -1546,9 +1546,9 @@ window.updateHeroSlideField = function(idx, field, val) {
 };
 
 window.resetHeroSlidesToDefault = function() {
-  localStorage.removeItem('daimond_hero_v4');
-  localStorage.removeItem('daimond_hero_v5');
-  localStorage.removeItem('daimond_hero_v6');
+  localStorage.removeItem('diamond_hero_v4');
+  localStorage.removeItem('diamond_hero_v5');
+  localStorage.removeItem('diamond_hero_v6');
   adminState.heroSlides = getHeroSlides();
   renderAdminHeroSlidesEditor();
   showAdminToast('تم استعادة شرائح الهيرو الافتراضية');
@@ -1564,7 +1564,7 @@ window.addAdminCoupon = function(e) {
     return;
   }
   adminState.coupons[code] = pct;
-  localStorage.setItem('daimond_coupons', JSON.stringify(adminState.coupons));
+  localStorage.setItem('diamond_coupons', JSON.stringify(adminState.coupons));
   e.target.reset();
   renderAdminCoupons();
   showAdminToast(`تم حفظ كود الخصم ${escapeHTML(code)} بنسبة ${pct}%`);
@@ -1572,7 +1572,7 @@ window.addAdminCoupon = function(e) {
 
 window.deleteAdminCoupon = function(code) {
   delete adminState.coupons[code];
-  localStorage.setItem('daimond_coupons', JSON.stringify(adminState.coupons));
+  localStorage.setItem('diamond_coupons', JSON.stringify(adminState.coupons));
   renderAdminCoupons();
   showAdminToast(`تم حذف الكود ${escapeHTML(code)}`);
 };
@@ -1595,7 +1595,7 @@ function renderAdminCoupons() {
 
 window.exportFullStoreBackup = function() {
   const backupPayload = {
-    version: 'daimond_v4',
+    version: 'diamond_v4',
     exportedAt: new Date().toISOString(),
     products: adminState.products,
     categories: adminState.categories,
@@ -1608,7 +1608,7 @@ window.exportFullStoreBackup = function() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `daimond-store-backup-${new Date().toISOString().slice(0, 10)}.json`;
+  a.download = `diamond-store-backup-${new Date().toISOString().slice(0, 10)}.json`;
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
   showAdminToast('تم تصدير النسخة الاحتياطية الكاملة بنجاح');
@@ -1625,8 +1625,8 @@ window.importFullStoreBackup = function(e) {
       if (Array.isArray(data.categories)) saveStoreCategories(data.categories);
       if (Array.isArray(data.heroSlides)) saveHeroSlides(data.heroSlides);
       if (data.settings) saveStoreSettings(data.settings);
-      if (Array.isArray(data.orders)) safeSetItem('daimond_orders', JSON.stringify(data.orders));
-      if (data.coupons) safeSetItem('daimond_coupons', JSON.stringify(data.coupons));
+      if (Array.isArray(data.orders)) safeSetItem('diamond_orders', JSON.stringify(data.orders));
+      if (data.coupons) safeSetItem('diamond_coupons', JSON.stringify(data.coupons));
       loadAdminAllData();
       renderAllAdminViews();
       showAdminToast('تم استيراد النسخة الاحتياطية وتحديث المتجر بنجاح');
@@ -1641,13 +1641,13 @@ window.importFullStoreBackup = function(e) {
 
 window.factoryResetAllStoreData = function() {
   if (!confirm('هل تريد استعادة ضبط المصنع الافتراضي لجميع المنتجات والأقسام والإعدادات؟')) return;
-  localStorage.removeItem('daimond_catalog_v4');
-  localStorage.removeItem('daimond_categories_v4');
-  localStorage.removeItem('daimond_categories_v5');
-  localStorage.removeItem('daimond_hero_v4');
-  localStorage.removeItem('daimond_hero_v5');
-  localStorage.removeItem('daimond_hero_v6');
-  localStorage.removeItem('daimond_settings_v4');
+  localStorage.removeItem('diamond_catalog_v4');
+  localStorage.removeItem('diamond_categories_v4');
+  localStorage.removeItem('diamond_categories_v5');
+  localStorage.removeItem('diamond_hero_v4');
+  localStorage.removeItem('diamond_hero_v5');
+  localStorage.removeItem('diamond_hero_v6');
+  localStorage.removeItem('diamond_settings_v4');
   loadAdminAllData();
   renderAllAdminViews();
   showAdminToast('تمت استعادة ضبط المصنع الافتراضي بنجاح');

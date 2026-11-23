@@ -1,4 +1,4 @@
-# دليل إعداد وتشغيل قاعدة بيانات Supabase لمتجر Daimond Store
+# دليل إعداد وتشغيل قاعدة بيانات Supabase لمتجر Diamond Store
 
 > **معلومات المشروع:**
 > - المنظمة (Organization): `daimond-store`

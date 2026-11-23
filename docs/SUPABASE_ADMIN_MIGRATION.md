@@ -1,4 +1,4 @@
-# Daimond Store — Supabase + Separate Admin Migration
+# Diamond Store — Supabase + Separate Admin Migration
 
 ## Audited current state
 - Static HTML/CSS/JavaScript project; no root package.json or existing backend entry point.

@@ -1,12 +1,12 @@
 -- ============================================================================
--- DAIMOND STORE - INITIAL SEED CATALOG (MIGRATION 003)
+-- DIAMOND STORE - INITIAL SEED CATALOG (MIGRATION 003)
 -- Auto-generated from products.js
 -- Safe & Idempotent: Uses ON CONFLICT DO UPDATE for all catalog entities
 -- ============================================================================
 
 -- 1. Store Settings
 insert into public.store_settings (id, data)
-values ('default', '{"storeName":"Daimond Store","tagline":"أجهزة SOKANY المنزلية الحديثة","whatsappNumber":"201000000000","warrantyText":"ضمان معتمد رسمي من شركة المغربي لمدة سنة","shippingText":"شحن مجاني لجميع المحافظات","topBarText1":"شحن مجاني تماماً لجميع محافظات مصر خلال 24 - 48 ساعة","topBarText2":"ضمان معتمد رسمي من شركة المغربي لمدة سنة على جميع الأجهزة","topBarText3":"خصم إضافي 10% باستخدام كود: DAIMOND10 — الدفع عند الاستلام","bundleEnabled":true,"bundleKicker":"باكدج العروسة والتوفير الذكي","bundleTitle":"جهّزي مطبخك بأقوى باكدج عروسة بخصم يصل إلى 25% فوري","bundleSubtitle":"اختاري الأجهزة التي ترغبين بها من القائمة ليتم احتساب خصم باكدج العروسة تلقائياً مع شحن مجاني وضمان معتمد رسمي من شركة المغربي لمدة سنة","bundleTier2":10,"bundleTier3":18,"bundleTier4":25,"bundleCustomFixedPrice":0,"bundleProductIds":["sk-10085","sk-b907","sk-999n","sk-10071","sk-7027n","sk-4007","sk-09122"],"bundleDefaultSelectedIds":["sk-10085","sk-b907","sk-999n","sk-09122"],"instapayLink":"https://ipn.eg/S/daimondstore/instapay/0000","instapayNumber":"01000000000","instapayHandle":"daimondstore@instapay","instapayAccountName":"Daimond Store","instapayQrImage":"","vodafoneCashNumber":"01000000000","paymentInstructions":"بعد إتمام التحويل عبر إنستا باي أو المحفظة، يرجى أخذ لقطة شاشة (اسكرين شوت Screenshot) لإيصال التحويل وإرفاقها مع الطلب أو إرسالها مباشرة مع رسالة تأكيد الأوردر على واتساب ليتم شحن طلبك فوراً.","rateLimitEnabled":true,"rateLimitMaxOrders":3,"rateLimitWindowMinutes":10}'::jsonb)
+values ('default', '{"storeName":"Diamond Store","tagline":"أجهزة SOKANY المنزلية الحديثة","whatsappNumber":"201000000000","warrantyText":"ضمان معتمد رسمي من شركة المغربي لمدة سنة","shippingText":"شحن مجاني لجميع المحافظات","topBarText1":"شحن مجاني تماماً لجميع محافظات مصر خلال 24 - 48 ساعة","topBarText2":"ضمان معتمد رسمي من شركة المغربي لمدة سنة على جميع الأجهزة","topBarText3":"خصم إضافي 10% باستخدام كود: DIAMOND10 — الدفع عند الاستلام","bundleEnabled":true,"bundleKicker":"باكدج العروسة والتوفير الذكي","bundleTitle":"جهّزي مطبخك بأقوى باكدج عروسة بخصم يصل إلى 25% فوري","bundleSubtitle":"اختاري الأجهزة التي ترغبين بها من القائمة ليتم احتساب خصم باكدج العروسة تلقائياً مع شحن مجاني وضمان معتمد رسمي من شركة المغربي لمدة سنة","bundleTier2":10,"bundleTier3":18,"bundleTier4":25,"bundleCustomFixedPrice":0,"bundleProductIds":["sk-10085","sk-b907","sk-999n","sk-10071","sk-7027n","sk-4007","sk-09122"],"bundleDefaultSelectedIds":["sk-10085","sk-b907","sk-999n","sk-09122"],"instapayLink":"https://ipn.eg/S/diamondstore/instapay/0000","instapayNumber":"01000000000","instapayHandle":"diamondstore@instapay","instapayAccountName":"Diamond Store","instapayQrImage":"","vodafoneCashNumber":"01000000000","paymentInstructions":"بعد إتمام التحويل عبر إنستا باي أو المحفظة، يرجى أخذ لقطة شاشة (اسكرين شوت Screenshot) لإيصال التحويل وإرفاقها مع الطلب أو إرسالها مباشرة مع رسالة تأكيد الأوردر على واتساب ليتم شحن طلبك فوراً.","rateLimitEnabled":true,"rateLimitMaxOrders":3,"rateLimitWindowMinutes":10}'::jsonb)
 on conflict (id) do update set
   data = excluded.data,
   updated_at = now();
@@ -55,7 +55,7 @@ on conflict (id) do update set
   updated_at = now();
 
 insert into public.categories (id, name, nav_title, en_name, subtitle, icon, image, sub_items, sort_order, is_active)
-values ('contact', 'قسم اتصل بنا', 'قسم اتصل بنا', 'Contact Us', 'تواصل مباشر مع خدمة عملاء Daimond Store عبر واتساب ومراكز الصيانة', 'fa-headset', 'assets/logo.jpg', '[{"label":"تواصل مباشر عبر واتساب","cat":"contact","query":"whatsapp","icon":"fa-comment-dots"},{"label":"طلب استبدال أو استرجاع (14 يوم)","cat":"contact","query":"refund","icon":"fa-rotate-left"},{"label":"عناوين مراكز صيانة سوكاني المعتمدة","cat":"contact","query":"service","icon":"fa-screwdriver-wrench"},{"label":"أرقام ومواعيد خدمة العملاء","cat":"contact","query":"info","icon":"fa-phone-volume"}]'::jsonb, 4, true)
+values ('contact', 'قسم اتصل بنا', 'قسم اتصل بنا', 'Contact Us', 'تواصل مباشر مع خدمة عملاء Diamond Store عبر واتساب ومراكز الصيانة', 'fa-headset', 'assets/logo.jpg', '[{"label":"تواصل مباشر عبر واتساب","cat":"contact","query":"whatsapp","icon":"fa-comment-dots"},{"label":"طلب استبدال أو استرجاع (14 يوم)","cat":"contact","query":"refund","icon":"fa-rotate-left"},{"label":"عناوين مراكز صيانة سوكاني المعتمدة","cat":"contact","query":"service","icon":"fa-screwdriver-wrench"},{"label":"أرقام ومواعيد خدمة العملاء","cat":"contact","query":"info","icon":"fa-phone-volume"}]'::jsonb, 4, true)
 on conflict (id) do update set
   name = excluded.name,
   nav_title = excluded.nav_title,
@@ -1041,7 +1041,7 @@ insert into public.hero_slides (
 
 -- 5. Default Discount Coupons
 insert into public.coupons (code, discount_type, discount_value, min_order_total, is_active)
-values ('DAIMOND10', 'percent', 10, 0, true)
+values ('DIAMOND10', 'percent', 10, 0, true)
 on conflict (code) do update set
   discount_type = excluded.discount_type,
   discount_value = excluded.discount_value,

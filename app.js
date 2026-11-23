@@ -1,5 +1,5 @@
 // ============================================================================
-// DAIMOND STORE — CUSTOMER STOREFRONT & PRODUCT PAGE ENGINE (app.js)
+// DIAMOND STORE — CUSTOMER STOREFRONT & PRODUCT PAGE ENGINE (app.js)
 // Supports index.html + product.html + Smart Arabic Search + Live CMS Sync
 // ============================================================================
 
@@ -22,9 +22,9 @@ let state = {
   sortBy: 'popular',
   maxPrice: 8000,
   priceCeiling: 8000,
-  cart: readJSONStorage('daimond_cart', []),
-  wishlist: readJSONStorage('daimond_wishlist', []),
-  compare: readJSONStorage('daimond_compare', []),
+  cart: readJSONStorage('diamond_cart', []),
+  wishlist: readJSONStorage('diamond_wishlist', []),
+  compare: readJSONStorage('diamond_compare', []),
   bundleSelected: ['sk-10085', 'sk-b907', 'sk-999n'],
   bundleInitialized: false,
   activeHeroSlide: 0,
@@ -63,15 +63,15 @@ function sanitizeStoredSelections() {
   const cleanCompare = state.compare.filter(id => ids.has(id)).slice(0, 4);
   if (cleanCart.length !== state.cart.length) {
     state.cart = cleanCart;
-    localStorage.setItem('daimond_cart', JSON.stringify(state.cart));
+    localStorage.setItem('diamond_cart', JSON.stringify(state.cart));
   }
   if (cleanWish.length !== state.wishlist.length) {
     state.wishlist = cleanWish;
-    localStorage.setItem('daimond_wishlist', JSON.stringify(state.wishlist));
+    localStorage.setItem('diamond_wishlist', JSON.stringify(state.wishlist));
   }
   if (cleanCompare.length !== state.compare.length) {
     state.compare = cleanCompare;
-    localStorage.setItem('daimond_compare', JSON.stringify(state.compare));
+    localStorage.setItem('diamond_compare', JSON.stringify(state.compare));
   }
   state.bundleSelected = state.bundleSelected.filter(id => ids.has(id));
 }
@@ -159,8 +159,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Live sync if Admin Panel (admin.html) updates catalog/settings in another tab
   window.addEventListener('storage', (e) => {
-    if (['daimond_catalog_v4', 'daimond_categories_v4', 'daimond_categories_v5', 'daimond_hero_v4', 'daimond_hero_v5', 'daimond_hero_v6', 'daimond_settings_v4'].includes(e.key)) {
-      if (e.key === 'daimond_settings_v4') state.bundleInitialized = false;
+    if (['diamond_catalog_v4', 'diamond_categories_v4', 'diamond_categories_v5', 'diamond_hero_v4', 'diamond_hero_v5', 'diamond_hero_v6', 'diamond_settings_v4'].includes(e.key)) {
+      if (e.key === 'diamond_settings_v4') state.bundleInitialized = false;
       loadAllStoreData();
       applyDynamicCMSSettings();
       renderHeaderCategoriesNav();
@@ -174,11 +174,11 @@ document.addEventListener('DOMContentLoaded', () => {
       if (document.getElementById('productDetailPageRoot')) {
         initProductDetailsPage();
       }
-    } else if (e.key === 'daimond_cart' || e.key === 'daimond_wishlist' || e.key === 'daimond_compare') {
+    } else if (e.key === 'diamond_cart' || e.key === 'diamond_wishlist' || e.key === 'diamond_compare') {
       // Keep cart, wishlist & compare in sync between open tabs
-      state.cart = readJSONStorage('daimond_cart', []);
-      state.wishlist = readJSONStorage('daimond_wishlist', []);
-      state.compare = readJSONStorage('daimond_compare', []);
+      state.cart = readJSONStorage('diamond_cart', []);
+      state.wishlist = readJSONStorage('diamond_wishlist', []);
+      state.compare = readJSONStorage('diamond_compare', []);
       sanitizeStoredSelections();
       updateCartView();
       updateCounters();
@@ -204,8 +204,8 @@ function loadAllStoreData() {
   syncPriceSliderBounds();
 
   // Async sync from Supabase if configured
-  if (window.DaimondStoreData && window.DaimondStoreData.isConfigured()) {
-    window.DaimondStoreData.loadCatalog().then(catalog => {
+  if (window.DiamondStoreData && window.DiamondStoreData.isConfigured()) {
+    window.DiamondStoreData.loadCatalog().then(catalog => {
       if (catalog && catalog.source === 'supabase') {
         state.products = catalog.products;
         state.categories = catalog.categories;
@@ -227,13 +227,13 @@ function loadAllStoreData() {
         }
       }
     }).catch(err => {
-      console.warn('[Daimond] Catalog sync notice:', err);
+      console.warn('[Diamond] Catalog sync notice:', err);
     });
   }
 }
 
 function formatBrandNameHTML(rawName) {
-  const clean = (rawName || 'Daimond Store').trim();
+  const clean = (rawName || 'Diamond Store').trim();
   const parts = clean.split(/\s+/);
   const last = parts.length > 1 ? parts.pop() : '';
   return `${escapeHTML(parts.join(' '))}${last ? ` <span>${escapeHTML(last)}</span>` : ''}`;
@@ -243,7 +243,7 @@ function applyDynamicCMSSettings() {
   const s = state.settings;
   if (!s) return;
 
-  const storeName = (s.storeName || 'Daimond Store').trim();
+  const storeName = (s.storeName || 'Diamond Store').trim();
   const warrantyText = (s.warrantyText || 'ضمان معتمد رسمي من شركة المغربي لمدة سنة').trim();
 
   const tb1 = document.getElementById('topBarText1');
@@ -951,7 +951,7 @@ function buildCategoryDropdownInnerHTML(cat) {
 
   const topModelsHTML = cat.id === 'contact' ? `
     <div class="cat-dropdown-models">
-      <div class="cat-dd-models-title">خدمة عملاء Daimond Store المباشرة:</div>
+      <div class="cat-dd-models-title">خدمة عملاء Diamond Store المباشرة:</div>
       <div style="display:grid; gap:8px;">
         <button type="button" class="btn-brand" style="width:100%; justify-content:center; padding:10px 14px; font-size:0.84rem; border-radius:12px;" onclick="openStoreWhatsappChat(); closeHeaderCategoryDropdown();">
           <i class="fa-brands fa-whatsapp" style="font-size:1.05rem;"></i> محادثة فورية عبر واتساب
@@ -1599,7 +1599,7 @@ function initProductDetailsPage() {
     return;
   }
   const available = isProductAvailable(product);
-  const storeName = state.settings?.storeName || 'Daimond Store';
+  const storeName = state.settings?.storeName || 'Diamond Store';
   const warrantyTxt = product.warranty || state.settings?.warrantyText || 'ضمان معتمد رسمي من شركة المغربي لمدة سنة';
 
   state.pdpQty = 1;
@@ -1648,7 +1648,7 @@ function initProductDetailsPage() {
   `).join('');
 
   // Load saved customer reviews or default realistic Egyptian colloquial reviews
-  const storedReviews = readJSONStorage(`daimond_reviews_${product.id}`, null);
+  const storedReviews = readJSONStorage(`diamond_reviews_${product.id}`, null);
   const savedReviews = (Array.isArray(storedReviews) && storedReviews.length) ? storedReviews : [
     {
       author: 'أحمد محمود — القاهرة',
@@ -2013,7 +2013,7 @@ window.addPdpProductToCart = function(productId, openCheckoutImmediately = false
   if (found) found.qty += qtyToAdd;
   else state.cart.push({ id: prod.id, qty: qtyToAdd });
 
-  localStorage.setItem('daimond_cart', JSON.stringify(state.cart));
+  localStorage.setItem('diamond_cart', JSON.stringify(state.cart));
   updateCartView();
 
   if (openCheckoutImmediately) {
@@ -2051,7 +2051,7 @@ window.submitProductReview = function(e, productId) {
   const comment = document.getElementById('revComment').value.trim();
   if (!author || !comment) return;
 
-  const key = `daimond_reviews_${productId}`;
+  const key = `diamond_reviews_${productId}`;
   const current = JSON.parse(localStorage.getItem(key) || '[]');
   current.unshift({ author, rating, date: 'الآن', comment });
   localStorage.setItem(key, JSON.stringify(current));
@@ -2444,7 +2444,7 @@ window.addToCart = function(productId, notify = true) {
   if (found) found.qty += 1;
   else state.cart.push({ id: prod.id, qty: 1 });
 
-  localStorage.setItem('daimond_cart', JSON.stringify(state.cart));
+  localStorage.setItem('diamond_cart', JSON.stringify(state.cart));
   updateCartView();
   if (notify) showRichCartToast(prod, 1);
 };
@@ -2456,7 +2456,7 @@ window.updateCartQty = function(productId, delta) {
   if (item.qty <= 0) {
     state.cart = state.cart.filter(c => c.id !== productId);
   }
-  localStorage.setItem('daimond_cart', JSON.stringify(state.cart));
+  localStorage.setItem('diamond_cart', JSON.stringify(state.cart));
   updateCartView();
 };
 
@@ -2556,9 +2556,9 @@ window.applyPromoCoupon = async function() {
   }
 
   // If Supabase is connected, validate server-side via quote_cart RPC
-  if (window.DaimondStoreData && window.DaimondStoreData.isConfigured()) {
+  if (window.DiamondStoreData && window.DiamondStoreData.isConfigured()) {
     const currentBundleIds = Array.isArray(state.appliedCoupon?.bundleIds) ? state.appliedCoupon.bundleIds : null;
-    const res = await window.DaimondStoreData.quoteCart({
+    const res = await window.DiamondStoreData.quoteCart({
       items: state.cart,
       coupon: code,
       bundleIds: currentBundleIds
@@ -2585,14 +2585,14 @@ window.applyPromoCoupon = async function() {
   }
 
   // Local fallback
-  const customCoupons = readJSONStorage('daimond_coupons', { DAIMOND10: 10, SOKANY15: 15, BRIDE25: 25 });
+  const customCoupons = readJSONStorage('diamond_coupons', { DIAMOND10: 10, SOKANY15: 15, BRIDE25: 25 });
   const pct = Number(customCoupons[code]);
   if (code && pct > 0 && pct <= 100) {
     state.appliedCoupon = { code, percent: pct };
     updateCartView();
     showToast(`تم تفعيل كود الخصم ${escapeHTML(code)} (${pct}%)`);
   } else {
-    showToast('كود الخصم غير صالح، جرب DAIMOND10 أو SOKANY15');
+    showToast('كود الخصم غير صالح، جرب DIAMOND10 أو SOKANY15');
   }
 };
 
@@ -2606,7 +2606,7 @@ window.toggleWishlist = function(id) {
     state.wishlist.push(id);
     showToast('تم الحفظ في قائمة المفضلة');
   }
-  localStorage.setItem('daimond_wishlist', JSON.stringify(state.wishlist));
+  localStorage.setItem('diamond_wishlist', JSON.stringify(state.wishlist));
   updateCounters();
   renderCatalogGrid();
   // On product.html: refresh related cards so their heart icons reflect the new state
@@ -2701,7 +2701,7 @@ window.openCompareTab = function() {
       // Pre-load default comparison on first open so user immediately sees a rich pro matrix
       const defaults = ['sk-10085', 'sk-b907', 'sk-999n'].filter(id => state.products.some(p => p.id === id));
       state.compare = defaults;
-      localStorage.setItem('daimond_compare', JSON.stringify(state.compare));
+      localStorage.setItem('diamond_compare', JSON.stringify(state.compare));
       updateCounters();
       renderCompareBar();
       renderCatalogGrid();
@@ -2712,7 +2712,7 @@ window.openCompareTab = function() {
     const curId = new URLSearchParams(window.location.search).get('id');
     if (curId && !state.compare.includes(curId) && state.compare.length < 4) {
       state.compare.push(curId);
-      localStorage.setItem('daimond_compare', JSON.stringify(state.compare));
+      localStorage.setItem('diamond_compare', JSON.stringify(state.compare));
     }
     window.location.href = 'index.html?tab=compare#workspaceTabsAnchor';
   }
@@ -2722,7 +2722,7 @@ window.loadComparePreset = function(categoryKey) {
   const matches = state.products.filter(p => p.category === categoryKey).slice(0, 4);
   if (matches.length === 0) return;
   state.compare = matches.map(p => p.id);
-  localStorage.setItem('daimond_compare', JSON.stringify(state.compare));
+  localStorage.setItem('diamond_compare', JSON.stringify(state.compare));
   updateCounters();
   renderCompareBar();
   renderCatalogGrid();
@@ -2750,7 +2750,7 @@ window.addCompareSlotProduct = function(productId) {
   if (!productId) return;
   if (!state.compare.includes(productId) && state.compare.length < 4) {
     state.compare.push(productId);
-    localStorage.setItem('daimond_compare', JSON.stringify(state.compare));
+    localStorage.setItem('diamond_compare', JSON.stringify(state.compare));
     updateCounters();
     renderCompareBar();
     renderCatalogGrid();
@@ -2772,7 +2772,7 @@ window.toggleCompareProduct = function(id) {
     state.compare.push(id);
     showToast('تمت الإضافة لتابه المقارنة الاحترافية');
   }
-  localStorage.setItem('daimond_compare', JSON.stringify(state.compare));
+  localStorage.setItem('diamond_compare', JSON.stringify(state.compare));
   updateCounters();
   renderCompareBar();
   renderCatalogGrid();
@@ -2785,7 +2785,7 @@ window.toggleCompareProduct = function(id) {
 
 window.clearCompareProducts = function() {
   state.compare = [];
-  localStorage.setItem('daimond_compare', JSON.stringify(state.compare));
+  localStorage.setItem('diamond_compare', JSON.stringify(state.compare));
   updateCounters();
   renderCompareBar();
   renderCatalogGrid();
@@ -3185,10 +3185,10 @@ function renderPaymentGatewayPanel(methodName) {
 
   const { total } = calculateTotals();
   const s = state.settings || DEFAULT_STORE_SETTINGS;
-  const ipLink = s.instapayLink || 'https://ipn.eg/S/daimondstore/instapay/0000';
+  const ipLink = s.instapayLink || 'https://ipn.eg/S/diamondstore/instapay/0000';
   const ipNum = s.instapayNumber || '01000000000';
-  const ipHandle = s.instapayHandle || 'daimondstore@instapay';
-  const ipName = s.instapayAccountName || s.storeName || 'daimond store';
+  const ipHandle = s.instapayHandle || 'diamondstore@instapay';
+  const ipName = s.instapayAccountName || s.storeName || 'diamond store';
   const vfNum = s.vodafoneCashNumber || ipNum || '01000000000';
   const customQr = (s.instapayQrImage || '').trim();
   const autoQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&color=3b0764&bgcolor=ffffff&data=${encodeURIComponent(ipLink)}`;
@@ -3403,15 +3403,15 @@ window.submitCustomerOrder = async function(e) {
   }).filter(Boolean);
 
   // If Supabase is connected, call server-side create_order RPC
-  if (window.DaimondStoreData && window.DaimondStoreData.isConfigured()) {
+  if (window.DiamondStoreData && window.DiamondStoreData.isConfigured()) {
     try {
       let uploadedProofPath = null;
       if (pendingOrderScreenshotDataUrl) {
-        uploadedProofPath = await window.DaimondStoreData.uploadPaymentProof(pendingOrderScreenshotDataUrl);
+        uploadedProofPath = await window.DiamondStoreData.uploadPaymentProof(pendingOrderScreenshotDataUrl);
       }
 
       const isBundleCoupon = Array.isArray(state.appliedCoupon?.bundleIds) && state.appliedCoupon.bundleIds.length > 0;
-      const serverRes = await window.DaimondStoreData.createOrder({
+      const serverRes = await window.DiamondStoreData.createOrder({
         customer: {
           customer: name,
           phone,
@@ -3441,7 +3441,7 @@ window.submitCustomerOrder = async function(e) {
         return;
       }
     } catch (rpcErr) {
-      console.warn('[Daimond Checkout] Server RPC error, falling back to local recording:', rpcErr);
+      console.warn('[Diamond Checkout] Server RPC error, falling back to local recording:', rpcErr);
     }
   }
 
@@ -3453,7 +3453,7 @@ window.submitCustomerOrder = async function(e) {
   }
 
   // Also record in localStorage for quick client-side reference
-  const existingOrders = readJSONStorage('daimond_orders', []);
+  const existingOrders = readJSONStorage('diamond_orders', []);
   existingOrders.unshift({
     id: finalOrderCode,
     date: normalizeDigits(new Date().toLocaleString('en-GB')),
@@ -3473,11 +3473,11 @@ window.submitCustomerOrder = async function(e) {
     total: finalAmount,
     status: 'جديد'
   });
-  safeSetItem('daimond_orders', JSON.stringify(existingOrders));
+  safeSetItem('diamond_orders', JSON.stringify(existingOrders));
 
   const isElectronicPay = pay === 'InstaPay' || pay === 'Vodafone Cash';
   const waPhone = getStoreWhatsapp();
-  const storeName = state.settings?.storeName || 'Daimond Store';
+  const storeName = state.settings?.storeName || 'Diamond Store';
   const warrantyTxt = state.settings?.warrantyText || 'ضمان معتمد رسمي من شركة المغربي لمدة سنة';
   const waLines = itemsDetailed.map(i => `• ${i.name} (${i.model}) × ${i.qty}`).join('\n');
   const discountLine = finalDiscount > 0 ? `\nالخصم: ${formatEGP(finalDiscount)}${state.appliedCoupon ? ` (${state.appliedCoupon.code})` : ''}` : '';
@@ -3520,7 +3520,7 @@ window.submitCustomerOrder = async function(e) {
   pendingOrderScreenshotDataUrl = '';
   state.appliedCoupon = null;
   state.cart = [];
-  localStorage.setItem('daimond_cart', JSON.stringify(state.cart));
+  localStorage.setItem('diamond_cart', JSON.stringify(state.cart));
   updateCartView();
 };
 
@@ -3528,7 +3528,7 @@ window.orderDirectWhatsApp = function(productId) {
   const p = state.products.find(x => x.id === productId);
   if (!p) return;
   const waPhone = getStoreWhatsapp();
-  const text = `مرحباً daimond store، أرغب في طلب:\n• ${p.name}\n• الموديل: ${p.model}\n• السعر: ${formatEGP(p.price)}\n• شامل الشحن المجاني لجميع المحافظات وضمان سنة كاملة`;
+  const text = `مرحباً diamond store، أرغب في طلب:\n• ${p.name}\n• الموديل: ${p.model}\n• السعر: ${formatEGP(p.price)}\n• شامل الشحن المجاني لجميع المحافظات وضمان سنة كاملة`;
   window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(text)}`, '_blank');
 };
 
@@ -3751,7 +3751,7 @@ const SOKANY_BEST_CHOPPER_IDS = [
 
 window.requestReturnOrExchangeWhatsApp = function(mode = 'exchange') {
   const waPhone = getStoreWhatsapp();
-  const storeName = (state.settings && state.settings.storeName) ? state.settings.storeName : 'Daimond Store';
+  const storeName = (state.settings && state.settings.storeName) ? state.settings.storeName : 'Diamond Store';
   const text = mode === 'refund'
     ? `مرحباً ${storeName}، أريد تقديم طلب استرجاع منتج 🔙`
     : `مرحباً ${storeName}، أريد تقديم طلب استبدال منتج 🔄`;
@@ -3760,7 +3760,7 @@ window.requestReturnOrExchangeWhatsApp = function(mode = 'exchange') {
 
 window.openStoreWhatsappChat = function() {
   const waPhone = getStoreWhatsapp();
-  const storeName = (state.settings && state.settings.storeName) ? state.settings.storeName : 'Daimond Store';
+  const storeName = (state.settings && state.settings.storeName) ? state.settings.storeName : 'Diamond Store';
   const text = `مرحباً ${storeName}، أرغب في الاستفسار عن أجهزة سوكاني الأصلية`;
   window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(text)}`, '_blank');
 };
@@ -3769,7 +3769,7 @@ window.submitNewsletterForm = function(e) {
   if (e) e.preventDefault();
   const inp = e.target?.querySelector('input[type="email"]');
   if (inp) inp.value = '';
-  showToast('شكراً لاشتراكك في نشرة عروض Daimond Store!');
+  showToast('شكراً لاشتراكك في نشرة عروض Diamond Store!');
 };
 
 window.scrollPolicyBestSellers = function(delta = 1) {
@@ -3790,7 +3790,7 @@ function renderPolicyBestSellersHTML() {
     <div class="policy-bestsellers-block">
       <div class="policy-bestsellers-head">
         <div>
-          <span class="section-kicker"><i class="fa-solid fa-fire"></i> الأكثر مبيعًا في Daimond Store</span>
+          <span class="section-kicker"><i class="fa-solid fa-fire"></i> الأكثر مبيعًا في Diamond Store</span>
           <h4>الأكثر مبيعًا — كبات سوكاني الأصلية</h4>
         </div>
         <div class="policy-bs-nav">
@@ -3827,7 +3827,7 @@ window.openStorePolicyModal = function(policyKey = 'refund') {
   const body = document.getElementById('storePolicyModalBody');
   if (!modal || !body) return;
 
-  const storeName = (state.settings && state.settings.storeName) ? state.settings.storeName : 'Daimond Store';
+  const storeName = (state.settings && state.settings.storeName) ? state.settings.storeName : 'Diamond Store';
   const warrantyTxt = (state.settings && state.settings.warrantyText) ? state.settings.warrantyText : 'ضمان معتمد رسمي من شركة المغربي لمدة سنة';
 
   const tabs = [

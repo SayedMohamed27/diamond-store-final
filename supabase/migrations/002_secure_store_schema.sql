@@ -1,5 +1,5 @@
 -- ============================================================================
--- DAIMOND STORE - SECURE STORE SCHEMA & BACKEND LOGIC (MIGRATION 002)
+-- DIAMOND STORE - SECURE STORE SCHEMA & BACKEND LOGIC (MIGRATION 002)
 -- Supabase Project: diamond-store (Organization: daimond-store)
 -- Target: PostgreSQL 15+ / Supabase
 --

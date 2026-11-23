@@ -18,13 +18,13 @@ jobs:
         run: |
           rm -f .gitignore
           cat > admin-app/config.js <<'EOF'
-          window.DAIMOND_SUPABASE_CONFIG = {
+          window.DIAMOND_SUPABASE_CONFIG = {
             url: "https://hkmtwhasxurrxontjwsi.supabase.co",
             anonKey: "${{ vars.SUPABASE_ANON_KEY }}"
           };
           EOF
           cat > supabase-config.js <<'EOF'
-          window.DAIMOND_STORE_SUPABASE_CONFIG = {
+          window.DIAMOND_STORE_SUPABASE_CONFIG = {
             url: "https://hkmtwhasxurrxontjwsi.supabase.co",
             anonKey: "${{ vars.SUPABASE_ANON_KEY }}"
           };
