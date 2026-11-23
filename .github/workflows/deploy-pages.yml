@@ -1,0 +1,34 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Inject public Supabase config
+        run: |
+          cat > admin-app/config.js <<'EOF'
+          window.DAIMOND_SUPABASE_CONFIG = {
+            url: "https://hkmtwhasxurrxontjwsi.supabase.co",
+            anonKey: "${{ vars.SUPABASE_ANON_KEY }}"
+          };
+          EOF
+          cat > supabase-config.js <<'EOF'
+          window.DAIMOND_STORE_SUPABASE_CONFIG = {
+            url: "https://hkmtwhasxurrxontjwsi.supabase.co",
+            anonKey: "${{ vars.SUPABASE_ANON_KEY }}"
+          };
+          EOF
+
+      - name: Deploy to Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
+          exclude_assets: '.github,supabase,docs,scripts,scripts/**,PROJECT_*.md,supabase-config.example.js,admin-app/config.example.js'
