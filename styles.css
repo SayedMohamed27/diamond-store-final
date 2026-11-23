@@ -11,6 +11,7 @@
   --brand-light: #FB923C;
   --brand-soft: #FFF7ED;
   --brand-tint: #FFEDD5;
+  --brand-text: #9A3412;
   --brand-glow: rgba(249, 115, 22, 0.22);
   --accent-gold: #FB923C;
 
@@ -424,7 +425,7 @@ body {
   text-decoration: none;
   background: var(--brand-soft);
   border: 1px solid var(--brand-tint);
-  color: var(--brand-dark);
+  color: var(--brand-text);
   font-size: 0.82rem;
   font-weight: 800;
   padding: 6px 14px;
@@ -530,7 +531,7 @@ body {
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(10px);
   border: 1.5px solid var(--brand);
-  color: var(--brand-dark);
+  color: var(--brand-text);
   padding: 6px 16px;
   border-radius: 99px;
   font-size: 0.78rem;
@@ -1159,7 +1160,7 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: var(--brand-dark);
+  color: var(--brand-text);
   background: var(--brand-tint);
   padding: 4px 12px;
   border-radius: 99px;
@@ -1267,7 +1268,7 @@ body {
 .cat-card-count {
   font-size: 0.75rem;
   font-weight: 700;
-  color: var(--brand-dark);
+  color: var(--brand-text);
 }
 
 /* ==================== CATALOG FILTER BAR & PRODUCT CARDS ==================== */
@@ -1389,7 +1390,7 @@ body {
 
 .card-badge {
   background: var(--brand-soft);
-  color: var(--brand-dark);
+  color: var(--brand-text);
   border: 1px solid var(--brand-tint);
   font-size: 0.74rem;
   font-weight: 800;
@@ -1486,7 +1487,7 @@ body {
 .sku-tag {
   font-family: monospace;
   font-weight: 800;
-  color: var(--brand-dark);
+  color: var(--brand-text);
   background: var(--brand-soft);
   padding: 2px 8px;
   border-radius: 6px;
@@ -5275,7 +5276,7 @@ body {
 .price-spotlight-lbl {
   font-size: 0.75rem;
   font-weight: 800;
-  color: var(--brand-dark);
+  color: var(--brand-text);
   background: var(--brand-soft);
   padding: 4px 10px;
   border-radius: 99px;
@@ -7187,7 +7188,7 @@ h1, h2, h3, h4, h5, h6,
 }
 
 .hero-price-spotlight .price-spotlight-lbl {
-  color: var(--brand-dark) !important;
+  color: var(--brand-text) !important;
   font-weight: 800 !important;
   margin: 0 auto !important;
 }
@@ -8122,7 +8123,7 @@ h1, h2, h3, h4, h5, h6,
 }
 
 .utility-ticker .utility-item.active-ticker-item i {
-  color: #FFE4CC !important;
+  color: #FFD9B8 !important;
   font-size: 0.94rem;
 }
 
