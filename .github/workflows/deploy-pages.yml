@@ -16,6 +16,7 @@ jobs:
 
       - name: Inject public Supabase config
         run: |
+          rm -f .gitignore
           cat > admin-app/config.js <<'EOF'
           window.DAIMOND_SUPABASE_CONFIG = {
             url: "https://hkmtwhasxurrxontjwsi.supabase.co",
