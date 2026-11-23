@@ -128,6 +128,8 @@
 
       $("signedInAs").textContent = `${session.user.email} (${admin.display_name || 'مسؤول المتجر'})`;
       $("roleBadge").textContent = admin.role === 'super_admin' ? 'مشرف رئيسي (Super Admin)' : 'مشرف (Admin)';
+      $("navUsersTab").style.display = admin.role === 'super_admin' ? '' : 'none';
+      if (admin.role === 'super_admin') loadAdminUsers();
 
       // Initial data fetch
       await loadAllAdminData();
@@ -1018,6 +1020,143 @@
       .reduce((sum, o) => sum + (Number(o.total) || 0), 0);
     $("kpiTotalRevenue").textContent = formatEGP(revenue);
   }
+
+  // ============================
+  // ADMIN USERS MANAGEMENT (super admin only, via admin-users Edge Function)
+  // ============================
+  let adminUsersCache = [];
+  let currentAdminUser = null;
+
+  async function callAdminUsersApi(payload) {
+    const { data: sessionData } = await client.auth.getSession();
+    const token = sessionData?.session?.access_token;
+    if (!token) throw new Error("لا توجد جلسة نشطة");
+
+    const res = await fetch(`${config.url}/functions/v1/admin-users`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || "فشل الاتصال بالسيرفر");
+    return data;
+  }
+
+  async function loadAdminUsers() {
+    const tbody = $("adminUsersTableBody");
+    if (!tbody) return;
+    try {
+      const data = await callAdminUsersApi({ action: "list" });
+      adminUsersCache = data.users || [];
+      if (adminUsersCache.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:24px;" class="muted">لا يوجد مستخدمون مسجلون.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = adminUsersCache.map((u) => `
+        <tr>
+          <td><strong>${escapeHTML(u.email || '—')}</strong></td>
+          <td>${escapeHTML(u.display_name || '—')}</td>
+          <td><span class="user-badge">${u.role === 'super_admin' ? 'مشرف رئيسي' : 'مشرف'}</span></td>
+          <td>${u.active ? '<i class="fa-solid fa-circle-check" style="color:#15803d;"></i> نشط' : '<i class="fa-solid fa-circle-xmark" style="color:#b91c1c;"></i> معطّل'}</td>
+          <td class="muted">${u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleDateString('ar-EG') : 'لم يسجّل بعد'}</td>
+          <td>
+            <button class="btn-outline btn-sm" onclick="openEditAdminUser('${escapeHTML(u.user_id)}')"><i class="fa-solid fa-pen"></i> تعديل</button>
+            <button class="btn-secondary btn-sm" onclick="deleteAdminUser('${escapeHTML(u.user_id)}')"><i class="fa-solid fa-trash"></i> حذف</button>
+          </td>
+        </tr>`).join('');
+    } catch (err) {
+      console.error("loadAdminUsers error:", err);
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:24px;" class="muted">تعذر تحميل المستخدمين.</td></tr>';
+      showAdminToast("تعذر تحميل المستخدمين: " + err.message, "error");
+    }
+  }
+
+  window.openAddAdminUser = function() {
+    currentAdminUser = null;
+    $("adminUserModalTitle").innerHTML = '<i class="fa-solid fa-user-plus"></i> إضافة مشرف جديد';
+    $("auUserId").value = "";
+    $("auEmail").value = "";
+    $("auEmail").disabled = false;
+    $("auDisplayName").value = "";
+    $("auRole").value = "admin";
+    $("auPassword").value = "";
+    $("auPassword").required = true;
+    $("auPasswordHint").textContent = "";
+    $("auActiveGroup").style.display = "none";
+    window.openAdminModal("adminUserModal");
+  };
+
+  window.openEditAdminUser = function(userId) {
+    const u = adminUsersCache.find(x => x.user_id === userId);
+    if (!u) return;
+    currentAdminUser = u;
+    $("adminUserModalTitle").innerHTML = '<i class="fa-solid fa-user-pen"></i> تعديل بيانات المشرف';
+    $("auUserId").value = u.user_id;
+    $("auEmail").value = u.email || "";
+    $("auEmail").disabled = true;
+    $("auDisplayName").value = u.display_name || "";
+    $("auRole").value = u.role;
+    $("auPassword").value = "";
+    $("auPassword").required = false;
+    $("auPasswordHint").textContent = "(اتركها فارغة للاحتفاظ بالحالية)";
+    $("auActiveGroup").style.display = "";
+    $("auActive").checked = Boolean(u.active);
+    window.openAdminModal("adminUserModal");
+  };
+
+  window.deleteAdminUser = async function(userId) {
+    const u = adminUsersCache.find(x => x.user_id === userId);
+    if (!u) return;
+    if (!confirm(`هل أنت متأكد من حذف المشرف ${u.email || u.display_name || userId} نهائياً؟`)) return;
+    try {
+      await callAdminUsersApi({ action: "delete", user_id: userId });
+      showAdminToast("تم حذف المشرف من Supabase", "success");
+      await loadAdminUsers();
+    } catch (err) {
+      showAdminToast("تعذر الحذف: " + err.message, "error");
+    }
+  };
+
+  $("btnAddAdminUser")?.addEventListener("click", () => window.openAddAdminUser());
+
+  $("adminUserForm")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const btn = $("btnSaveAdminUser");
+    btn.disabled = true;
+    btn.textContent = "جارٍ الحفظ في Supabase...";
+    try {
+      if (currentAdminUser) {
+        await callAdminUsersApi({
+          action: "update",
+          user_id: $("auUserId").value,
+          display_name: $("auDisplayName").value,
+          role: $("auRole").value,
+          active: $("auActive").checked,
+          password: $("auPassword").value || undefined
+        });
+        showAdminToast("تم تحديث بيانات المشرف مباشرة في Supabase", "success");
+      } else {
+        await callAdminUsersApi({
+          action: "create",
+          email: $("auEmail").value.trim(),
+          password: $("auPassword").value,
+          display_name: $("auDisplayName").value,
+          role: $("auRole").value
+        });
+        showAdminToast("تم إنشاء المشرف ويمكنه تسجيل الدخول فوراً", "success");
+      }
+      window.closeAdminModal("adminUserModal");
+      await loadAdminUsers();
+    } catch (err) {
+      showAdminToast("تعذر الحفظ: " + err.message, "error");
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-check"></i> حفظ المشرف';
+    }
+  });
 
   // Navigation tab clicks
   document.querySelectorAll(".nav-tab-btn").forEach(btn => {

@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="styles.css?v=20261115b" />
   <script src="../vendor/supabase.min.js"></script>
   <script src="config.js"></script>
-  <script defer src="app.js?v=20261115b"></script>
+  <script defer src="app.js?v=20261123a"></script>
 </head>
 <body>
   <main class="page-shell" id="appShell">
@@ -100,6 +100,9 @@
         </button>
         <button class="nav-tab-btn" data-tab="settings">
           <i class="fa-solid fa-sliders"></i> إعدادات المتجر والنسخ
+        </button>
+        <button class="nav-tab-btn" data-tab="users" id="navUsersTab" style="display:none;">
+          <i class="fa-solid fa-users-gear"></i> المستخدمون
         </button>
       </nav>
 
@@ -647,6 +650,78 @@
           <div style="margin-top:20px; display:flex; justify-content:flex-end; gap:10px;">
             <button type="button" class="btn-outline" onclick="closeAdminModal('heroSlideModal')">إلغاء</button>
             <button type="submit" id="btnSaveHeroSlide"><i class="fa-solid fa-check"></i> حفظ الشريحة</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- TAB 8: ADMIN USERS (super admin only) -->
+    <section id="tab-users" class="tab-section">
+      <div class="section-card">
+        <div class="section-header">
+          <h2><i class="fa-solid fa-users-gear"></i> مستخدمو لوحة الإدارة</h2>
+          <button class="btn-brand" id="btnAddAdminUser"><i class="fa-solid fa-user-plus"></i> إضافة مشرف</button>
+        </div>
+        <p class="muted" style="font-size:0.85rem;">الإضافات والتعديلات تُطبَّق مباشرة على Supabase Auth وجدول الصلاحيات.</p>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>البريد الإلكتروني</th>
+                <th>الاسم المعروض</th>
+                <th>الصلاحية</th>
+                <th>الحالة</th>
+                <th>آخر دخول</th>
+                <th>إجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="adminUsersTableBody">
+              <tr><td colspan="6" style="text-align:center; padding:24px;" class="muted">جارٍ تحميل المستخدمين...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- MODAL: ADMIN USER -->
+    <div class="modal-overlay" id="adminUserModal">
+      <div class="modal-box">
+        <div class="modal-header">
+          <h3 id="adminUserModalTitle"><i class="fa-solid fa-user-gear"></i> إضافة مشرف جديد</h3>
+          <button type="button" class="modal-close" onclick="closeAdminModal('adminUserModal')">&times;</button>
+        </div>
+        <form id="adminUserForm">
+          <input type="hidden" id="auUserId" />
+          <div class="form-grid">
+            <div class="form-group full">
+              <label for="auEmail">البريد الإلكتروني</label>
+              <input id="auEmail" type="email" autocomplete="off" required />
+            </div>
+            <div class="form-group full">
+              <label for="auDisplayName">الاسم المعروض</label>
+              <input id="auDisplayName" type="text" />
+            </div>
+            <div class="form-group">
+              <label for="auRole">الصلاحية</label>
+              <select id="auRole">
+                <option value="admin">مشرف (Admin)</option>
+                <option value="super_admin">مشرف رئيسي (Super Admin)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="auPassword">كلمة المرور <span id="auPasswordHint" class="muted" style="font-size:0.8rem;"></span></label>
+              <input id="auPassword" type="password" autocomplete="new-password" minlength="8" required placeholder="8 أحرف على الأقل" />
+            </div>
+            <div class="form-group full" id="auActiveGroup" style="display:none;">
+              <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                <input type="checkbox" id="auActive" checked style="width:auto;" />
+                <span>الحساب مُعتمد ونشط (يستطيع تسجيل الدخول)</span>
+              </label>
+            </div>
+          </div>
+          <div style="margin-top:20px; display:flex; justify-content:flex-end; gap:10px;">
+            <button type="button" class="btn-outline" onclick="closeAdminModal('adminUserModal')">إلغاء</button>
+            <button type="submit" id="btnSaveAdminUser"><i class="fa-solid fa-check"></i> حفظ المشرف</button>
           </div>
         </form>
       </div>
