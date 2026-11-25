@@ -35,8 +35,12 @@ let state = {
   activeWorkspaceTab: 'catalog',
   compareDiffOnly: false,
   appliedCoupon: null,
-  pdpQty: 1
+  pdpQty: 1,
+  catalogLoading: false,
+  visibleCount: 16
 };
+
+const CATALOG_PAGE_SIZE = 16;
 
 function formatEGP(val) {
   return Number(val || 0).toLocaleString('en-US') + ' ج.م';
@@ -45,7 +49,7 @@ function formatEGP(val) {
 function getSafeImageAttr(prod, customSrc = null) {
   const primary = customSrc || prod.image || 'assets/products/airfryer.jpg';
   const fallback = prod.fallbackImage || 'assets/products/hero-showcase.jpg';
-  return `src="${escapeHTML(primary)}" onerror="this.onerror=null;this.src='${escapeHTML(fallback)}';" alt="${escapeHTML(prod.name)}"`;
+  return `src="${escapeHTML(primary)}" onerror="this.onerror=null;this.src='${escapeHTML(fallback)}';" alt="${escapeHTML(prod.name)}" loading="lazy" decoding="async" width="600" height="600"`;
 }
 
 function isProductAvailable(prod) {
@@ -203,9 +207,13 @@ function loadAllStoreData() {
   sanitizeStoredSelections();
   syncPriceSliderBounds();
 
-  // Async sync from Supabase if configured
+  // Async sync from Supabase if configured.
+  // Cached catalogs (sessionStorage, 5-min TTL) render instantly with no skeleton.
   if (window.DiamondStoreData && window.DiamondStoreData.isConfigured()) {
+    state.catalogLoading = true;
+    if (document.getElementById('productsGrid')) renderCatalogSkeleton();
     window.DiamondStoreData.loadCatalog().then(catalog => {
+      state.catalogLoading = false;
       if (catalog && catalog.source === 'supabase') {
         state.products = catalog.products;
         state.categories = catalog.categories;
@@ -227,6 +235,7 @@ function loadAllStoreData() {
         }
       }
     }).catch(err => {
+      state.catalogLoading = false;
       console.warn('[Diamond] Catalog sync notice:', err);
     });
   }
@@ -594,7 +603,7 @@ function renderHeroSlide(index) {
     navStrip.innerHTML = slides.map((item, idx) => `
       <div class="hero-thumb-item ${idx === state.activeHeroSlide ? 'active' : ''}" onclick="goToHeroSlide(${idx})">
         <div class="thumb-img-box">
-          <img src="${escapeHTML(item.image)}" alt="${escapeHTML(item.model)}" onerror="this.onerror=null;this.src='assets/products/hero-showcase.jpg'" />
+          <img src="${escapeHTML(item.image)}" alt="${escapeHTML(item.model)}" loading="lazy" decoding="async" width="80" height="80" onerror="this.onerror=null;this.src='assets/products/hero-showcase.jpg'" />
         </div>
         <div class="thumb-meta-col">
           <div class="thumb-sku-row">
@@ -1168,7 +1177,7 @@ function renderCategoriesGrid() {
            style="--delay: ${idx * 40}ms"
            onclick="selectCategory('${cat.id}', true)">
         <div class="cat-thumb-circle">
-          <img src="${escapeHTML(cat.image)}" alt="${escapeHTML(cat.name)}" loading="lazy" onerror="this.onerror=null;this.src='assets/products/hero-showcase.jpg'" />
+          <img src="${escapeHTML(cat.image)}" alt="${escapeHTML(cat.name)}" loading="lazy" decoding="async" width="400" height="300" onerror="this.onerror=null;this.src='assets/products/hero-showcase.jpg'" />
         </div>
         <div class="cat-card-title">${escapeHTML(cat.name)}</div>
         <span class="cat-card-count">${badgeLabel}</span>
@@ -1259,7 +1268,7 @@ function buildProductCardHTML(prod, idx = 0) {
             <i class="fa-solid fa-scale-balanced"></i>
           </button>
         </div>
-        <img id="img-${prod.id}" ${getSafeImageAttr(prod)} loading="lazy" />
+        <img id="img-${prod.id}" ${getSafeImageAttr(prod)} />
       </div>
 
       <div class="card-meta-row">
@@ -1300,6 +1309,11 @@ function renderCatalogGrid() {
   if (!grid) return;
 
   const list = getFilteredProducts();
+  const filterSignature = `${state.activeCategory}|${state.searchQuery}`;
+  if (filterSignature !== renderCatalogGrid.lastFilterSignature) {
+    renderCatalogGrid.lastFilterSignature = filterSignature;
+    state.visibleCount = CATALOG_PAGE_SIZE;
+  }
   if (countEl) {
     const activeCatObj = (state.categories || []).find(c => c.id === state.activeCategory);
     const activeCatLabel = activeCatObj ? (activeCatObj.navTitle || activeCatObj.name) : '';
@@ -1322,8 +1336,44 @@ function renderCatalogGrid() {
     return;
   }
 
-  grid.innerHTML = list.map((prod, idx) => buildProductCardHTML(prod, idx)).join('');
+  grid.innerHTML = list.slice(0, state.visibleCount).map((prod, idx) => buildProductCardHTML(prod, idx)).join('');
   observeNewElements();
+  renderLoadMoreButton(list.length);
+}
+
+function renderLoadMoreButton(totalCount) {
+  let holder = document.getElementById('loadMoreHolder');
+  if (!holder) {
+    holder = document.createElement('div');
+    holder.id = 'loadMoreHolder';
+    holder.style.cssText = 'grid-column:1/-1; text-align:center; padding:8px 0 24px;';
+    const grid = document.getElementById('productsGrid');
+    if (grid) grid.after(holder);
+  }
+  if (totalCount > state.visibleCount) {
+    const remaining = totalCount - state.visibleCount;
+    holder.innerHTML = `<button class="btn-brand" type="button" onclick="loadMoreProducts()">تحميل المزيد (${remaining} منتج متبقي)</button>`;
+  } else {
+    holder.innerHTML = '';
+  }
+}
+
+window.loadMoreProducts = function() {
+  state.visibleCount += CATALOG_PAGE_SIZE;
+  renderCatalogGrid();
+};
+
+function renderCatalogSkeleton() {
+  const grid = document.getElementById('productsGrid');
+  if (!grid) return;
+  const card = `
+    <div class="product-card-skeleton" aria-hidden="true" style="background:var(--bg-white); border-radius:20px; border:1.5px solid var(--border); padding:16px;">
+      <div style="width:100%; aspect-ratio:1; border-radius:14px; background:linear-gradient(90deg,#eceff3 25%,#f6f8fa 50%,#eceff3 75%); background-size:200% 100%; animation:diamondSkeletonShimmer 1.3s infinite;"></div>
+      <div style="height:14px; width:70%; margin:14px 0 8px; border-radius:7px; background:linear-gradient(90deg,#eceff3 25%,#f6f8fa 50%,#eceff3 75%); background-size:200% 100%; animation:diamondSkeletonShimmer 1.3s infinite;"></div>
+      <div style="height:12px; width:45%; margin:0 0 12px; border-radius:6px; background:linear-gradient(90deg,#eceff3 25%,#f6f8fa 50%,#eceff3 75%); background-size:200% 100%; animation:diamondSkeletonShimmer 1.3s infinite;"></div>
+      <div style="height:30px; width:100%; border-radius:10px; background:linear-gradient(90deg,#eceff3 25%,#f6f8fa 50%,#eceff3 75%); background-size:200% 100%; animation:diamondSkeletonShimmer 1.3s infinite;"></div>
+    </div>`;
+  grid.innerHTML = Array.from({ length: CATALOG_PAGE_SIZE }, () => card).join('');
 }
 
 window.resetCatalogFilters = function() {
@@ -1531,7 +1581,7 @@ function buildProductVideoTabHTML(product) {
         <div class="pdp-video-preview-col">
           <div class="pdp-video-sim-screen">
             <span class="pdp-video-live-badge"><i class="fa-solid fa-circle-play"></i> استوديو العرض الرسمي</span>
-            <img src="${escapeHTML(gallery[0] || product.image)}" alt="${escapeHTML(product.name)}" onerror="this.onerror=null;this.src='assets/products/hero-showcase.jpg'" />
+            <img src="${escapeHTML(gallery[0] || product.image)}" alt="${escapeHTML(product.name)}" loading="lazy" decoding="async" width="600" height="600" onerror="this.onerror=null;this.src='assets/products/hero-showcase.jpg'" />
             <div class="pdp-video-caption-bar">
               <span>${escapeHTML(normalizeDigits(product.model))} • ${escapeHTML(normalizeDigits(product.wattage))}</span>
               <strong>${formatEGP(product.price)}</strong>
@@ -1682,7 +1732,7 @@ function initProductDetailsPage() {
         <!-- Right Column: Studio Image Gallery -->
         <div class="pdp-gallery-sticky">
           <div class="pdp-main-img-stage" id="pdpMainImgStage">
-            <img id="img-${product.id}" src="${escapeHTML(galleryImages[0])}" alt="${escapeHTML(product.name)}" onerror="this.onerror=null;this.src='assets/products/hero-showcase.jpg'" />
+            <img id="img-${product.id}" src="${escapeHTML(galleryImages[0])}" alt="${escapeHTML(product.name)}" width="600" height="600" onerror="this.onerror=null;this.src='assets/products/hero-showcase.jpg'" />
             <span class="pdp-zoom-hint"><i class="fa-solid fa-magnifying-glass-plus"></i> حرّك الماوس للتكبير</span>
           </div>
 

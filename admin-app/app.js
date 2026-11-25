@@ -205,7 +205,7 @@
     body.innerHTML = filtered.map(p => `
       <tr>
         <td>
-          <img src="${escapeHTML(resolveAdminImageUrl(p.image))}" alt="${escapeHTML(p.name)}" class="thumb-img" onerror="this.src='../assets/products/airfryer.jpg'" />
+          <img src="${escapeHTML(resolveAdminImageUrl(p.image))}" alt="${escapeHTML(p.name)}" class="thumb-img" loading="lazy" decoding="async" width="64" height="64" onerror="this.src='../assets/products/airfryer.jpg'" />
         </td>
         <td><strong>${escapeHTML(p.model || '—')}</strong></td>
         <td>
@@ -727,7 +727,7 @@
       <tr>
         <td><strong>#${escapeHTML(s.num)}</strong></td>
         <td>
-          <img src="${escapeHTML(resolveAdminImageUrl(s.image))}" alt="${escapeHTML(s.title)}" class="thumb-img" onerror="this.src='../assets/products/airfryer.jpg'" />
+          <img src="${escapeHTML(resolveAdminImageUrl(s.image))}" alt="${escapeHTML(s.title)}" class="thumb-img" loading="lazy" decoding="async" width="64" height="64" onerror="this.src='../assets/products/airfryer.jpg'" />
         </td>
         <td>
           <div style="font-weight:800; max-width:280px;">${escapeHTML(s.title)}</div>
@@ -978,27 +978,27 @@
       if (!confirm(`هل ترغب في رفع ومزامنة ${prods.length} منتج من المتصفح إلى Supabase؟`)) return;
 
       showAdminToast("جارٍ رفع المنتجات إلى قاعدة البيانات...", "info");
-      let count = 0;
-      for (const p of prods) {
-        await client.from("products").upsert({
-          id: p.id,
-          model: p.model || "",
-          name: p.name,
-          category: p.category || "kitchen",
-          category_label: p.categoryLabel || "",
-          price: Number(p.price) || 0,
-          old_price: p.oldPrice ? Number(p.oldPrice) : null,
-          wattage: p.wattage || "",
-          capacity: p.capacity || "",
-          badge: p.badge || "",
-          in_stock: p.inStock !== false,
-          image: p.image || "",
-          short_desc: p.shortDesc || "",
-          specs: p.specs || {},
-          features: p.features || []
-        });
-        count++;
-      }
+      // Single batched upsert (one round-trip) instead of one request per product
+      const rows = prods.map(p => ({
+        id: p.id,
+        model: p.model || "",
+        name: p.name,
+        category: p.category || "kitchen",
+        category_label: p.categoryLabel || "",
+        price: Number(p.price) || 0,
+        old_price: p.oldPrice ? Number(p.oldPrice) : null,
+        wattage: p.wattage || "",
+        capacity: p.capacity || "",
+        badge: p.badge || "",
+        in_stock: p.inStock !== false,
+        image: p.image || "",
+        short_desc: p.shortDesc || "",
+        specs: p.specs || {},
+        features: p.features || []
+      }));
+      const { error: upsertError } = await client.from("products").upsert(rows);
+      if (upsertError) throw upsertError;
+      const count = rows.length;
 
       showAdminToast(`تم رفع ${count} منتج بنجاح إلى Supabase!`, "success");
       await loadProducts();

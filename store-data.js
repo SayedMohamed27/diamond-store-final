@@ -149,12 +149,42 @@
     return new Blob([u8arr], { type: mime });
   }
 
+  const CATALOG_CACHE_KEY = 'diamond_catalog_cache_v1';
+  const CATALOG_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+  function readCatalogCache() {
+    try {
+      const raw = sessionStorage.getItem(CATALOG_CACHE_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (!parsed || !parsed.ts || (Date.now() - parsed.ts) > CATALOG_CACHE_TTL_MS) return null;
+      return parsed.data && parsed.data.source === 'supabase' ? parsed.data : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function writeCatalogCache(data) {
+    try {
+      sessionStorage.setItem(CATALOG_CACHE_KEY, JSON.stringify({ ts: Date.now(), data }));
+    } catch (e) {
+      // Storage full or unavailable: caching is best-effort only
+    }
+  }
+
   const StoreData = {
     isConfigured: isSupabaseConfigured,
     getClient,
 
-    // Fetch store catalog from Supabase with fallback to local defaults
-    async loadCatalog() {
+    // Fetch store catalog from Supabase with fallback to local defaults.
+    // Served from a 5-minute sessionStorage cache when fresh to avoid
+    // re-querying Supabase on every page visit.
+    async loadCatalog({ skipCache = false } = {}) {
+      if (!skipCache) {
+        const cached = readCatalogCache();
+        if (cached) return { ...cached, fromCache: true };
+      }
+
       const client = getClient();
       if (!client) {
         return {
@@ -194,13 +224,15 @@
           ? { ...defaultSettings, ...setRes.data.data }
           : defaultSettings;
 
-        return {
+        const catalog = {
           source: 'supabase',
           products,
           categories,
           heroSlides,
           settings
         };
+        writeCatalogCache(catalog);
+        return catalog;
       } catch (err) {
         console.warn('[Diamond StoreData] Supabase catalog fetch failed, using local fallback:', err);
         return {
