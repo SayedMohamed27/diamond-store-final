@@ -41,6 +41,8 @@
   let settingsCache = {};
   let selectedOrderId = null;
   let galleryUrls = [];
+  let specsData = [];   // [{label, value}]
+  let featuresData = []; // [string]
 
   // Toast Helper
   function showAdminToast(msg, type = "info") {
@@ -282,6 +284,13 @@
     const gallery = Array.isArray(p.gallery) ? p.gallery.filter(Boolean) : [];
     galleryUrls = (gallery.length && gallery[0] === (p.image || "")) ? gallery.slice(1) : gallery;
     renderGalleryRows();
+    specsData = (p.specs && typeof p.specs === "object" && !Array.isArray(p.specs))
+      ? Object.entries(p.specs).map(([label, value]) => ({ label: String(label), value: String(value) }))
+      : [];
+    featuresData = Array.isArray(p.features) ? p.features.map((f) => String(f)) : [];
+    renderSpecsRows();
+    renderFeaturesRows();
+    $("pVideoUrl").value = p.video_url || "";
     $("pShortDesc").value = p.short_desc || "";
     $("pInStock").checked = p.in_stock !== false;
 
@@ -313,7 +322,12 @@
     $("pId").disabled = false;
     $("productForm").reset();
     galleryUrls = [];
+    specsData = [];
+    featuresData = [];
     renderGalleryRows();
+    renderSpecsRows();
+    renderFeaturesRows();
+    $("pVideoUrl").value = "";
     $("pInStock").checked = true;
     $("pStockQty").value = 100;
     window.openAdminModal("productModal");
@@ -426,6 +440,67 @@
     showAdminToast(`تمت إضافة ${files.length} صورة إلى المعرض`, "success");
   });
 
+  // ---- Product page tabs: specs, features, demo video ----
+  function renderSpecsRows() {
+    const list = $("specsList");
+    if (!list) return;
+    list.innerHTML = "";
+    specsData.forEach((item, index) => {
+      const row = document.createElement("div");
+      row.className = "spec-row";
+      row.innerHTML = `
+        <input type="text" class="spec-label" placeholder="اسم المواصفة (مثال: القدرة)" />
+        <input type="text" class="spec-value" placeholder="القيمة (مثال: 1800 وات)" />
+        <button type="button" class="gallery-remove" title="إزالة المواصفة">&times;</button>`;
+      const labelInput = row.querySelector(".spec-label");
+      const valueInput = row.querySelector(".spec-value");
+      labelInput.value = item.label || "";
+      valueInput.value = item.value || "";
+      labelInput.addEventListener("input", () => { specsData[index].label = labelInput.value.trim(); });
+      valueInput.addEventListener("input", () => { specsData[index].value = valueInput.value.trim(); });
+      row.querySelector(".gallery-remove").addEventListener("click", () => {
+        specsData.splice(index, 1);
+        renderSpecsRows();
+      });
+      list.appendChild(row);
+    });
+  }
+
+  $("btnAddSpecRow")?.addEventListener("click", () => {
+    specsData.push({ label: "", value: "" });
+    renderSpecsRows();
+    const rows = document.querySelectorAll("#specsList .spec-row");
+    rows[rows.length - 1]?.querySelector(".spec-label")?.focus();
+  });
+
+  function renderFeaturesRows() {
+    const list = $("featuresList");
+    if (!list) return;
+    list.innerHTML = "";
+    featuresData.forEach((text, index) => {
+      const row = document.createElement("div");
+      row.className = "feature-row";
+      row.innerHTML = `
+        <input type="text" class="feature-text" placeholder="مثال: شاشة رقمية مع مؤقت زمني" />
+        <button type="button" class="gallery-remove" title="إزالة الميزة">&times;</button>`;
+      const textInput = row.querySelector(".feature-text");
+      textInput.value = text || "";
+      textInput.addEventListener("input", () => { featuresData[index] = textInput.value.trim(); });
+      row.querySelector(".gallery-remove").addEventListener("click", () => {
+        featuresData.splice(index, 1);
+        renderFeaturesRows();
+      });
+      list.appendChild(row);
+    });
+  }
+
+  $("btnAddFeatureRow")?.addEventListener("click", () => {
+    featuresData.push("");
+    renderFeaturesRows();
+    const rows = document.querySelectorAll("#featuresList .feature-row");
+    rows[rows.length - 1]?.querySelector(".feature-text")?.focus();
+  });
+
   $("productForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const btn = $("btnSaveProduct");
@@ -448,6 +523,14 @@
       image: $("pImage").value.trim(),
       gallery: [$("pImage").value.trim(), ...galleryUrls.map((u) => String(u || "").trim()).filter(Boolean)],
       short_desc: $("pShortDesc").value.trim(),
+      specs: specsData.reduce((acc, s) => {
+        const label = String(s.label || "").trim();
+        const value = String(s.value || "").trim();
+        if (label && value) acc[label] = value;
+        return acc;
+      }, {}),
+      features: featuresData.map((f) => String(f || "").trim()).filter(Boolean),
+      video_url: $("pVideoUrl").value.trim() || null,
       in_stock: $("pInStock").checked
     };
 
