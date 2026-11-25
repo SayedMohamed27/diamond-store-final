@@ -129,7 +129,7 @@
       show("dashboardPanel");
       $("appShell").classList.remove("auth-mode");
 
-      $("signedInAs").textContent = `${session.user.email} (${admin.display_name || 'مسؤول المتجر'})`;
+      $("signedInAs").textContent = `${(session.user.email || "").split("@")[0]} (${admin.display_name || 'مسؤول المتجر'})`;
       $("roleBadge").textContent = admin.role === 'super_admin' ? 'مشرف رئيسي (Super Admin)' : 'مشرف (Admin)';
       $("navUsersTab").style.display = admin.role === 'super_admin' ? '' : 'none';
       if (admin.role === 'super_admin') loadAdminUsers();
@@ -1524,7 +1524,7 @@
       }
       tbody.innerHTML = adminUsersCache.map((u) => `
         <tr>
-          <td><strong>${escapeHTML(u.email || '—')}</strong></td>
+          <td><strong>${escapeHTML(u.username || (u.email || '—').split('@')[0])}</strong></td>
           <td>${escapeHTML(u.display_name || '—')}</td>
           <td><span class="user-badge">${u.role === 'super_admin' ? 'مشرف رئيسي' : 'مشرف'}</span></td>
           <td>${u.active ? '<i class="fa-solid fa-circle-check" style="color:#15803d;"></i> نشط' : '<i class="fa-solid fa-circle-xmark" style="color:#b91c1c;"></i> معطّل'}</td>
@@ -1545,8 +1545,8 @@
     currentAdminUser = null;
     $("adminUserModalTitle").innerHTML = '<i class="fa-solid fa-user-plus"></i> إضافة مشرف جديد';
     $("auUserId").value = "";
-    $("auEmail").value = "";
-    $("auEmail").disabled = false;
+    $("auUsername").value = "";
+    $("auUsername").disabled = false;
     $("auDisplayName").value = "";
     $("auRole").value = "admin";
     $("auPassword").value = "";
@@ -1562,8 +1562,8 @@
     currentAdminUser = u;
     $("adminUserModalTitle").innerHTML = '<i class="fa-solid fa-user-pen"></i> تعديل بيانات المشرف';
     $("auUserId").value = u.user_id;
-    $("auEmail").value = u.email || "";
-    $("auEmail").disabled = true;
+    $("auUsername").value = u.username || (u.email || "").split("@")[0] || "";
+    $("auUsername").disabled = false;
     $("auDisplayName").value = u.display_name || "";
     $("auRole").value = u.role;
     $("auPassword").value = "";
@@ -1577,7 +1577,7 @@
   window.deleteAdminUser = async function(userId) {
     const u = adminUsersCache.find(x => x.user_id === userId);
     if (!u) return;
-    if (!confirm(`هل أنت متأكد من حذف المشرف ${u.email || u.display_name || userId} نهائياً؟`)) return;
+    if (!confirm(`هل أنت متأكد من حذف المشرف ${u.username || u.display_name || userId} نهائياً؟`)) return;
     try {
       await callAdminUsersApi({ action: "delete", user_id: userId });
       showAdminToast("تم حذف المشرف من Supabase", "success");
@@ -1599,6 +1599,7 @@
         await callAdminUsersApi({
           action: "update",
           user_id: $("auUserId").value,
+          username: $("auUsername").value.trim(),
           display_name: $("auDisplayName").value,
           role: $("auRole").value,
           active: $("auActive").checked,
@@ -1608,7 +1609,7 @@
       } else {
         await callAdminUsersApi({
           action: "create",
-          email: $("auEmail").value.trim(),
+          username: $("auUsername").value.trim(),
           password: $("auPassword").value,
           display_name: $("auDisplayName").value,
           role: $("auRole").value
@@ -1641,15 +1642,17 @@
     btn.textContent = "جارٍ التحقق والتسجيل...";
     $("loginMessage").textContent = "";
 
-    const email = $("email").value.trim();
+    const username = $("username").value.trim().toLowerCase();
     const password = $("password").value;
 
+    // Login is by username; Supabase Auth stores it as <username>@admin.diamondstore.local
+    const email = `${username}@admin.diamondstore.local`;
     const { data, error } = await client.auth.signInWithPassword({ email, password });
     btn.disabled = false;
     btn.innerHTML = `<i class="fa-solid fa-lock"></i> دخول آمن`;
 
     if (error) {
-      $("loginMessage").textContent = "تعذر تسجيل الدخول. يرجى التأكد من البريد وكلمة المرور المسجلة في Supabase.";
+      $("loginMessage").textContent = "تعذر تسجيل الدخول. يرجى التأكد من اسم المستخدم وكلمة المرور.";
       return;
     }
 
