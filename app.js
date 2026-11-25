@@ -216,7 +216,7 @@ function loadAllStoreData() {
   if (window.DiamondStoreData && window.DiamondStoreData.isConfigured()) {
     state.catalogLoading = true;
     if (document.getElementById('productsGrid')) renderCatalogSkeleton();
-    window.DiamondStoreData.loadCatalog().then(catalog => {
+    window.DiamondStoreData.loadCatalog({ skipCache: true }).then(catalog => {
       state.catalogLoading = false;
       if (catalog && catalog.source === 'supabase') {
         state.products = catalog.products;
