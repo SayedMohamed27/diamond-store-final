@@ -590,15 +590,34 @@
           <button type="button" class="modal-close" onclick="closeAdminModal('categoryModal')">&times;</button>
         </div>
         <form id="categoryForm">
-          <input type="hidden" id="catIdInput" />
+          <div id="catFormError" style="display:none; margin-bottom:12px; padding:10px 12px; border-radius:10px; background:#fdecea; color:#b3261e; font-weight:700; font-size:0.85rem;"></div>
           <div class="form-grid">
+            <div class="form-group">
+              <label for="catIdInput">كود القسم (حروف إنجليزية بدون مسافات)</label>
+              <input id="catIdInput" type="text" placeholder="kitchen" pattern="[A-Za-z0-9_-]+" />
+              <small style="color:var(--text-muted); font-size:0.72rem;">سيتم توليده تلقائياً من الاسم إذا تركته فارغاً</small>
+            </div>
             <div class="form-group">
               <label for="catNameInput">اسم القسم بالعربية</label>
               <input id="catNameInput" type="text" required />
             </div>
             <div class="form-group">
               <label for="catIconInput">أيقونة FontAwesome</label>
-              <input id="catIconInput" type="text" placeholder="fa-blender" />
+              <div style="display:flex; gap:8px; align-items:center;">
+                <input id="catIconInput" type="text" placeholder="fa-blender" />
+                <span id="catIconPreview" title="معاينة الأيقونة" style="font-size:1.1rem; min-width:24px; text-align:center;"></span>
+                <a href="https://fontawesome.com/search?o=r&m=free" target="_blank" rel="noopener noreferrer" style="font-size:0.72rem; white-space:nowrap;">قائمة الأيقونات</a>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="catImage">صورة القسم</label>
+              <div style="display:flex; gap:8px;">
+                <input id="catImage" type="text" placeholder="assets/products/kitchen.jpg" />
+                <label class="btn-outline btn-sm" style="margin:0; cursor:pointer; display:flex; align-items:center;">
+                  <i class="fa-solid fa-cloud-arrow-up"></i> رفع صورة
+                  <input type="file" id="catImageUpload" accept="image/*" style="display:none;" />
+                </label>
+              </div>
             </div>
             <div class="form-group full">
               <label for="catSubtitleInput">الوصف الفرعي للقسم</label>
