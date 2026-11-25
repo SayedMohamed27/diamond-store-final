@@ -504,7 +504,9 @@
   // Mark the storefront catalog cache stale so the next storefront load in this
   // browser session refetches fresh data instead of serving the 5-minute cache.
   function markCatalogDirty() {
-    try { sessionStorage.setItem('diamond_catalog_dirty_at', String(Date.now())); } catch (e) {}
+    const stamp = String(Date.now());
+    try { localStorage.setItem('diamond_catalog_dirty_at', stamp); } catch (e) {}
+    try { sessionStorage.setItem('diamond_catalog_dirty_at', stamp); } catch (e) {}
   }
 
   $("productForm").addEventListener("submit", async (e) => {
