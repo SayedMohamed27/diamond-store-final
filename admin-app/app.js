@@ -441,6 +441,31 @@
   });
 
   // ---- Product page tabs: specs, features, demo video ----
+  const COMMON_SPEC_LABELS = [
+    "الضمان", "الشحن", "الموديل", "القدرة الكهربائية", "السعة",
+    "الجهد الكهربائي", "بلد الصنع", "اللون", "الخامة", "عدد السرعات",
+    "الأبعاد", "الوزن", "السعة اللترية", "نوع التغذية"
+  ];
+
+  function renderSpecsChips() {
+    const wrap = $("specsChips");
+    if (!wrap) return;
+    const existing = new Set(specsData.map((s) => (s.label || "").trim()).filter(Boolean));
+    wrap.innerHTML = COMMON_SPEC_LABELS
+      .filter((l) => !existing.has(l))
+      .map((l) => `<button type="button" class="spec-chip" data-label="${l}"><i class="fa-solid fa-plus"></i> ${l}</button>`)
+      .join("");
+    wrap.querySelectorAll(".spec-chip").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        specsData.push({ label: chip.dataset.label, value: "" });
+        renderSpecsRows();
+        renderSpecsChips();
+        const rows = document.querySelectorAll("#specsList .spec-row");
+        rows[rows.length - 1]?.querySelector(".spec-value")?.focus();
+      });
+    });
+  }
+
   function renderSpecsRows() {
     const list = $("specsList");
     if (!list) return;
@@ -456,14 +481,16 @@
       const valueInput = row.querySelector(".spec-value");
       labelInput.value = item.label || "";
       valueInput.value = item.value || "";
-      labelInput.addEventListener("input", () => { specsData[index].label = labelInput.value.trim(); });
+      labelInput.addEventListener("input", () => { specsData[index].label = labelInput.value.trim(); renderSpecsChips(); });
       valueInput.addEventListener("input", () => { specsData[index].value = valueInput.value.trim(); });
       row.querySelector(".gallery-remove").addEventListener("click", () => {
         specsData.splice(index, 1);
         renderSpecsRows();
+        renderSpecsChips();
       });
       list.appendChild(row);
     });
+    renderSpecsChips();
   }
 
   $("btnAddSpecRow")?.addEventListener("click", () => {
