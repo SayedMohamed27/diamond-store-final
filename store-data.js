@@ -134,6 +134,40 @@
     };
   }
 
+  // Map database review row to frontend review format
+  function mapDbReviewToLocal(dbRev) {
+    if (!dbRev) return null;
+    return {
+      id: dbRev.id,
+      name: dbRev.author_name || '',
+      initials: dbRev.avatar_initials || (dbRev.author_name || 'م').trim().charAt(0),
+      meta: dbRev.location_line || '',
+      text: dbRev.review_text || '',
+      tag: dbRev.product_tag || '',
+      rating: Number(dbRev.rating) || 5,
+      active: dbRev.is_active !== false,
+      sortOrder: Number(dbRev.sort_order) || 0
+    };
+  }
+
+  // Map database site_content row to frontend section data
+  function mapDbSiteContent(key, value) {
+    if (key === 'topbar' && Array.isArray(value)) {
+      return value.filter(l => l && l.active !== false).map(l => ({
+        text: l.text || '',
+        icon: l.icon || 'fa-circle-info'
+      }));
+    }
+    if (key === 'social_links' && Array.isArray(value)) {
+      return value.filter(l => l && l.active !== false).map(l => ({
+        label: l.label || '',
+        url: l.url || '',
+        icon: l.icon || 'fa-link'
+      }));
+    }
+    return value || null;
+  }
+
   // Helper to convert DataURL string into a Blob for Supabase Storage upload
   function dataUrlToBlob(dataUrl) {
     const parts = String(dataUrl).split(',');
@@ -192,16 +226,20 @@
           products: getLocalFallbackProducts(),
           categories: getLocalFallbackCategories(),
           heroSlides: getLocalFallbackHeroSlides(),
-          settings: getLocalFallbackSettings()
+          settings: getLocalFallbackSettings(),
+          reviews: [],
+          siteContent: {}
         };
       }
 
       try {
-        const [prodRes, catRes, heroRes, setRes] = await Promise.all([
+        const [prodRes, catRes, heroRes, setRes, revRes, contentRes] = await Promise.all([
           client.from('products').select('*').eq('is_active', true).order('sort_order', { ascending: true }),
           client.from('categories').select('*').eq('is_active', true).order('sort_order', { ascending: true }),
           client.from('hero_slides').select('*').eq('is_active', true).order('sort_order', { ascending: true }),
-          client.from('store_settings').select('data').eq('id', 'default').maybeSingle()
+          client.from('store_settings').select('data').eq('id', 'default').maybeSingle(),
+          client.from('customer_reviews').select('*').eq('is_active', true).order('sort_order', { ascending: true }),
+          client.from('site_content').select('key, value')
         ]);
 
         const hasDbProducts = !prodRes.error && Array.isArray(prodRes.data) && prodRes.data.length > 0;
@@ -224,12 +262,24 @@
           ? { ...defaultSettings, ...setRes.data.data }
           : defaultSettings;
 
+        // Editable homepage content (admin-managed)
+        const reviews = (!revRes.error && Array.isArray(revRes.data))
+          ? revRes.data.map(mapDbReviewToLocal)
+          : [];
+
+        const siteContentRaw = {};
+        if (!contentRes.error && Array.isArray(contentRes.data)) {
+          contentRes.data.forEach(row => { siteContentRaw[row.key] = mapDbSiteContent(row.key, row.value); });
+        }
+
         const catalog = {
           source: 'supabase',
           products,
           categories,
           heroSlides,
-          settings
+          settings,
+          reviews,
+          siteContent: siteContentRaw
         };
         writeCatalogCache(catalog);
         return catalog;
@@ -240,7 +290,9 @@
           products: getLocalFallbackProducts(),
           categories: getLocalFallbackCategories(),
           heroSlides: getLocalFallbackHeroSlides(),
-          settings: getLocalFallbackSettings()
+          settings: getLocalFallbackSettings(),
+          reviews: [],
+          siteContent: {}
         };
       }
     },
