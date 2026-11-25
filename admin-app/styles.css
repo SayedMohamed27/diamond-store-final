@@ -651,3 +651,25 @@ tr:hover td {
   align-items: center;
   justify-content: center;
 }
+
+/* Spec / feature rows (product modal tabs) */
+.spec-row,
+.feature-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.spec-row .spec-label {
+  flex: 1;
+  min-width: 0;
+}
+.spec-row .spec-value,
+.feature-row .feature-text {
+  flex: 2;
+  min-width: 0;
+}
+.spec-row .gallery-remove,
+.feature-row .gallery-remove {
+  flex-shrink: 0;
+}
