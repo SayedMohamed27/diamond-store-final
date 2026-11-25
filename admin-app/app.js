@@ -40,6 +40,7 @@
   let siteContentCache = {};
   let settingsCache = {};
   let selectedOrderId = null;
+  let galleryUrls = [];
 
   // Toast Helper
   function showAdminToast(msg, type = "info") {
@@ -277,6 +278,10 @@
     $("pBadge").value = p.badge || "";
     $("pStockQty").value = p.stock_qty ?? 100;
     $("pImage").value = p.image || "";
+    // Gallery: skip the first entry if it is just the main image repeated
+    const gallery = Array.isArray(p.gallery) ? p.gallery.filter(Boolean) : [];
+    galleryUrls = (gallery.length && gallery[0] === (p.image || "")) ? gallery.slice(1) : gallery;
+    renderGalleryRows();
     $("pShortDesc").value = p.short_desc || "";
     $("pInStock").checked = p.in_stock !== false;
 
@@ -307,6 +312,8 @@
     $("pId").value = "";
     $("pId").disabled = false;
     $("productForm").reset();
+    galleryUrls = [];
+    renderGalleryRows();
     $("pInStock").checked = true;
     $("pStockQty").value = 100;
     window.openAdminModal("productModal");
@@ -350,6 +357,75 @@
     }
   });
 
+  // ---- Product gallery (extra images, no limit) ----
+  function renderGalleryRows() {
+    const list = $("galleryList");
+    if (!list) return;
+    list.innerHTML = "";
+    galleryUrls.forEach((url, index) => {
+      const row = document.createElement("div");
+      row.className = "gallery-row";
+      row.innerHTML = `
+        <img class="gallery-thumb" alt="" width="48" height="48" onerror="this.style.visibility='hidden'" />
+        <input type="text" class="gallery-url" placeholder="رابط الصورة (https:// أو assets/...)" />
+        <label class="btn-outline btn-sm" style="margin:0; cursor:pointer; display:flex; align-items:center; white-space:nowrap;">
+          <i class="fa-solid fa-cloud-arrow-up"></i> رفع صورة
+          <input type="file" class="gallery-row-upload" accept="image/*" style="display:none;" />
+        </label>
+        <button type="button" class="gallery-remove" title="إزالة الصورة">&times;</button>`;
+      const urlInput = row.querySelector(".gallery-url");
+      const thumb = row.querySelector(".gallery-thumb");
+      urlInput.value = url || "";
+      thumb.src = resolveAdminImageUrl(url);
+      urlInput.addEventListener("input", () => {
+        galleryUrls[index] = urlInput.value.trim();
+        thumb.src = resolveAdminImageUrl(galleryUrls[index]);
+        thumb.style.visibility = "visible";
+      });
+      row.querySelector(".gallery-row-upload").addEventListener("change", async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        showAdminToast("جارٍ رفع الصورة إلى مساحة التخزين...", "info");
+        const publicUrl = await uploadImageToProductMedia(file, "products");
+        if (publicUrl) {
+          galleryUrls[index] = publicUrl;
+          urlInput.value = publicUrl;
+          thumb.src = publicUrl;
+          thumb.style.visibility = "visible";
+          showAdminToast("تم رفع الصورة بنجاح وتعيين الرابط", "success");
+        }
+      });
+      row.querySelector(".gallery-remove").addEventListener("click", () => {
+        galleryUrls.splice(index, 1);
+        renderGalleryRows();
+      });
+      list.appendChild(row);
+    });
+  }
+
+  $("btnAddGalleryRow")?.addEventListener("click", () => {
+    $("pGalleryUpload").click();
+  });
+
+  // Add one row per selected file (multiple selection allowed, no maximum)
+  $("pGalleryUpload")?.addEventListener("change", async (e) => {
+    const files = Array.from(e.target.files || []);
+    e.target.value = "";
+    if (!files.length) return;
+    for (const file of files) {
+      galleryUrls.push("");
+      renderGalleryRows();
+      const index = galleryUrls.length - 1;
+      showAdminToast("جارٍ رفع الصورة إلى مساحة التخزين...", "info");
+      const publicUrl = await uploadImageToProductMedia(file, "products");
+      if (publicUrl) {
+        galleryUrls[index] = publicUrl;
+        renderGalleryRows();
+      }
+    }
+    showAdminToast(`تمت إضافة ${files.length} صورة إلى المعرض`, "success");
+  });
+
   $("productForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const btn = $("btnSaveProduct");
@@ -370,6 +446,7 @@
       badge: $("pBadge").value.trim(),
       stock_qty: Number($("pStockQty").value) || 0,
       image: $("pImage").value.trim(),
+      gallery: [$("pImage").value.trim(), ...galleryUrls.map((u) => String(u || "").trim()).filter(Boolean)],
       short_desc: $("pShortDesc").value.trim(),
       in_stock: $("pInStock").checked
     };

@@ -532,6 +532,16 @@
                 </label>
               </div>
             </div>
+            <div class="form-group full" id="gallerySection">
+              <label>صور المنتج (معرض الصور - بدون حد أقصى)</label>
+              <div id="galleryList"></div>
+              <div style="margin-top:8px; display:flex; align-items:center; gap:8px;">
+                <button type="button" class="btn-outline btn-sm" id="btnAddGalleryRow">
+                  <i class="fa-solid fa-plus"></i> إضافة صورة
+                </button>
+                <input type="file" id="pGalleryUpload" accept="image/*" multiple style="display:none;" />
+              </div>
+            </div>
             <div class="form-group full">
               <label for="pShortDesc">وصف مختصر للجهاز</label>
               <textarea id="pShortDesc" rows="3" placeholder="اكتب نبذة تسويقية عن الجهاز..."></textarea>
