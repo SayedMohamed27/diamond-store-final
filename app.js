@@ -1178,13 +1178,17 @@ function renderCategoriesGrid() {
       ? 0
       : state.products.filter(p => doesProductMatchCategory(p, cat.id)).length;
     const badgeLabel = isContact ? 'خدمة العملاء 24/7' : `${count} جهاز`;
+    const icon = (cat.icon || 'fa-cube').replace(/[^a-zA-Z0-9_-]/g, '');
 
     return `
       <div class="cat-visual-card reveal-up ${!isContact && state.activeCategory === cat.id ? 'active' : ''}"
            style="--delay: ${idx * 40}ms"
            onclick="selectCategory('${cat.id}', true)">
         <div class="cat-thumb-circle">
-          <img src="${escapeHTML(cat.image)}" alt="${escapeHTML(cat.name)}" loading="lazy" decoding="async" width="400" height="300" onerror="this.onerror=null;this.src='assets/products/hero-showcase.jpg'" />
+          ${cat.image
+            ? `<img src="${escapeHTML(cat.image)}" alt="${escapeHTML(cat.name)}" loading="lazy" decoding="async" width="400" height="300" onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex';" />
+               <i class="fa-solid ${icon}" style="display:none; font-size:2rem; color:var(--accent);"></i>`
+            : `<i class="fa-solid ${icon}" style="font-size:2rem; color:var(--accent);"></i>`}
         </div>
         <div class="cat-card-title">${escapeHTML(cat.name)}</div>
         <span class="cat-card-count">${badgeLabel}</span>

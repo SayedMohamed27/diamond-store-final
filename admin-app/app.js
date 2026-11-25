@@ -312,24 +312,39 @@
     window.openAdminModal("productModal");
   });
 
-  // Product Image Upload to Supabase Storage Bucket
+  // Shared image upload into the product-media bucket (products, categories, sub-categories)
+  async function uploadImageToProductMedia(file, folder) {
+    const ext = file.name.split('.').pop() || 'jpg';
+    const filePath = `${folder}/${folder === 'products' ? 'prod' : 'media'}-${Date.now()}-${Math.random().toString(36).substring(2, 7)}.${ext}`;
+    const { error } = await client.storage
+      .from("product-media")
+      .upload(filePath, file, { upsert: true });
+    if (error) {
+      console.error("Storage upload error:", error);
+      showAdminToast("تعذر رفع الصورة إلى التخزين: " + error.message, "error");
+      return null;
+    }
+    return client.storage.from("product-media").getPublicUrl(filePath).data.publicUrl;
+  }
+
+  // Live Font Awesome icon preview next to an icon input
+  function wireIconPreview(input, previewEl) {
+    if (!input || !previewEl) return;
+    const update = () => {
+      const icon = (input.value.trim() || "fa-tag").replace(/[^a-zA-Z0-9_-]/g, "");
+      previewEl.innerHTML = `<i class="fa-solid ${escapeHTML(icon)}"></i>`;
+    };
+    input.addEventListener("input", update);
+    update();
+  }
+
   $("pImageUpload").addEventListener("change", async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     showAdminToast("جارٍ رفع الصورة إلى مساحة التخزين...", "info");
-    const ext = file.name.split('.').pop() || 'jpg';
-    const filePath = `products/prod-${Date.now()}-${Math.random().toString(36).substring(2, 7)}.${ext}`;
-
-    const { data, error } = await client.storage
-      .from("product-media")
-      .upload(filePath, file, { upsert: true });
-
-    if (error) {
-      console.error("Storage upload error:", error);
-      showAdminToast("تعذر رفع الصورة إلى التخزين: " + error.message, "error");
-    } else {
-      const publicUrl = client.storage.from("product-media").getPublicUrl(filePath).data.publicUrl;
+    const publicUrl = await uploadImageToProductMedia(file, "products");
+    if (publicUrl) {
       $("pImage").value = publicUrl;
       showAdminToast("تم رفع الصورة بنجاح وتعيين الرابط", "success");
     }
@@ -474,6 +489,17 @@
 
   window.deleteCategory = async function(catId) {
     if (!confirm("سيتم حذف القسم وكل فئاته الفرعية نهائياً. هل أنت متأكد؟")) return;
+
+    // Block the delete while any product still uses this category
+    const { count, error: cntError } = await client
+      .from("products")
+      .select("id", { count: "exact", head: true })
+      .eq("category", catId);
+    if (!cntError && count > 0) {
+      showAdminToast(`لا يمكن حذف القسم: يوجد ${count} جهاز يستخدمه. انقل الأجهزة لقسم آخر أولاً.`, "error");
+      return;
+    }
+
     const { error } = await client.from("categories").delete().eq("id", catId);
     if (error) {
       showAdminToast("تعذر الحذف: " + error.message, "error");
@@ -487,17 +513,40 @@
   function subItemRow(item = {}) {
     const row = document.createElement("div");
     row.className = "subitem-row";
-    row.style.cssText = "display:grid; grid-template-columns: 1.4fr 1fr 1fr auto; gap:8px; align-items:center;";
+    // Keep the existing sub-item id stable; a new id is only minted if the item has none
+    row.dataset.subId = item.id || "";
+    row.style.cssText = "display:grid; grid-template-columns: 1.3fr 0.9fr 0.9fr 1.1fr auto; gap:8px; align-items:center;";
     row.innerHTML = `
       <input type="text" class="si-label" placeholder="الاسم (خلاطات)" value="${escapeHTML(item.label || '')}" />
       <input type="text" class="si-query" placeholder="كلمة البحث (خلاط)" value="${escapeHTML(item.query || '')}" />
-      <input type="text" class="si-icon" placeholder="fa-blender" value="${escapeHTML(item.icon || 'fa-tag')}" />
+      <span style="display:flex; gap:4px; align-items:center;">
+        <input type="text" class="si-icon" placeholder="fa-blender" value="${escapeHTML(item.icon || 'fa-tag')}" style="min-width:0;" />
+        <span class="si-icon-preview" title="معاينة الأيقونة" style="font-size:0.95rem;"></span>
+      </span>
+      <span style="display:flex; gap:4px; align-items:center; min-width:0;">
+        <input type="text" class="si-image" placeholder="رابط الصورة" value="${escapeHTML(item.image || '')}" style="min-width:0;" />
+        <label class="btn-outline btn-sm" style="margin:0; cursor:pointer; display:flex; align-items:center;" title="رفع صورة">
+          <i class="fa-solid fa-cloud-arrow-up"></i>
+          <input type="file" class="si-image-upload" accept="image/*" style="display:none;" />
+        </label>
+      </span>
       <span style="display:flex; gap:4px;">
         <button type="button" class="btn-outline btn-sm si-up" title="لأعلى"><i class="fa-solid fa-arrow-up"></i></button>
         <button type="button" class="btn-outline btn-sm si-down" title="لأسفل"><i class="fa-solid fa-arrow-down"></i></button>
         <button type="button" class="btn-danger btn-sm si-del" title="حذف"><i class="fa-solid fa-times"></i></button>
       </span>
     `;
+    wireIconPreview(row.querySelector(".si-icon"), row.querySelector(".si-icon-preview"));
+    row.querySelector(".si-image-upload").addEventListener("change", async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      showAdminToast("جارٍ رفع الصورة إلى مساحة التخزين...", "info");
+      const publicUrl = await uploadImageToProductMedia(file, "categories");
+      if (publicUrl) {
+        row.querySelector(".si-image").value = publicUrl;
+        showAdminToast("تم رفع الصورة بنجاح وتعيين الرابط", "success");
+      }
+    });
     row.querySelector(".si-del").addEventListener("click", () => row.remove());
     row.querySelector(".si-up").addEventListener("click", () => {
       const list = $("catSubItemsList");
@@ -518,8 +567,11 @@
     $("catIdInput").readOnly = true;
     $("catNameInput").value = c.name || "";
     $("catIconInput").value = c.icon || "fa-tag";
+    $("catImage").value = c.image || "";
     $("catSubtitleInput").value = c.subtitle || "";
     $("catActiveInput").checked = c.is_active !== false;
+    $("catFormError").style.display = "none";
+    wireIconPreview($("catIconInput"), $("catIconPreview"));
 
     const list = $("catSubItemsList");
     list.innerHTML = "";
@@ -533,8 +585,11 @@
     $("catIdInput").readOnly = false;
     $("catNameInput").value = "";
     $("catIconInput").value = "fa-tag";
+    $("catImage").value = "";
     $("catSubtitleInput").value = "";
     $("catActiveInput").checked = true;
+    $("catFormError").style.display = "none";
+    wireIconPreview($("catIconInput"), $("catIconPreview"));
     $("catSubItemsList").innerHTML = "";
     window.openAdminModal("categoryModal");
   });
@@ -543,10 +598,44 @@
     $("catSubItemsList").appendChild(subItemRow({}));
   });
 
+  // Category image upload into the product-media bucket
+  $("catImageUpload")?.addEventListener("change", async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    showAdminToast("جارٍ رفع الصورة إلى مساحة التخزين...", "info");
+    const publicUrl = await uploadImageToProductMedia(file, "categories");
+    if (publicUrl) {
+      $("catImage").value = publicUrl;
+      showAdminToast("تم رفع الصورة بنجاح وتعيين الرابط", "success");
+    }
+  });
+
   $("categoryForm")?.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const catId = $("catIdInput").value.trim();
-    if (!catId) return;
+    const errBox = $("catFormError");
+    const showCatError = (msg) => {
+      errBox.textContent = msg;
+      errBox.style.display = "block";
+      showAdminToast(msg, "error");
+    };
+    errBox.style.display = "none";
+
+    // Category code: use what's typed, or auto-generate from the name; never fail silently
+    let catId = $("catIdInput").value.trim();
+    if (!catId) {
+      const slug = $("catNameInput").value.trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .slice(0, 30);
+      catId = slug || `cat-${Date.now().toString(36)}`;
+      $("catIdInput").value = catId;
+    }
+    if (!/^[A-Za-z0-9_-]+$/.test(catId)) {
+      showCatError("كود القسم يجب أن يكون حروفًا إنجليزية وأرقامًا فقط بدون مسافات (مثال: kitchen)");
+      return;
+    }
+    const isNewCategory = !categoriesCache.some(x => x.id === catId);
 
     const btn = $("btnSaveCategory");
     btn.disabled = true;
@@ -556,24 +645,36 @@
       const label = row.querySelector(".si-label").value.trim() || `فئة ${idx + 1}`;
       const query = row.querySelector(".si-query").value.trim() || label;
       const icon = row.querySelector(".si-icon").value.trim() || "fa-tag";
-      return { id: `${catId}-sub-${idx + 1}`, label, query, icon };
+      const image = row.querySelector(".si-image").value.trim();
+      // Keep the stored sub-item id; mint one only for rows that never had an id
+      let subId = row.dataset.subId;
+      if (!subId) {
+        subId = `${catId}-sub-${Date.now().toString(36)}-${idx}`;
+        row.dataset.subId = subId;
+      }
+      return { id: subId, label, query, icon, image };
     });
 
     const payload = {
       id: catId,
       name: $("catNameInput").value.trim(),
       icon: $("catIconInput").value.trim() || "fa-tag",
+      image: $("catImage").value.trim(),
       subtitle: $("catSubtitleInput").value.trim(),
       sub_items,
       is_active: $("catActiveInput").checked
     };
+    // New categories go to the end of the list
+    if (isNewCategory) {
+      payload.sort_order = categoriesCache.reduce((max, c) => Math.max(max, Number(c.sort_order) || 0), 0) + 1;
+    }
     const { error } = await client.from("categories").upsert(payload);
 
     btn.disabled = false;
     btn.innerHTML = `<i class="fa-solid fa-check"></i> حفظ القسم والفئات`;
 
     if (error) {
-      showAdminToast("تعذر حفظ القسم: " + error.message, "error");
+      showCatError("تعذر حفظ القسم: " + error.message);
     } else {
       showAdminToast("تم حفظ بيانات القسم والفئات الفرعية بنجاح", "success");
       window.closeAdminModal("categoryModal");
