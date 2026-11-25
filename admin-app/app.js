@@ -36,6 +36,8 @@
   let ordersCache = [];
   let heroSlidesCache = [];
   let couponsCache = [];
+  let reviewsCache = [];
+  let siteContentCache = {};
   let settingsCache = {};
   let selectedOrderId = null;
 
@@ -149,6 +151,8 @@
         loadOrders(),
         loadHeroSlides(),
         loadCoupons(),
+        loadReviews(),
+        loadSiteContent(),
         loadStoreSettings()
       ]);
       renderOverviewKPIs();
@@ -404,7 +408,7 @@
     const body = $("categoriesTableBody");
     if (!body) return;
 
-    body.innerHTML = categoriesCache.map(c => `
+    body.innerHTML = categoriesCache.map((c, idx) => `
       <tr>
         <td><strong>${escapeHTML(c.id)}</strong></td>
         <td>
@@ -415,67 +419,161 @@
         <td>
           <span class="badge badge-brand">${Array.isArray(c.sub_items) ? c.sub_items.length : 0} فئات فرعية</span>
         </td>
-        <td>${c.sort_order}</td>
         <td>
+          <button type="button" class="btn-outline btn-sm" title="تحريك لأعلى" ${idx === 0 ? "disabled" : ""} onclick="moveCategory('${escapeHTML(c.id)}', -1)"><i class="fa-solid fa-arrow-up"></i></button>
+          <button type="button" class="btn-outline btn-sm" title="تحريك لأسفل" ${idx === categoriesCache.length - 1 ? "disabled" : ""} onclick="moveCategory('${escapeHTML(c.id)}', 1)"><i class="fa-solid fa-arrow-down"></i></button>
+        </td>
+        <td>
+          <span class="badge ${c.is_active === false ? 'badge-danger' : 'badge-success'}">${c.is_active === false ? 'مخفي' : 'ظاهر'}</span>
+        </td>
+        <td style="white-space:nowrap;">
           <button type="button" class="btn-outline btn-sm" onclick="editSubcategoriesModal('${escapeHTML(c.id)}')">
-            <i class="fa-solid fa-list-check"></i> إدارة الفئات الفرعية
+            <i class="fa-solid fa-pen"></i> تعديل
+          </button>
+          <button type="button" class="btn-outline btn-sm" onclick="toggleCategoryActive('${escapeHTML(c.id)}')">
+            <i class="fa-solid ${c.is_active === false ? 'fa-eye' : 'fa-eye-slash'}"></i>
+          </button>
+          <button type="button" class="btn-danger btn-sm" onclick="deleteCategory('${escapeHTML(c.id)}')">
+            <i class="fa-solid fa-trash"></i>
           </button>
         </td>
       </tr>
     `).join("");
   }
 
+  window.moveCategory = async function(catId, dir) {
+    const idx = categoriesCache.findIndex(x => x.id === catId);
+    const swapIdx = idx + dir;
+    if (idx < 0 || swapIdx < 0 || swapIdx >= categoriesCache.length) return;
+
+    const a = categoriesCache[idx];
+    const b = categoriesCache[swapIdx];
+    const { error } = await client.from("categories").upsert([
+      { id: a.id, sort_order: b.sort_order },
+      { id: b.id, sort_order: a.sort_order }
+    ]);
+    if (error) {
+      showAdminToast("تعذر تغيير الترتيب: " + error.message, "error");
+      return;
+    }
+    await loadCategories();
+  };
+
+  window.toggleCategoryActive = async function(catId) {
+    const c = categoriesCache.find(x => x.id === catId);
+    if (!c) return;
+    const next = c.is_active === false;
+    const { error } = await client.from("categories").update({ is_active: next }).eq("id", catId);
+    if (error) {
+      showAdminToast("تعذر التغيير: " + error.message, "error");
+      return;
+    }
+    showAdminToast(next ? "القسم ظاهر في الموقع الآن" : "تم إخفاء القسم من الموقع", "success");
+    await loadCategories();
+  };
+
+  window.deleteCategory = async function(catId) {
+    if (!confirm("سيتم حذف القسم وكل فئاته الفرعية نهائياً. هل أنت متأكد؟")) return;
+    const { error } = await client.from("categories").delete().eq("id", catId);
+    if (error) {
+      showAdminToast("تعذر الحذف: " + error.message, "error");
+      return;
+    }
+    showAdminToast("تم حذف القسم", "success");
+    await loadCategories();
+  };
+
+  // Structured sub-items editor inside the category modal
+  function subItemRow(item = {}) {
+    const row = document.createElement("div");
+    row.className = "subitem-row";
+    row.style.cssText = "display:grid; grid-template-columns: 1.4fr 1fr 1fr auto; gap:8px; align-items:center;";
+    row.innerHTML = `
+      <input type="text" class="si-label" placeholder="الاسم (خلاطات)" value="${escapeHTML(item.label || '')}" />
+      <input type="text" class="si-query" placeholder="كلمة البحث (خلاط)" value="${escapeHTML(item.query || '')}" />
+      <input type="text" class="si-icon" placeholder="fa-blender" value="${escapeHTML(item.icon || 'fa-tag')}" />
+      <span style="display:flex; gap:4px;">
+        <button type="button" class="btn-outline btn-sm si-up" title="لأعلى"><i class="fa-solid fa-arrow-up"></i></button>
+        <button type="button" class="btn-outline btn-sm si-down" title="لأسفل"><i class="fa-solid fa-arrow-down"></i></button>
+        <button type="button" class="btn-danger btn-sm si-del" title="حذف"><i class="fa-solid fa-times"></i></button>
+      </span>
+    `;
+    row.querySelector(".si-del").addEventListener("click", () => row.remove());
+    row.querySelector(".si-up").addEventListener("click", () => {
+      const list = $("catSubItemsList");
+      if (row.previousElementSibling) list.insertBefore(row, row.previousElementSibling);
+    });
+    row.querySelector(".si-down").addEventListener("click", () => {
+      const list = $("catSubItemsList");
+      if (row.nextElementSibling) list.insertBefore(row.nextElementSibling, row);
+    });
+    return row;
+  }
+
   window.editSubcategoriesModal = function(catId) {
     const c = categoriesCache.find(x => x.id === catId);
     if (!c) return;
+    $("categoryModalTitle").innerHTML = '<i class="fa-solid fa-layer-group"></i> تعديل القسم والفئات الفرعية';
     $("catIdInput").value = c.id;
+    $("catIdInput").readOnly = true;
     $("catNameInput").value = c.name || "";
     $("catIconInput").value = c.icon || "fa-tag";
     $("catSubtitleInput").value = c.subtitle || "";
-    const subLines = Array.isArray(c.sub_items)
-      ? c.sub_items.map(s => `${s.label || ''} | ${s.query || ''} | ${s.icon || 'fa-tag'}`).join('\n')
-      : "";
-    $("catSubItemsInput").value = subLines;
+    $("catActiveInput").checked = c.is_active !== false;
+
+    const list = $("catSubItemsList");
+    list.innerHTML = "";
+    (Array.isArray(c.sub_items) ? c.sub_items : []).forEach(s => list.appendChild(subItemRow(s)));
     window.openAdminModal("categoryModal");
   };
 
+  $("btnAddCategory")?.addEventListener("click", () => {
+    $("categoryModalTitle").innerHTML = '<i class="fa-solid fa-plus"></i> قسم جديد';
+    $("catIdInput").value = "";
+    $("catIdInput").readOnly = false;
+    $("catNameInput").value = "";
+    $("catIconInput").value = "fa-tag";
+    $("catSubtitleInput").value = "";
+    $("catActiveInput").checked = true;
+    $("catSubItemsList").innerHTML = "";
+    window.openAdminModal("categoryModal");
+  });
+
+  $("btnAddSubItem")?.addEventListener("click", () => {
+    $("catSubItemsList").appendChild(subItemRow({}));
+  });
+
   $("categoryForm")?.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const catId = $("catIdInput").value;
+    const catId = $("catIdInput").value.trim();
     if (!catId) return;
 
     const btn = $("btnSaveCategory");
     btn.disabled = true;
     btn.textContent = "جارٍ الحفظ...";
 
-    const rawLines = ($("catSubItemsInput").value || "")
-      .split("\n")
-      .map(l => l.trim())
-      .filter(Boolean);
-
-    const sub_items = rawLines.map((line, idx) => {
-      const parts = line.split("|").map(x => x.trim());
-      const label = parts[0] || `فئة ${idx + 1}`;
-      const query = parts[1] || label;
-      const icon = parts[2] || "fa-tag";
+    const sub_items = Array.from($("catSubItemsList").querySelectorAll(".subitem-row")).map((row, idx) => {
+      const label = row.querySelector(".si-label").value.trim() || `فئة ${idx + 1}`;
+      const query = row.querySelector(".si-query").value.trim() || label;
+      const icon = row.querySelector(".si-icon").value.trim() || "fa-tag";
       return { id: `${catId}-sub-${idx + 1}`, label, query, icon };
     });
 
-    const { error } = await client
-      .from("categories")
-      .update({
-        name: $("catNameInput").value.trim(),
-        icon: $("catIconInput").value.trim() || "fa-tag",
-        subtitle: $("catSubtitleInput").value.trim(),
-        sub_items
-      })
-      .eq("id", catId);
+    const payload = {
+      id: catId,
+      name: $("catNameInput").value.trim(),
+      icon: $("catIconInput").value.trim() || "fa-tag",
+      subtitle: $("catSubtitleInput").value.trim(),
+      sub_items,
+      is_active: $("catActiveInput").checked
+    };
+    const { error } = await client.from("categories").upsert(payload);
 
     btn.disabled = false;
     btn.innerHTML = `<i class="fa-solid fa-check"></i> حفظ القسم والفئات`;
 
     if (error) {
-      showAdminToast("تعذر تحديث القسم: " + error.message, "error");
+      showAdminToast("تعذر حفظ القسم: " + error.message, "error");
     } else {
       showAdminToast("تم حفظ بيانات القسم والفئات الفرعية بنجاح", "success");
       window.closeAdminModal("categoryModal");
@@ -870,6 +968,273 @@
       await loadCoupons();
     }
   };
+
+  // ==========================================================================
+  // 5b. CUSTOMER REVIEWS MANAGEMENT
+  // ==========================================================================
+  async function loadReviews() {
+    const { data, error } = await client
+      .from("customer_reviews")
+      .select("*")
+      .order("sort_order", { ascending: true });
+
+    if (error) {
+      console.error("loadReviews error:", error);
+      return;
+    }
+
+    reviewsCache = data || [];
+    const badge = $("badgeReviewsCount");
+    if (badge) badge.textContent = String(reviewsCache.filter(r => r.is_active !== false).length);
+    renderReviewsTable();
+  }
+
+  function renderReviewsTable() {
+    const body = $("reviewsTableBody");
+    if (!body) return;
+
+    if (!reviewsCache.length) {
+      body.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:24px;" class="muted">لا توجد تقييمات بعد — أضف أول تقييم.</td></tr>';
+      return;
+    }
+
+    body.innerHTML = reviewsCache.map((r, idx) => `
+      <tr>
+        <td style="font-weight:800;">${escapeHTML(r.author_name)}</td>
+        <td>${escapeHTML(r.location_line || '')}</td>
+        <td style="max-width:280px; font-size:0.8rem;">${escapeHTML((r.review_text || '').slice(0, 90))}${(r.review_text || '').length > 90 ? '…' : ''}</td>
+        <td>${escapeHTML(r.product_tag || '')}</td>
+        <td>${r.rating} <i class="fa-solid fa-star" style="color:#f5a623;"></i></td>
+        <td>
+          <span class="badge ${r.is_active === false ? 'badge-danger' : 'badge-success'}">${r.is_active === false ? 'مخفي' : 'ظاهر'}</span>
+        </td>
+        <td style="white-space:nowrap;">
+          <button type="button" class="btn-outline btn-sm" title="تحريك لأعلى" ${idx === 0 ? "disabled" : ""} onclick="moveReview('${r.id}', -1)"><i class="fa-solid fa-arrow-up"></i></button>
+          <button type="button" class="btn-outline btn-sm" title="تحريك لأسفل" ${idx === reviewsCache.length - 1 ? "disabled" : ""} onclick="moveReview('${r.id}', 1)"><i class="fa-solid fa-arrow-down"></i></button>
+          <button type="button" class="btn-outline btn-sm" onclick="editReviewModal('${r.id}')"><i class="fa-solid fa-pen"></i></button>
+          <button type="button" class="btn-outline btn-sm" onclick="toggleReviewActive('${r.id}')">
+            <i class="fa-solid ${r.is_active === false ? 'fa-eye' : 'fa-eye-slash'}"></i>
+          </button>
+          <button type="button" class="btn-danger btn-sm" onclick="deleteReview('${r.id}')"><i class="fa-solid fa-trash"></i></button>
+        </td>
+      </tr>
+    `).join("");
+  }
+
+  window.editReviewModal = function(reviewId) {
+    const r = reviewsCache.find(x => x.id === reviewId);
+    if (!r) return;
+    $("reviewModalTitle").innerHTML = '<i class="fa-solid fa-star"></i> تعديل التقييم';
+    $("reviewIdInput").value = r.id;
+    $("reviewNameInput").value = r.author_name || "";
+    $("reviewInitialsInput").value = r.avatar_initials || "";
+    $("reviewMetaInput").value = r.location_line || "";
+    $("reviewTextInput").value = r.review_text || "";
+    $("reviewTagInput").value = r.product_tag || "";
+    $("reviewRatingInput").value = String(r.rating || 5);
+    $("reviewActiveInput").checked = r.is_active !== false;
+    window.openAdminModal("reviewModal");
+  };
+
+  $("btnAddReview")?.addEventListener("click", () => {
+    $("reviewModalTitle").innerHTML = '<i class="fa-solid fa-plus"></i> تقييم جديد';
+    $("reviewIdInput").value = "";
+    $("reviewNameInput").value = "";
+    $("reviewInitialsInput").value = "";
+    $("reviewMetaInput").value = "";
+    $("reviewTextInput").value = "";
+    $("reviewTagInput").value = "";
+    $("reviewRatingInput").value = "5";
+    $("reviewActiveInput").checked = true;
+    window.openAdminModal("reviewModal");
+  });
+
+  $("reviewForm")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const btn = $("btnSaveReview");
+    btn.disabled = true;
+    btn.textContent = "جارٍ الحفظ...";
+
+    const editId = $("reviewIdInput").value;
+    const payload = {
+      author_name: $("reviewNameInput").value.trim(),
+      avatar_initials: $("reviewInitialsInput").value.trim(),
+      location_line: $("reviewMetaInput").value.trim(),
+      review_text: $("reviewTextInput").value.trim(),
+      product_tag: $("reviewTagInput").value.trim(),
+      rating: Number($("reviewRatingInput").value) || 5,
+      is_active: $("reviewActiveInput").checked
+    };
+
+    let error;
+    if (editId) {
+      ({ error } = await client.from("customer_reviews").update(payload).eq("id", editId));
+    } else {
+      const maxOrder = reviewsCache.reduce((m, r) => Math.max(m, Number(r.sort_order) || 0), 0);
+      ({ error } = await client.from("customer_reviews").insert({ ...payload, sort_order: maxOrder + 10 }));
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-check"></i> حفظ التقييم';
+
+    if (error) {
+      showAdminToast("تعذر حفظ التقييم: " + error.message, "error");
+    } else {
+      showAdminToast("تم حفظ التقييم — يظهر في الموقع مباشرة", "success");
+      window.closeAdminModal("reviewModal");
+      await loadReviews();
+    }
+  });
+
+  window.toggleReviewActive = async function(reviewId) {
+    const r = reviewsCache.find(x => x.id === reviewId);
+    if (!r) return;
+    const next = r.is_active === false;
+    const { error } = await client.from("customer_reviews").update({ is_active: next }).eq("id", reviewId);
+    if (error) {
+      showAdminToast("تعذر التغيير: " + error.message, "error");
+      return;
+    }
+    showAdminToast(next ? "التقييم ظاهر في الموقع الآن" : "تم إخفاء التقييم", "success");
+    await loadReviews();
+  };
+
+  window.deleteReview = async function(reviewId) {
+    if (!confirm("سيتم حذف هذا التقييم نهائياً. هل أنت متأكد؟")) return;
+    const { error } = await client.from("customer_reviews").delete().eq("id", reviewId);
+    if (error) {
+      showAdminToast("تعذر الحذف: " + error.message, "error");
+      return;
+    }
+    showAdminToast("تم حذف التقييم", "success");
+    await loadReviews();
+  };
+
+  window.moveReview = async function(reviewId, dir) {
+    const idx = reviewsCache.findIndex(x => x.id === reviewId);
+    const swapIdx = idx + dir;
+    if (idx < 0 || swapIdx < 0 || swapIdx >= reviewsCache.length) return;
+    const a = reviewsCache[idx];
+    const b = reviewsCache[swapIdx];
+    const { error } = await client.from("customer_reviews").upsert([
+      { id: a.id, sort_order: b.sort_order },
+      { id: b.id, sort_order: a.sort_order }
+    ]);
+    if (error) {
+      showAdminToast("تعذر تغيير الترتيب: " + error.message, "error");
+      return;
+    }
+    await loadReviews();
+  };
+
+  // ==========================================================================
+  // 5c. SITE CONTENT MANAGEMENT (topbar, footer, social, shipping)
+  // ==========================================================================
+  async function loadSiteContent() {
+    const { data, error } = await client.from("site_content").select("key, value");
+    if (error) {
+      console.error("loadSiteContent error:", error);
+      return;
+    }
+    siteContentCache = {};
+    (data || []).forEach(row => { siteContentCache[row.key] = row.value; });
+    renderSiteContentEditors();
+  }
+
+  function topbarLineRow(line = {}) {
+    const row = document.createElement("div");
+    row.style.cssText = "display:grid; grid-template-columns: 1fr 1fr auto auto; gap:8px; align-items:center;";
+    row.innerHTML = `
+      <input type="text" class="tb-text" placeholder="نص السطر" value="${escapeHTML(line.text || '')}" />
+      <input type="text" class="tb-icon" placeholder="fa-truck-fast" value="${escapeHTML(line.icon || 'fa-circle-info')}" />
+      <label style="display:flex; align-items:center; gap:6px; font-size:0.8rem;"><input type="checkbox" class="tb-active" ${line.active !== false ? "checked" : ""} style="width:16px; height:16px;" /> ظاهر</label>
+      <button type="button" class="btn-danger btn-sm tb-del" title="حذف"><i class="fa-solid fa-times"></i></button>
+    `;
+    row.querySelector(".tb-del").addEventListener("click", () => row.remove());
+    return row;
+  }
+
+  function socialLinkRow(link = {}) {
+    const row = document.createElement("div");
+    row.style.cssText = "display:grid; grid-template-columns: 1fr 2fr 1fr auto auto; gap:8px; align-items:center;";
+    row.innerHTML = `
+      <input type="text" class="so-label" placeholder="Facebook" value="${escapeHTML(link.label || '')}" />
+      <input type="text" class="so-url" placeholder="https://..." value="${escapeHTML(link.url || '')}" />
+      <input type="text" class="so-icon" placeholder="fa-facebook-f" value="${escapeHTML(link.icon || 'fa-link')}" />
+      <label style="display:flex; align-items:center; gap:6px; font-size:0.8rem;"><input type="checkbox" class="so-active" ${link.active !== false ? "checked" : ""} style="width:16px; height:16px;" /> ظاهر</label>
+      <button type="button" class="btn-danger btn-sm so-del" title="حذف"><i class="fa-solid fa-times"></i></button>
+    `;
+    row.querySelector(".so-del").addEventListener("click", () => row.remove());
+    return row;
+  }
+
+  function renderSiteContentEditors() {
+    const tb = $("topbarEditor");
+    if (tb) {
+      tb.innerHTML = "";
+      (Array.isArray(siteContentCache.topbar) ? siteContentCache.topbar : []).forEach(l => tb.appendChild(topbarLineRow(l)));
+    }
+    const so = $("socialEditor");
+    if (so) {
+      so.innerHTML = "";
+      (Array.isArray(siteContentCache.social_links) ? siteContentCache.social_links : []).forEach(l => so.appendChild(socialLinkRow(l)));
+    }
+    const ship = siteContentCache.shipping || {};
+    if ($("shippingBadgeInput")) $("shippingBadgeInput").value = ship.hero_badge || "";
+    if ($("shippingNoteInput")) $("shippingNoteInput").value = ship.note || "";
+    const footer = siteContentCache.footer || {};
+    if ($("footerAboutInput")) $("footerAboutInput").value = footer.about || "";
+  }
+
+  $("btnAddTopbarLine")?.addEventListener("click", () => $("topbarEditor")?.appendChild(topbarLineRow({})));
+  $("btnAddSocialLink")?.addEventListener("click", () => $("socialEditor")?.appendChild(socialLinkRow({})));
+
+  $("btnSaveSiteContent")?.addEventListener("click", async () => {
+    const btn = $("btnSaveSiteContent");
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جارٍ الحفظ...';
+
+    const topbar = Array.from($("topbarEditor").querySelectorAll(":scope > div")).map(row => ({
+      text: row.querySelector(".tb-text").value.trim(),
+      icon: row.querySelector(".tb-icon").value.trim() || "fa-circle-info",
+      active: row.querySelector(".tb-active").checked
+    })).filter(l => l.text);
+
+    const social_links = Array.from($("socialEditor").querySelectorAll(":scope > div")).map(row => ({
+      label: row.querySelector(".so-label").value.trim(),
+      url: row.querySelector(".so-url").value.trim(),
+      icon: row.querySelector(".so-icon").value.trim() || "fa-link",
+      active: row.querySelector(".so-active").checked
+    })).filter(l => l.label || l.url);
+
+    const updates = [
+      { key: "topbar", value: topbar },
+      { key: "social_links", value: social_links },
+      {
+        key: "shipping",
+        value: {
+          hero_badge: $("shippingBadgeInput").value.trim(),
+          note: $("shippingNoteInput").value.trim()
+        }
+      },
+      {
+        key: "footer",
+        value: { about: $("footerAboutInput").value.trim() }
+      }
+    ];
+
+    const { error } = await client.from("site_content").upsert(updates, { onConflict: "key" });
+
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-check"></i> حفظ كل التغييرات';
+
+    if (error) {
+      showAdminToast("تعذر حفظ المحتوى: " + error.message, "error");
+    } else {
+      showAdminToast("تم حفظ محتوى الموقع — يظهر للزوار مباشرة", "success");
+      await loadSiteContent();
+    }
+  });
 
   // ==========================================================================
   // 6. STORE SETTINGS & LOCAL DATA MIGRATION

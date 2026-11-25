@@ -99,6 +99,13 @@
         <button class="nav-tab-btn" data-tab="coupons">
           <i class="fa-solid fa-ticket"></i> الكوبونات
         </button>
+        <button class="nav-tab-btn" data-tab="reviews">
+          <i class="fa-solid fa-star"></i> التقييمات
+          <span id="badgeReviewsCount" class="nav-badge-pill">0</span>
+        </button>
+        <button class="nav-tab-btn" data-tab="content">
+          <i class="fa-solid fa-pen-ruler"></i> محتوى الموقع
+        </button>
         <button class="nav-tab-btn" data-tab="settings">
           <i class="fa-solid fa-sliders"></i> إعدادات المتجر والنسخ
         </button>
@@ -223,7 +230,7 @@
         <div class="section-card">
           <div class="section-header">
             <h2><i class="fa-solid fa-layer-group"></i> الأقسام الرئيسية والفرعية</h2>
-            <p class="muted" style="margin:0;">الأقسام الأربعة المعتمدة للمتجر مع إدارة الفئات الفرعية لكل قسم.</p>
+            <button class="btn-primary btn-sm" id="btnAddCategory"><i class="fa-solid fa-plus"></i> قسم جديد</button>
           </div>
           <div class="table-responsive">
             <table>
@@ -234,11 +241,12 @@
                   <th>الأيقونة</th>
                   <th>عدد الفئات الفرعية</th>
                   <th>الترتيب</th>
+                  <th>الحالة</th>
                   <th>إجراءات</th>
                 </tr>
               </thead>
               <tbody id="categoriesTableBody">
-                <tr><td colspan="6" style="text-align:center; padding:24px;" class="muted">جارٍ تحميل الأقسام...</td></tr>
+                <tr><td colspan="7" style="text-align:center; padding:24px;" class="muted">جارٍ تحميل الأقسام...</td></tr>
               </tbody>
             </table>
           </div>
@@ -597,13 +605,73 @@
               <input id="catSubtitleInput" type="text" />
             </div>
             <div class="form-group full">
-              <label for="catSubItemsInput">الفئات الفرعية (كل سطر بصيغة: الاسم | كلمة البحث | الأيقونة)</label>
-              <textarea id="catSubItemsInput" rows="7" placeholder="خلاطات كهربائية احترافية | خلاط | fa-blender"></textarea>
+              <label for="catSubItemsList">الفئات الفرعية (أضف، عدّل، رتّب أو احذف)</label>
+              <div id="catSubItemsList" style="display:flex; flex-direction:column; gap:8px;"></div>
+              <button type="button" class="btn-outline btn-sm" id="btnAddSubItem" style="margin-top:10px;">
+                <i class="fa-solid fa-plus"></i> إضافة فئة فرعية
+              </button>
+            </div>
+            <div class="form-group full" style="display:flex; align-items:center; gap:10px;">
+              <input type="checkbox" id="catActiveInput" checked style="width:18px; height:18px;" />
+              <label for="catActiveInput" style="margin:0;">القسم ظاهر في الموقع</label>
             </div>
           </div>
           <div style="margin-top:20px; display:flex; justify-content:flex-end; gap:10px;">
             <button type="button" class="btn-outline" onclick="closeAdminModal('categoryModal')">إلغاء</button>
             <button type="submit" id="btnSaveCategory"><i class="fa-solid fa-check"></i> حفظ القسم والفئات</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL: EDIT REVIEW -->
+    <div class="modal-overlay" id="reviewModal">
+      <div class="modal-box">
+        <div class="modal-header">
+          <h3 id="reviewModalTitle"><i class="fa-solid fa-star"></i> تعديل التقييم</h3>
+          <button type="button" class="modal-close" onclick="closeAdminModal('reviewModal')">&times;</button>
+        </div>
+        <form id="reviewForm">
+          <input type="hidden" id="reviewIdInput" />
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="reviewNameInput">اسم العميل</label>
+              <input id="reviewNameInput" type="text" required />
+            </div>
+            <div class="form-group">
+              <label for="reviewInitialsInput">حرف الصورة الرمزية</label>
+              <input id="reviewInitialsInput" type="text" maxlength="3" placeholder="م" />
+            </div>
+            <div class="form-group full">
+              <label for="reviewMetaInput">الوصف (المدينة • حالة التوثيق)</label>
+              <input id="reviewMetaInput" type="text" placeholder="مدينة نصر، القاهرة • عميلة موثقة" />
+            </div>
+            <div class="form-group full">
+              <label for="reviewTextInput">نص التقييم</label>
+              <textarea id="reviewTextInput" rows="5" required></textarea>
+            </div>
+            <div class="form-group">
+              <label for="reviewTagInput">المنتج المُقيَّم</label>
+              <input id="reviewTagInput" type="text" placeholder="قلاية سوكاني الديجيتال" />
+            </div>
+            <div class="form-group">
+              <label for="reviewRatingInput">عدد النجوم</label>
+              <select id="reviewRatingInput">
+                <option value="5">5 نجوم</option>
+                <option value="4">4 نجوم</option>
+                <option value="3">3 نجوم</option>
+                <option value="2">2 نجوم</option>
+                <option value="1">نجمة واحدة</option>
+              </select>
+            </div>
+            <div class="form-group full" style="display:flex; align-items:center; gap:10px;">
+              <input type="checkbox" id="reviewActiveInput" checked style="width:18px; height:18px;" />
+              <label for="reviewActiveInput" style="margin:0;">التقييم ظاهر في الموقع</label>
+            </div>
+          </div>
+          <div style="margin-top:20px; display:flex; justify-content:flex-end; gap:10px;">
+            <button type="button" class="btn-outline" onclick="closeAdminModal('reviewModal')">إلغاء</button>
+            <button type="submit" id="btnSaveReview"><i class="fa-solid fa-check"></i> حفظ التقييم</button>
           </div>
         </form>
       </div>
@@ -655,6 +723,80 @@
         </form>
       </div>
     </div>
+
+    <!-- TAB: REVIEWS -->
+    <section id="tab-reviews" class="tab-section">
+      <div class="section-card">
+        <div class="section-header">
+          <h2><i class="fa-solid fa-star"></i> تقييمات عملاء Diamond Store</h2>
+          <button class="btn-primary btn-sm" id="btnAddReview"><i class="fa-solid fa-plus"></i> تقييم جديد</button>
+        </div>
+        <p class="muted" style="font-size:0.85rem;">أضف أو عدّل أو أخفِ أي تقييم — التغييرات تظهر في الموقع مباشرة.</p>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>العميل</th>
+                <th>الوصف</th>
+                <th>نص التقييم</th>
+                <th>المنتج</th>
+                <th>النجوم</th>
+                <th>الحالة</th>
+                <th>إجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="reviewsTableBody">
+              <tr><td colspan="7" style="text-align:center; padding:24px;" class="muted">جارٍ تحميل التقييمات...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB: SITE CONTENT -->
+    <section id="tab-content" class="tab-section">
+      <div class="section-card">
+        <div class="section-header">
+          <h2><i class="fa-solid fa-tv"></i> شريط أعلى الموقع</h2>
+        </div>
+        <p class="muted" style="font-size:0.85rem;">السطور المتحركة في أعلى الصفحة. أخفِ أي سطر أو أضف جديداً.</p>
+        <div id="topbarEditor" style="display:flex; flex-direction:column; gap:10px;"></div>
+        <button class="btn-outline btn-sm" id="btnAddTopbarLine" style="margin-top:10px;"><i class="fa-solid fa-plus"></i> إضافة سطر</button>
+      </div>
+
+      <div class="section-card">
+        <div class="section-header">
+          <h2><i class="fa-solid fa-at"></i> روابط التواصل الاجتماعي</h2>
+        </div>
+        <div id="socialEditor" style="display:flex; flex-direction:column; gap:10px;"></div>
+        <button class="btn-outline btn-sm" id="btnAddSocialLink" style="margin-top:10px;"><i class="fa-solid fa-plus"></i> إضافة رابط</button>
+      </div>
+
+      <div class="section-card">
+        <div class="section-header">
+          <h2><i class="fa-solid fa-truck-fast"></i> نصوص الشحن والفوتر</h2>
+        </div>
+        <div class="form-grid">
+          <div class="form-group full">
+            <label for="shippingBadgeInput">شريط الشحن أعلى الهيرو</label>
+            <input id="shippingBadgeInput" type="text" />
+          </div>
+          <div class="form-group full">
+            <label for="shippingNoteInput">ملاحظة الشحن (تحت الأزرار)</label>
+            <input id="shippingNoteInput" type="text" />
+          </div>
+          <div class="form-group full">
+            <label for="footerAboutInput">نص "عن المتجر" في الفوتر</label>
+            <textarea id="footerAboutInput" rows="3"></textarea>
+          </div>
+          <div class="form-group full" style="display:flex; align-items:center; gap:10px;">
+            <input type="checkbox" id="sectionsVisibleInput" checked style="width:18px; height:18px;" />
+            <label for="sectionsVisibleInput" style="margin:0;">إظهار قسم التقييمات في الموقع</label>
+          </div>
+        </div>
+        <button class="btn-primary" id="btnSaveSiteContent" style="margin-top:14px;"><i class="fa-solid fa-check"></i> حفظ كل التغييرات</button>
+      </div>
+    </section>
 
     <!-- TAB 8: ADMIN USERS (super admin only) -->
     <section id="tab-users" class="tab-section">

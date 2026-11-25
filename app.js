@@ -17,6 +17,8 @@ let state = {
   categories: [],
   heroSlides: [],
   settings: {},
+  reviews: [],
+  siteContent: {},
   activeCategory: 'all',
   searchQuery: '',
   sortBy: 'popular',
@@ -159,6 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
   bindStoreEvents();
   initTopUtilityTicker();
   initReviewsCarousel();
+  renderEditableSiteSections();
   checkPolicyQueryOrHash();
 
   // Live sync if Admin Panel (admin.html) updates catalog/settings in another tab
@@ -168,6 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
       loadAllStoreData();
       applyDynamicCMSSettings();
       renderHeaderCategoriesNav();
+      renderEditableSiteSections();
       if (document.getElementById('heroStudioStage')) renderHeroSlide(state.activeHeroSlide);
       renderCategoriesGrid();
       renderCatalogGrid();
@@ -219,10 +223,13 @@ function loadAllStoreData() {
         state.categories = catalog.categories;
         state.heroSlides = catalog.heroSlides;
         state.settings = catalog.settings;
+        state.reviews = catalog.reviews || [];
+        state.siteContent = catalog.siteContent || {};
         sanitizeStoredSelections();
         syncPriceSliderBounds();
         applyDynamicCMSSettings();
         renderHeaderCategoriesNav();
+        renderEditableSiteSections();
         if (document.getElementById('heroStudioStage')) renderHeroSlide(state.activeHeroSlide);
         if (document.getElementById('categoriesGrid')) renderCategoriesGrid();
         if (document.getElementById('productsGrid')) renderCatalogGrid();
@@ -3812,6 +3819,84 @@ function initReviewsCarousel() {
 
   track.classList.add('auto-marquee-ready');
 }
+
+// ==================== 2b. EDITABLE SITE SECTIONS (Supabase-driven) ====================
+// Renders the admin-editable homepage sections from state.reviews / state.siteContent.
+// Falls back silently to the static HTML already in index.html when empty.
+function renderEditableSiteSections() {
+  const sc = state.siteContent || {};
+
+  // --- Top utility bar lines ---
+  if (Array.isArray(sc.topbar) && sc.topbar.length) {
+    const track = document.getElementById('utilityTickerTrack');
+    if (track) {
+      track.innerHTML = sc.topbar.map(line => `
+        <div class="utility-item">
+          <i class="fa-solid ${escapeHTML(line.icon || 'fa-circle-info')}"></i>
+          <span>${escapeHTML(line.text || '')}</span>
+        </div>
+      `).join('');
+      initTopUtilityTicker();
+    }
+  }
+
+  // --- Customer reviews carousel ---
+  if (Array.isArray(state.reviews) && state.reviews.length) {
+    const track = document.getElementById('egyReviewsTrack');
+    if (track) {
+      const starHTML = n => Array.from({ length: 5 }, (_, i) =>
+        `<i class="fa-solid fa-star${i < n ? '' : ' fa-star-half-stroke opacity-star'}"></i>`).join('');
+      track.innerHTML = state.reviews.map(r => `
+        <article class="egy-review-card">
+          <div class="egy-review-top">
+            <div class="egy-avatar">${escapeHTML(r.initials || (r.name || 'م').trim().charAt(0))}</div>
+            <div class="egy-author-meta">
+              <strong>${escapeHTML(r.name)}</strong>
+              <span><i class="fa-solid fa-location-dot"></i> ${escapeHTML(r.meta)}</span>
+            </div>
+            <div class="egy-stars">${starHTML(r.rating || 5)}</div>
+          </div>
+          <p class="egy-review-text">${escapeHTML(r.text)}</p>
+          <div class="egy-review-foot">
+            <span class="egy-prod-tag"><i class="fa-solid fa-circle-check"></i> ${escapeHTML(r.tag)}</span>
+          </div>
+        </article>
+      `).join('');
+      track.removeAttribute('data-marquee-cloned');
+      initReviewsCarousel();
+    }
+  }
+
+  // --- Footer about text ---
+  if (sc.footer && typeof sc.footer === 'object') {
+    const aboutEl = document.querySelector('.js-footer-about');
+    if (aboutEl && sc.footer.about) aboutEl.textContent = sc.footer.about;
+    const noteEl = document.querySelector('.js-footer-note');
+    if (noteEl && sc.footer.note) noteEl.textContent = sc.footer.note;
+  }
+
+  // --- Social links ---
+  if (Array.isArray(sc.social_links) && sc.social_links.length) {
+    const wrap = document.querySelector('.js-footer-social');
+    if (wrap) {
+      wrap.innerHTML = sc.social_links.map(l => `
+        <a href="${escapeHTML(l.url || '#')}" target="_blank" rel="noopener noreferrer"
+           aria-label="${escapeHTML(l.label)}" title="${escapeHTML(l.label)}">
+          <i class="fa-brands ${escapeHTML(l.icon || 'fa-link')}"></i>
+        </a>
+      `).join('');
+    }
+  }
+
+  // --- Shipping text ---
+  if (sc.shipping && typeof sc.shipping === 'object') {
+    const badge = document.querySelector('.js-shipping-badge');
+    if (badge && sc.shipping.hero_badge) badge.textContent = sc.shipping.hero_badge;
+    const note = document.querySelector('.js-shipping-note');
+    if (note && sc.shipping.note) note.textContent = sc.shipping.note;
+  }
+}
+window.renderEditableSiteSections = renderEditableSiteSections;
 
 // ==================== 3. STORE POLICIES ("صفحات تهمك" & RETURN/EXCHANGE POLICY MODAL) ====================
 const SOKANY_BEST_CHOPPER_IDS = [
