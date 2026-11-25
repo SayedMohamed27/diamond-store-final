@@ -403,9 +403,9 @@
     });
   }
 
-  $("btnAddGalleryRow")?.addEventListener("click", () => {
-    $("pGalleryUpload").click();
-  });
+  // The "إضافة صورة" button is a <label for="pGalleryUpload">: the browser opens
+  // the file picker natively (a programmatic .click() on a hidden input is
+  // unreliable on some mobile browsers), so no JS handler is needed here.
 
   // Add one row per selected file (multiple selection allowed, no maximum)
   $("pGalleryUpload")?.addEventListener("change", async (e) => {
