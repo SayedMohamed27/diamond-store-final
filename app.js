@@ -727,17 +727,23 @@ function buildHero3DApplianceHTML(s) {
   const simType = detectSlideSimType(s);
   const mode = state.hero3DViewMode || 'live';
 
+  // Prefer the background-removed (transparent) cutout so the product sits
+  // directly on the 3D pedestal with no white box behind it.
+  const heroImage = String(s.image || '').replace(/\.jpe?g$/i, '-cutout.png');
+  const heroImgTag = (alt) => `
+        <img id="hero-img-${escapeHTML(s.productId)}"
+             src="${escapeHTML(heroImage)}"
+             alt="${escapeHTML(alt)}"
+             class="stage-centerpiece-img"
+             onerror="this.onerror=null;this.onerror=function(){this.style.display='none'};this.src='assets/products/hero-showcase.jpg'" />`;
+
   // Support real interactive 3D <model-viewer> if a .glb/.gltf model URL is configured on the slide,
   // otherwise display the frameless real product on the 3D circular exhibition pedestal
   const productCenterpieceHTML = s.model3dUrl
-    ? `<model-viewer src="${escapeHTML(s.model3dUrl)}" poster="${escapeHTML(s.image)}" alt="${escapeHTML(s.title)}" camera-controls auto-rotate shadow-intensity="1" class="stage-model-viewer"></model-viewer>`
+    ? `<model-viewer src="${escapeHTML(s.model3dUrl)}" poster="${escapeHTML(heroImage)}" alt="${escapeHTML(s.title)}" camera-controls auto-rotate shadow-intensity="1" class="stage-model-viewer"></model-viewer>`
     : `
       <div class="stage-product-spotlight" onclick="openProductPage('${escapeHTML(s.productId)}')" title="اضغط لفتح صفحة المنتج الكاملة">
-        <img id="hero-img-${escapeHTML(s.productId)}"
-             src="${escapeHTML(s.image)}"
-             alt="${escapeHTML(s.title)}"
-             class="stage-centerpiece-img"
-             onerror="this.onerror=null;this.src='assets/products/hero-showcase.jpg'" />
+        ${heroImgTag(s.title)}
       </div>
     `;
 
@@ -757,9 +763,9 @@ function buildHero3DApplianceHTML(s) {
       <div class="sim3d-stage exploded-anatomy-mode">
         <div class="exploded-center-preview" onclick="openProductPage('${escapeHTML(s.productId)}')">
           <img id="hero-img-${escapeHTML(s.productId)}"
-               src="${escapeHTML(s.image)}"
+               src="${escapeHTML(heroImage)}"
                alt="${escapeHTML(s.model)}"
-               onerror="this.onerror=null;this.src='assets/products/hero-showcase.jpg'" />
+               onerror="this.onerror=null;this.onerror=function(){this.style.display='none'};this.src='assets/products/hero-showcase.jpg'" />
         </div>
         <div class="sim3d-exploded-stack">
           ${layers.map(l => `
@@ -1485,7 +1491,7 @@ function buildProductVideoTabHTML(product) {
             <h3 style="font-size:1.2rem; font-weight:900; margin-top:4px;">شاهد ${escapeHTML(normalizeDigits(product.name))} على الطبيعة</h3>
           </div>
           ${embed.externalUrl ? `
-            <a href="${escapeHTML(embed.externalUrl)}" target="_blank" rel="noopener" class="btn-outline" style="padding:8px 16px; font-size:0.84rem;">
+            <a href="${escapeHTML(embed.externalUrl)}" target="_blank" rel="noopener noreferrer" class="btn-outline" style="padding:8px 16px; font-size:0.84rem;">
               <i class="fa-solid fa-up-right-from-square"></i> فتح الفيديو في نافذة مستقلة
             </a>
           ` : ''}
@@ -3211,7 +3217,7 @@ function renderPaymentGatewayPanel(methodName) {
         <div class="instapay-grid">
           <div>
             <!-- 1. Direct Payment Link Button -->
-            <a href="${escapeHTML(ipLink)}" target="_blank" rel="noopener" class="instapay-direct-btn">
+            <a href="${escapeHTML(ipLink)}" target="_blank" rel="noopener noreferrer" class="instapay-direct-btn">
               <i class="fa-solid fa-up-right-from-square"></i>
               <span>اضغط هنا للدفع مباشرة عبر لينك InstaPay</span>
             </a>
@@ -3441,11 +3447,18 @@ window.submitCustomerOrder = async function(e) {
         return;
       }
     } catch (rpcErr) {
-      console.warn('[Diamond Checkout] Server RPC error, falling back to local recording:', rpcErr);
+      console.error('[Diamond Checkout] Server RPC error:', rpcErr);
+      showToast('تعذر تسجيل الطلب على السيرفر، يرجى المحاولة مرة أخرى');
+      if (btnSubmit) {
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = 'تأكيد الطلب الآن';
+      }
+      return;
     }
   }
 
   if (!serverOrderRecorded) {
+    // No Supabase configured (local/dev only): price locally so WhatsApp still works
     const { subtotal, discount, total } = calculateTotals();
     finalSubtotal = subtotal;
     finalDiscount = discount;
@@ -3499,11 +3512,23 @@ window.submitCustomerOrder = async function(e) {
     ` : ''}
     <p style="font-size:0.84rem; color:var(--brand-dark); font-weight:800; margin-top:8px;">مهم: اضغط على الزر بالأسفل لإرسال الطلب${isElectronicPay ? ' واسكرين التحويل' : ''} لنا على واتساب لتأكيده فوراً.</p>
     <div style="margin-top:12px;">
-      <a class="btn-brand" target="_blank" rel="noopener" href="https://wa.me/${waPhone}?text=${encodeURIComponent(waMsg)}">
+      <a class="btn-brand" target="_blank" rel="noopener noreferrer" href="https://wa.me/${encodeURIComponent(waPhone)}?text=${encodeURIComponent(waMsg)}">
         <i class="fa-brands fa-whatsapp"></i> تأكيد الطلب${isElectronicPay ? ' وإرسال اسكرين التحويل' : ''} عبر واتساب
       </a>
     </div>
   `;
+
+  // Auto-open WhatsApp with the order details (falls back to the button if blocked)
+  const waUrl = `https://wa.me/${waPhone}?text=${encodeURIComponent(waMsg)}`;
+  let waOpened = false;
+  try {
+    waOpened = !!window.open(waUrl, '_blank', 'noopener,noreferrer');
+  } catch (waErr) {
+    console.warn('[Diamond Checkout] WhatsApp auto-open blocked:', waErr);
+  }
+  if (!waOpened) {
+    showToast('المتصفح منع فتح واتساب تلقائياً — اضغط زر واتساب بالأسفل لتأكيد الطلب');
+  }
 
   // Prevent duplicate/empty submissions and reset the checkout state
   if (btnSubmit) {
@@ -4077,10 +4102,10 @@ window.openStorePolicyModal = function(policyKey = 'refund') {
             <i class="fa-solid fa-bag-shopping"></i> تسوق الآن
           </button>
           <div class="policy-social-pills">
-            <a href="https://www.facebook.com" target="_blank" rel="noopener" title="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-            <a href="https://www.instagram.com" target="_blank" rel="noopener" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+            <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" title="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+            <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
             <a href="#whatsapp" onclick="openStoreWhatsappChat(); return false;" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
-            <a href="https://www.tiktok.com" target="_blank" rel="noopener" title="TikTok"><i class="fa-brands fa-tiktok"></i></a>
+            <a href="https://www.tiktok.com" target="_blank" rel="noopener noreferrer" title="TikTok"><i class="fa-brands fa-tiktok"></i></a>
           </div>
         </div>
       </div>

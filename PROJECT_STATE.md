@@ -39,7 +39,7 @@
 ## 3. الملفات الرئيسية في المشروع
 - `index.html`: الصفحة الرئيسية للمتجر.
 - `product.html`: صفحة تفاصيل المنتج والفيديو التوضيحي.
-- `admin.html` & `admin.js`: لوحة تحكم الأدمن الكاملة.
+- ~~`admin.html` & `admin.js`~~: deleted (2026-11-25) — legacy localStorage panel without login. The only admin panel is `admin-app/` (Supabase Auth).
 - `products.js`: قاعدة بيانات المنتجات والأقسام الافتراضية + تخزين الفيديوهات في `IndexedDB`.
 - `app.js`: منطق الواجهة، السلة، المقارنة، القوائم المنسدلة، السياسات، والحركة الأوتوماتيكية.
 - `styles.css`: جميع التنسيقات المتجاوبة للكمبيوتر والموبايل والهوية البصرية `#E85D04`.

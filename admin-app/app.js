@@ -46,7 +46,8 @@
     const toast = document.createElement("div");
     toast.className = `admin-toast ${type}`;
     const icon = type === "success" ? "fa-circle-check" : type === "error" ? "fa-circle-xmark" : "fa-circle-info";
-    toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${msg}</span>`;
+    toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span></span>`;
+    toast.querySelector("span").textContent = msg;
     stack.appendChild(toast);
     setTimeout(() => {
       toast.style.opacity = "0";
@@ -616,7 +617,7 @@
           <div><strong>طريقة الدفع:</strong> ${escapeHTML(o.payment)}</div>
           <div><strong>تاريخ الطلب:</strong> ${new Date(o.created_at).toLocaleString('ar-EG')}</div>
           ${o.transfer_ref ? `<div style="grid-column:span 2;"><strong>رقم إيصال التحويل:</strong> ${escapeHTML(o.transfer_ref)}</div>` : ''}
-          ${receiptSignedUrl ? `<div style="grid-column:span 2; margin-top:4px;"><strong>صورة إيصال التحويل:</strong> <a href="${escapeHTML(receiptSignedUrl)}" target="_blank" rel="noopener" style="color:var(--brand-dark); font-weight:800;">فتح صورة الإيصال في تبويب جديد</a></div>` : ''}
+          ${receiptSignedUrl ? `<div style="grid-column:span 2; margin-top:4px;"><strong>صورة إيصال التحويل:</strong> <a href="${escapeHTML(receiptSignedUrl)}" target="_blank" rel="noopener noreferrer" style="color:var(--brand-dark); font-weight:800;">فتح صورة الإيصال في تبويب جديد</a></div>` : ''}
           ${o.notes ? `<div style="grid-column:span 2;"><strong>ملاحظات العميل:</strong> ${escapeHTML(o.notes)}</div>` : ''}
         </div>
       </div>

@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://hkmtwhasxurrxontjwsi.supabase.co; connect-src 'self' https://hkmtwhasxurrxontjwsi.supabase.co wss://hkmtwhasxurrxontjwsi.supabase.co; base-uri 'self'; form-action 'self'" />
   <meta name="robots" content="noindex,nofollow" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
   <title>لوحة إدارة Diamond Store الاحترافية | Supabase CMS</title>
@@ -67,7 +68,7 @@
           </div>
         </div>
         <div style="display:flex; gap:10px;">
-          <a href="../index.html" target="_blank" class="btn-outline btn-sm" style="text-decoration:none;">
+          <a href="../index.html" target="_blank" rel="noopener noreferrer" class="btn-outline btn-sm" style="text-decoration:none;">
             <i class="fa-solid fa-store"></i> عرض المتجر
           </a>
           <button id="logoutButton" class="btn-secondary btn-sm" type="button">
@@ -564,7 +565,7 @@
             <button type="button" class="btn-brand btn-sm" id="btnUpdateOrderStatus">تحديث</button>
           </div>
           <div style="display:flex; gap:8px;">
-            <a id="modalOrderWaBtn" target="_blank" rel="noopener" class="btn-outline btn-sm" style="text-decoration:none;">
+            <a id="modalOrderWaBtn" target="_blank" rel="noopener noreferrer" class="btn-outline btn-sm" style="text-decoration:none;">
               <i class="fa-brands fa-whatsapp"></i> تواصل عبر واتساب
             </a>
             <button type="button" class="btn-secondary btn-sm" onclick="closeAdminModal('orderModal')">إغلاق</button>
