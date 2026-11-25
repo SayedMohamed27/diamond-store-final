@@ -41,8 +41,8 @@
       <p class="muted">سجل دخولك باستخدام حساب المشرف المعتمد في Supabase Auth.</p>
       <form id="loginForm">
         <div>
-          <label for="email">البريد الإلكتروني</label>
-          <input id="email" name="email" type="email" autocomplete="username" placeholder="admin@diamondstore.com" required />
+          <label for="username">اسم المستخدم</label>
+          <input id="username" name="username" type="text" autocomplete="username" placeholder="admin" required />
         </div>
         <div>
           <label for="password">كلمة المرور</label>
@@ -856,8 +856,8 @@
           <input type="hidden" id="auUserId" />
           <div class="form-grid">
             <div class="form-group full">
-              <label for="auEmail">البريد الإلكتروني</label>
-              <input id="auEmail" type="email" autocomplete="off" required />
+              <label for="auUsername">اسم المستخدم</label>
+              <input id="auUsername" type="text" autocomplete="off" required placeholder="admin" />
             </div>
             <div class="form-group full">
               <label for="auDisplayName">الاسم المعروض</label>

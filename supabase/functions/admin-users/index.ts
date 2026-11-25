@@ -60,7 +60,7 @@ Deno.serve(async (req) => {
   if (action === "list") {
     const { data: rows, error } = await admin
       .from("admin_users")
-      .select("user_id, role, active, display_name, created_at, updated_at");
+      .select("user_id, role, active, display_name, username, created_at, updated_at");
     if (error) return json({ error: error.message }, 500);
 
     const authUsers = new Map<string, { email: string | null; last_sign_in_at: string | null }>();
@@ -75,21 +75,31 @@ Deno.serve(async (req) => {
 
     const users = (rows ?? []).map((r) => ({
       ...r,
+      username: r.username ?? usernameOf(authUsers.get(r.user_id)?.email),
       email: authUsers.get(r.user_id)?.email ?? null,
       last_sign_in_at: authUsers.get(r.user_id)?.last_sign_in_at ?? null,
     }));
     return json({ users });
   }
 
+  // The login screen only collects a username; Supabase Auth stores it as
+  // <username>@admin.diamondstore.local.
+  const AUTH_EMAIL_DOMAIN = "@admin.diamondstore.local";
+  const usernameOf = (email: string | null | undefined): string | null =>
+    email && email.endsWith(AUTH_EMAIL_DOMAIN)
+      ? email.slice(0, -AUTH_EMAIL_DOMAIN.length)
+      : (email?.split("@")[0] ?? null);
+
   if (action === "create") {
-    const email = String(body.email ?? "").trim().toLowerCase();
+    const username = String(body.username ?? "").trim().toLowerCase();
     const password = String(body.password ?? "");
     const displayName = String(body.display_name ?? "").trim() || null;
     const role = body.role === "super_admin" ? "super_admin" : "admin";
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json({ error: "بريد إلكتروني غير صالح" }, 400);
+    if (!/^[a-z0-9._-]{3,30}$/.test(username)) return json({ error: "اسم المستخدم يجب أن يكون 3-30 حرفًا إنجليزيًا (أرقام و . _ - مسموحة)" }, 400);
     if (password.length < 8) return json({ error: "كلمة المرور يجب ألا تقل عن 8 أحرف" }, 400);
 
+    const email = username + AUTH_EMAIL_DOMAIN;
     const { data: created, error: createErr } = await admin.auth.admin.createUser({
       email,
       password,
@@ -100,12 +110,12 @@ Deno.serve(async (req) => {
 
     const { error: insertErr } = await admin
       .from("admin_users")
-      .insert({ user_id: created.user!.id, role, active: true, display_name: displayName });
+      .insert({ user_id: created.user!.id, role, active: true, display_name: displayName, username });
     if (insertErr) {
       await admin.auth.admin.deleteUser(created.user!.id);
       return json({ error: insertErr.message }, 500);
     }
-    return json({ user: { user_id: created.user!.id, email, role, active: true, display_name: displayName } }, 201);
+    return json({ user: { user_id: created.user!.id, username, email, role, active: true, display_name: displayName } }, 201);
   }
 
   if (action === "update") {
@@ -117,8 +127,15 @@ Deno.serve(async (req) => {
       return json({ error: "كلمة المرور يجب ألا تقل عن 8 أحرف" }, 400);
     }
 
+    let newUsername: string | null = null;
+    if (body.username !== undefined) {
+      newUsername = String(body.username).trim().toLowerCase();
+      if (!/^[a-z0-9._-]{3,30}$/.test(newUsername)) return json({ error: "اسم المستخدم يجب أن يكون 3-30 حرفًا إنجليزيًا (أرقام و . _ - مسموحة)" }, 400);
+    }
+
     const authUpdate: Record<string, unknown> = {};
     if (password) authUpdate.password = password;
+    if (newUsername) authUpdate.email = newUsername + AUTH_EMAIL_DOMAIN;
     if (body.display_name !== undefined) authUpdate.user_metadata = { display_name: String(body.display_name).trim() };
     if (Object.keys(authUpdate).length) {
       const { error } = await admin.auth.admin.updateUserById(userId, authUpdate);
@@ -126,6 +143,7 @@ Deno.serve(async (req) => {
     }
 
     const dbUpdate: Record<string, unknown> = { updated_at: new Date().toISOString() };
+    if (newUsername) dbUpdate.username = newUsername;
     if (body.display_name !== undefined) dbUpdate.display_name = String(body.display_name).trim() || null;
     if (body.role !== undefined) dbUpdate.role = body.role === "super_admin" ? "super_admin" : "admin";
     if (body.active !== undefined) dbUpdate.active = Boolean(body.active);
