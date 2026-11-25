@@ -1,4 +1,4 @@
-window.DIAMOND_STORE_SUPABASE_CONFIG = {
-  url: "https://hkmtwhasxurrxontjwsi.supabase.co",
+window.DIAMOND_SUPABASE_CONFIG = {
+  url: "",
   anonKey: ""
 };
