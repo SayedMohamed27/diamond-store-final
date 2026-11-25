@@ -673,3 +673,21 @@ tr:hover td {
 .feature-row .gallery-remove {
   flex-shrink: 0;
 }
+
+/* Quick-pick spec chips (product modal) */
+.specs-chips .spec-chip {
+  border: 1px dashed var(--accent, #c9a86a);
+  background: transparent;
+  color: var(--accent, #c9a86a);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.specs-chips .spec-chip:hover {
+  background: var(--accent, #c9a86a);
+  color: #fff;
+}
