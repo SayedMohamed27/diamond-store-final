@@ -185,6 +185,9 @@
 
   const CATALOG_CACHE_KEY = 'diamond_catalog_cache_v1';
   const CATALOG_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+  // Set by the admin panel right after a successful save: the cached catalog is
+  // stale, so the storefront must refetch from Supabase on its next load.
+  const CATALOG_DIRTY_KEY = 'diamond_catalog_dirty_at';
 
   function readCatalogCache() {
     try {
@@ -192,6 +195,8 @@
       if (!raw) return null;
       const parsed = JSON.parse(raw);
       if (!parsed || !parsed.ts || (Date.now() - parsed.ts) > CATALOG_CACHE_TTL_MS) return null;
+      const dirtyAt = Number(sessionStorage.getItem(CATALOG_DIRTY_KEY) || 0);
+      if (dirtyAt && dirtyAt > parsed.ts) return null; // admin saved after this cache was written
       return parsed.data && parsed.data.source === 'supabase' ? parsed.data : null;
     } catch (e) {
       return null;
@@ -201,6 +206,8 @@
   function writeCatalogCache(data) {
     try {
       sessionStorage.setItem(CATALOG_CACHE_KEY, JSON.stringify({ ts: Date.now(), data }));
+      // Fresh data just arrived from Supabase: clear the dirty marker.
+      sessionStorage.removeItem(CATALOG_DIRTY_KEY);
     } catch (e) {
       // Storage full or unavailable: caching is best-effort only
     }

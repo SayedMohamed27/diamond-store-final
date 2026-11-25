@@ -309,7 +309,7 @@
     if (error) {
       showAdminToast("تعذر حذف المنتج من قاعدة البيانات", "error");
     } else {
-      showAdminToast("تم حذف المنتج بنجاح", "success");
+      markCatalogDirty(); showAdminToast("تم حذف المنتج بنجاح", "success");
       await loadProducts();
       renderOverviewKPIs();
     }
@@ -501,6 +501,12 @@
     rows[rows.length - 1]?.querySelector(".feature-text")?.focus();
   });
 
+  // Mark the storefront catalog cache stale so the next storefront load in this
+  // browser session refetches fresh data instead of serving the 5-minute cache.
+  function markCatalogDirty() {
+    try { sessionStorage.setItem('diamond_catalog_dirty_at', String(Date.now())); } catch (e) {}
+  }
+
   $("productForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const btn = $("btnSaveProduct");
@@ -549,7 +555,7 @@
       console.error("Save product error:", result.error);
       showAdminToast("حدث خطأ أثناء الحفظ: " + result.error.message, "error");
     } else {
-      showAdminToast("تم حفظ بيانات الجهاز بنجاح", "success");
+      markCatalogDirty(); showAdminToast("تم حفظ بيانات الجهاز بنجاح", "success");
       window.closeAdminModal("productModal");
       await loadProducts();
       renderOverviewKPIs();
@@ -665,7 +671,7 @@
       showAdminToast("تعذر الحذف: " + error.message, "error");
       return;
     }
-    showAdminToast("تم حذف القسم", "success");
+    markCatalogDirty(); showAdminToast("تم حذف القسم", "success");
     await loadCategories();
   };
 
@@ -836,7 +842,7 @@
     if (error) {
       showCatError("تعذر حفظ القسم: " + error.message);
     } else {
-      showAdminToast("تم حفظ بيانات القسم والفئات الفرعية بنجاح", "success");
+      markCatalogDirty(); showAdminToast("تم حفظ بيانات القسم والفئات الفرعية بنجاح", "success");
       window.closeAdminModal("categoryModal");
       await loadCategories();
     }
@@ -1147,7 +1153,7 @@
     if (error) {
       showAdminToast("تعذر حفظ الشريحة: " + error.message, "error");
     } else {
-      showAdminToast("تم تحديث شريحة الهيرو بنجاح", "success");
+      markCatalogDirty(); showAdminToast("تم تحديث شريحة الهيرو بنجاح", "success");
       window.closeAdminModal("heroSlideModal");
       await loadHeroSlides();
     }
@@ -1215,7 +1221,7 @@
     if (error) {
       showAdminToast("تعذر إضافة الكود: " + error.message, "error");
     } else {
-      showAdminToast("تم إضافة كود الخصم بنجاح", "success");
+      markCatalogDirty(); showAdminToast("تم إضافة كود الخصم بنجاح", "success");
       await loadCoupons();
     }
   });
@@ -1225,7 +1231,7 @@
     const { error } = await client.from("coupons").delete().eq("code", code);
     if (error) showAdminToast("تعذر حذف الكود", "error");
     else {
-      showAdminToast("تم حذف الكود بنجاح", "success");
+      markCatalogDirty(); showAdminToast("تم حذف الكود بنجاح", "success");
       await loadCoupons();
     }
   };
@@ -1341,7 +1347,7 @@
     if (error) {
       showAdminToast("تعذر حفظ التقييم: " + error.message, "error");
     } else {
-      showAdminToast("تم حفظ التقييم — يظهر في الموقع مباشرة", "success");
+      markCatalogDirty(); showAdminToast("تم حفظ التقييم — يظهر في الموقع مباشرة", "success");
       window.closeAdminModal("reviewModal");
       await loadReviews();
     }
@@ -1367,7 +1373,7 @@
       showAdminToast("تعذر الحذف: " + error.message, "error");
       return;
     }
-    showAdminToast("تم حذف التقييم", "success");
+    markCatalogDirty(); showAdminToast("تم حذف التقييم", "success");
     await loadReviews();
   };
 
@@ -1492,7 +1498,7 @@
     if (error) {
       showAdminToast("تعذر حفظ المحتوى: " + error.message, "error");
     } else {
-      showAdminToast("تم حفظ محتوى الموقع — يظهر للزوار مباشرة", "success");
+      markCatalogDirty(); showAdminToast("تم حفظ محتوى الموقع — يظهر للزوار مباشرة", "success");
       await loadSiteContent();
     }
   });
@@ -1567,7 +1573,7 @@
       showAdminToast("تعذر حفظ الإعدادات: " + error.message, "error");
     } else {
       settingsCache = updatedData;
-      showAdminToast("تم حفظ إعدادات المتجر بنجاح على السيرفر", "success");
+      markCatalogDirty(); showAdminToast("تم حفظ إعدادات المتجر بنجاح على السيرفر", "success");
     }
   });
 
