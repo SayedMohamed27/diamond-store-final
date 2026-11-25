@@ -1261,6 +1261,14 @@ function upgradeProductWarranty(p) {
 }
 
 function getStoreProducts() {
+  // Supabase data is the source of truth: when its products arrived this page
+  // load (window.DIAMOND_DB_PRODUCTS), they win over any stale localStorage copy
+  // so admin edits (video, specs, features, prices...) show up immediately.
+  const dbList = window.DIAMOND_DB_PRODUCTS;
+  if (Array.isArray(dbList) && dbList.length > 0) {
+    try { localStorage.setItem('diamond_catalog_v4', JSON.stringify(dbList)); } catch (e) {}
+    return dbList.map(upgradeProductWarranty);
+  }
   const saved = localStorage.getItem('diamond_catalog_v4');
   if (saved) {
     try {

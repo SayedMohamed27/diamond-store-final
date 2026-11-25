@@ -247,6 +247,10 @@
           ? prodRes.data.map(mapDbProductToLocal)
           : getLocalFallbackProducts();
 
+        // Expose the fresh Supabase products so getStoreProducts() (products.js)
+        // prefers them over any stale localStorage copy on this visitor's browser.
+        if (hasDbProducts) window.DIAMOND_DB_PRODUCTS = products;
+
         const hasDbCategories = !catRes.error && Array.isArray(catRes.data) && catRes.data.length > 0;
         const categories = hasDbCategories
           ? catRes.data.map(mapDbCategoryToLocal)
