@@ -1069,14 +1069,6 @@ window.handleHeaderCategoryClick = function(evt, catId, liEl) {
   evt.preventDefault();
   evt.stopPropagation();
 
-  // 'sections' opens a dedicated full grid of sub-category cards (no dropdown),
-  // like the takaastore collections page.
-  if (catId === 'sections') {
-    closeHeaderCategoryDropdown();
-    openSectionsCatalog();
-    return false;
-  }
-
   const isMobileOrTouch = window.innerWidth <= 991 || ('ontouchstart' in window && openDropdownCatId !== catId);
 
   // On mobile/tablet (or first tap on touch device), tapping opens/toggles the dropdown menu underneath!
