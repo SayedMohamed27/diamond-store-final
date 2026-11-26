@@ -1207,9 +1207,9 @@ window.openSectionsCatalog = function() {
             : state.products.filter(p => doesProductMatchCategory(p, cat)).length;
           return `
             <button type="button" class="sections-cat-card" onclick="filterBySubCategory('${escapeHTML(cat)}', '${escapeHTML(q)}')">
-              <div class="sections-cat-img-wrap">
+              <div class="sections-cat-img-wrap"><div class="sections-cat-img-inner">
                 ${img ? `<img src="${escapeHTML(img)}" alt="${escapeHTML(sub.name || '')}" loading="lazy" decoding="async" width="300" height="300" onerror="this.style.display='none'" />` : `<i class="fa-solid fa-grip"></i>`}
-              </div>
+              </div></div>
               <div class="sections-cat-name">${escapeHTML(sub.name || '')}</div>
               <div class="sections-cat-count">${n} منتج</div>
             </button>
@@ -1228,7 +1228,14 @@ window.openSectionsCatalog = function() {
     setTimeout(() => clearInterval(timer), 8000);
   }
   setTimeout(() => {
-    document.getElementById('sectionsCatalogAnchor')?.scrollIntoView({ behavior: 'smooth' });
+    const anchor = document.getElementById('sectionsCatalogAnchor');
+    if (anchor) {
+      // Force the browser to jump there no matter where the user is on the page:
+      // 'smooth' inside requestAnimationFrame so it works after any re-render.
+      requestAnimationFrame(() => {
+        anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
   }, 60);
 };
 
