@@ -8968,12 +8968,15 @@ h1, h2, h3, h4, h5, h6,
 .category-filter-bar .cf-reset:hover { color: #f97316; background: rgba(249, 115, 22, 0.12); }
 
 /* Brand-coloured social icons */
-.footer-social-btn .fa-facebook-f { color: #1877f2; }
-.footer-social-btn .fa-instagram { color: #e4405f; }
-.footer-social-btn .fa-whatsapp { color: #25d366; }
-.footer-social-btn .fa-tiktok { color: #69c9d0; }
-.footer-social-btn:hover { background: rgba(255, 255, 255, 0.16); border-color: rgba(255, 255, 255, 0.3); color: inherit; }
-.footer-social-btn:hover i { color: #ffffff; }
+.footer-social-btn .fa-facebook-f { color: #1877f2 !important; }
+.footer-social-btn .fa-instagram { color: #e4405f !important; }
+.footer-social-btn .fa-whatsapp { color: #25d366 !important; }
+.footer-social-btn .fa-tiktok { color: #ffffff !important; }
+.footer-social-btn:hover { background: rgba(255, 255, 255, 0.16); border-color: rgba(255, 255, 255, 0.3); }
+.footer-social-btn:hover .fa-facebook-f,
+.footer-social-btn:hover .fa-instagram,
+.footer-social-btn:hover .fa-whatsapp,
+.footer-social-btn:hover .fa-tiktok { filter: brightness(1.25); }
 
 .catalog-empty { grid-column: 1 / -1; text-align: center; padding: 48px 16px; color: var(--text-dim, #9a9a9a); }
 .catalog-empty i { font-size: 2rem; color: var(--gold, #c9a24b); margin-bottom: 10px; display: block; }
