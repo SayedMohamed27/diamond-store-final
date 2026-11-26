@@ -1069,6 +1069,14 @@ window.handleHeaderCategoryClick = function(evt, catId, liEl) {
   evt.preventDefault();
   evt.stopPropagation();
 
+  // 'sections' opens a dedicated full grid of sub-category cards (no dropdown),
+  // like the takaastore collections page.
+  if (catId === 'sections') {
+    closeHeaderCategoryDropdown();
+    openSectionsCatalog();
+    return false;
+  }
+
   const isMobileOrTouch = window.innerWidth <= 991 || ('ontouchstart' in window && openDropdownCatId !== catId);
 
   // On mobile/tablet (or first tap on touch device), tapping opens/toggles the dropdown menu underneath!
@@ -1106,18 +1114,20 @@ function renderHeaderCategoriesNav() {
     const icon = (cat.icon || 'fa-cube').replace(/[^a-zA-Z0-9_-]/g, '');
     const active = state.activeCategory === cat.id ? 'active' : '';
 
-    return `
+  const isSectionsCatalog = cat.id === 'sections';
+
+  return `
       <li class="cat-nav-item has-dropdown"
           data-cat-li="${escapeHTML(cat.id)}"
-          onmouseenter="if(window.innerWidth > 991) openHeaderCategoryDropdown('${escapeHTML(cat.id)}', this)"
-          onmouseleave="if(window.innerWidth > 991) scheduleCloseCategoryDropdown(240)">
+          ${isSectionsCatalog ? '' : `onmouseenter="if(window.innerWidth > 991) openHeaderCategoryDropdown('${escapeHTML(cat.id)}', this)"
+          onmouseleave="if(window.innerWidth > 991) scheduleCloseCategoryDropdown(240)"`}>
         <a href="#catalogSection"
            data-cat="${escapeHTML(cat.id)}"
            class="cat-nav-link ${active}"
            onclick="return handleHeaderCategoryClick(event, '${escapeHTML(cat.id)}', this.parentElement)">
           <i class="fa-solid ${icon}"></i>
           <span>${escapeHTML(label)}</span>
-          <i class="fa-solid fa-chevron-down cat-chevron"></i>
+          ${isSectionsCatalog ? '' : '<i class="fa-solid fa-chevron-down cat-chevron"></i>'}
         </a>
       </li>
     `;
@@ -1166,9 +1176,57 @@ window.submitHeaderSearch = function() {
   }
 };
 
+// 'sections' catalog: full grid of sub-category cards (image + name + count),
+// replacing the dropdown for the dedicated sections category.
+window.openSectionsCatalog = function() {
+  const grid = document.getElementById('categoriesGrid');
+  const productsGrid = document.getElementById('productsGrid');
+  if (!grid) {
+    window.location.href = 'index.html?cat=sections#catalogSection';
+    return;
+  }
+  state.activeCategory = 'sections';
+  const cats = state.categories.length ? state.categories : DEFAULT_CATEGORIES;
+  const sectionsCat = cats.find(c => c.id === 'sections');
+  const subs = (sectionsCat && Array.isArray(sectionsCat.subItems)) ? sectionsCat.subItems : [];
+
+  // Hide the product grid while the sections grid is shown; show a header title.
+  if (productsGrid) productsGrid.closest('.catalog-panel, section, div')?.classList.add('sections-hidden');
+
+  const countFor = (sub) => {
+    const q = (sub.query || '').trim();
+    if (!q) return state.products.filter(p => doesProductMatchCategory(p, sub.cat || 'all')).length;
+    return state.products.filter(p => smartProductSearchMatch(p, q)).length;
+  };
+
+  grid.innerHTML = `
+    <div class="sections-catalog-head">
+      <h2 class="sections-catalog-title">أقسام الموقع</h2>
+    </div>
+    <div class="sections-catalog-grid">
+      ${subs.map(sub => {
+        const img = sub.image || '';
+        const n = countFor(sub);
+        return `
+          <button type="button" class="sections-cat-card" onclick="filterBySubCategory('${escapeHTML(sub.cat || 'all')}', '${escapeHTML(sub.query || '')}')">
+            <div class="sections-cat-img-wrap">
+              ${img ? `<img src="${escapeHTML(img)}" alt="${escapeHTML(sub.name || '')}" loading="lazy" decoding="async" width="300" height="300" onerror="this.style.display='none'" />` : `<i class="fa-solid fa-grip"></i>`}
+            </div>
+            <div class="sections-cat-name">${escapeHTML(sub.name || '')}</div>
+            <div class="sections-cat-count">${n} منتج</div>
+          </button>
+        `;
+      }).join('')}
+    </div>`;
+  document.getElementById('catalogSection')?.scrollIntoView({ behavior: 'smooth' });
+};
+
 function renderCategoriesGrid() {
   const container = document.getElementById('categoriesGrid');
   if (!container) return;
+
+  // When the 'sections' category is active, keep the dedicated grid visible
+  if (state.activeCategory === 'sections') { window.openSectionsCatalog(); return; }
 
   const cats = state.categories.length ? state.categories : DEFAULT_CATEGORIES;
 
