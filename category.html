@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://hkmtwhasxurrxontjwsi.supabase.co; connect-src 'self' https://hkmtwhasxurrxontjwsi.supabase.co wss://hkmtwhasxurrxontjwsi.supabase.co; frame-src https://www.youtube.com https://www.youtube-nocookie.com; img-src 'self' data: blob: https://hkmtwhasxurrxontjwsi.supabase.co https://i.ytimg.com https://www.youtube.com; base-uri 'self'; form-action 'self'" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title id="pdpPageTitle">تفاصيل المنتج | Diamond Store — أجهزة سوكاني</title>
+  <link rel="icon" href="assets/logo.jpg" />
+  <!-- Google Fonts: Readex Pro + Tajawal + Cairo + Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="vendor/fonts/google-fonts.css" rel="stylesheet">
+  <!-- FontAwesome 6 -->
+  <link rel="stylesheet" href="vendor/css/all.min.css" />
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="styles.css?v=20261126d" />
+</head>
+<body>
+
+  <!-- ==================== 1. TOP UTILITY BAR (100% AUTO-ANIMATED RIGHT FLOW) ==================== -->
+  <div class="top-utility-bar">
+    <div class="container utility-inner">
+      <div class="utility-rotator-wrap" id="topUtilityRotator">
+        <span class="utility-live-pulse" aria-hidden="true"></span>
+        <div class="utility-ticker" id="utilityTickerTrack">
+          <span class="utility-item active-ticker-item" id="topBarText1"><i class="fa-solid fa-truck-fast"></i> شحن مجاني تماماً لجميع محافظات مصر خلال 24 - 48 ساعة</span>
+          <span class="utility-item" id="topBarText2"><i class="fa-solid fa-shield-halved"></i> ضمان معتمد رسمي من شركة المغربي لمدة سنة على جميع الأجهزة</span>
+          <span class="utility-item" id="topBarText3"><i class="fa-solid fa-tag"></i> خصم إضافي 10% باستخدام كود: <strong>DIAMOND10</strong></span>
+        </div>
+      </div>
+      <div class="utility-links">
+        <a href="#" onclick="openStorePolicyModal('refund'); return false;"><i class="fa-solid fa-rotate-left"></i> سياسة الاسترجاع والاستبدال</a>
+        <a href="index.html#catalogSection">الكتالوج الكامل</a>
+        <a href="index.html#bundleSection">عروض المجموعات</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 2. TWO-TIER FLAGSHIP NAVBAR ==================== -->
+  <header class="site-header" id="siteHeader">
+    <div class="container header-main-row">
+      <a href="index.html" class="brand-identity">
+        <div class="brand-logo-img-wrap">
+          <img src="assets/logo.jpg" alt="Diamond Store logo" />
+        </div>
+        <div class="brand-name-group">
+          <div class="brand-name-en" id="headerStoreName">Diamond <span>Store</span></div>
+          <span class="brand-tagline" id="headerStoreTagline">أجهزة SOKANY المنزلية الحديثة</span>
+        </div>
+      </a>
+
+      <div class="header-search-center" id="headerSearchWrap">
+        <input type="text" id="headerSearchInput" autocomplete="off"
+               placeholder="ابحث بأي كلمة أو حرف: قلايه، قلاية، ميكر، فرن، خلاط، SK-..." />
+        <button type="button" class="search-submit-btn" onclick="submitHeaderSearch()" title="بحث">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+        <!-- Instant Smart Search Results Dropdown -->
+        <div class="search-live-dropdown" id="headerLiveSearchDropdown"></div>
+      </div>
+
+      <div class="header-tools">
+        <button class="tool-btn" onclick="openCompareTab()" title="تابه المقارنة الاحترافية">
+          <i class="fa-solid fa-scale-balanced"></i>
+          <span class="btn-label-txt">المقارنة</span>
+          <span class="count-pill" id="compareCountPill">0</span>
+        </button>
+
+        <button class="tool-btn" onclick="openWishlistModal()" title="المفضلة">
+          <i class="fa-regular fa-heart"></i>
+          <span class="btn-label-txt">المفضلة</span>
+          <span class="count-pill" id="wishCountPill">0</span>
+        </button>
+
+        <button class="tool-btn cart-trigger" id="cartTriggerBtn" onclick="openDrawer('cartDrawer')">
+          <i class="fa-solid fa-bag-shopping"></i>
+          <span>السلة</span>
+          <span class="count-pill" id="cartCountPill">0</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Tier 2: Category Navigation Bar -->
+    <nav class="header-cat-bar">
+      <div class="container cat-bar-inner">
+        <ul class="primary-nav" id="headerCatNav">
+          <li><a href="index.html?cat=kitchen" data-cat="kitchen"><i class="fa-solid fa-blender"></i> أجهزة المطبخ</a></li>
+          <li><a href="index.html?cat=home" data-cat="home"><i class="fa-solid fa-shirt"></i> الأجهزة المنزلية</a></li>
+          <li><a href="index.html?cat=care" data-cat="care"><i class="fa-solid fa-wand-magic-sparkles"></i> العناية الشخصية</a></li>
+          <li><a href="index.html?cat=contact" data-cat="contact"><i class="fa-solid fa-headset"></i> قسم اتصل بنا</a></li>
+        </ul>
+
+        <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+          <a href="index.html?tab=compare#workspaceTabsAnchor" class="nav-compare-pill">
+            <i class="fa-solid fa-scale-balanced"></i>
+            <span>تابه المقارنة</span>
+            <span class="nav-compare-badge" id="navCompareBadge">0</span>
+          </a>
+          <a href="index.html#bundleSection" class="nav-promo-pill">
+            <i class="fa-solid fa-boxes-stacked"></i> باكدج التوفير (خصم 25%)
+          </a>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- ==================== 3. BREADCRUMB BAR ==================== -->
+  <div class="breadcrumb-bar">
+    <div class="container">
+      <ul class="breadcrumb-list" id="pdpBreadcrumb">
+        <li><a href="index.html"><i class="fa-solid fa-house"></i> الرئيسية</a></li>
+        <li><i class="fa-solid fa-angle-left" style="font-size:0.75rem;"></i></li>
+        <li><a href="index.html#catalogSection" id="bcCategoryLink">أجهزة سوكاني</a></li>
+        <li><i class="fa-solid fa-angle-left" style="font-size:0.75rem;"></i></li>
+        <li class="current" id="bcProductName">تفاصيل المنتج</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ==================== 4. CATEGORY PAGE MAIN SECTION ==================== -->
+  <main class="pdp-section">
+    <div class="container">
+      <div id="categoryPageRoot">
+        <div class="category-page-head">
+          <span class="section-kicker">Diamond Store</span>
+          <h1 class="section-title" id="catPageTitle">القسم</h1>
+          <p class="cat-page-count" id="catPageCount"></p>
+          <p class="cat-price-range-note" id="catPriceRangeNote"></p>
+        </div>
+
+        <div class="category-filter-bar">
+          <div class="cf-price">
+            <div class="cf-price-head">
+              <span><i class="fa-solid fa-sliders"></i> نطاق السعر (ج.م)</span>
+              <strong id="catPriceLabel">—</strong>
+            </div>
+            <div class="cf-slider-row">
+              <label for="catPriceMin">من</label>
+              <input type="range" id="catPriceMin" aria-label="أقل سعر" />
+            </div>
+            <div class="cf-slider-row">
+              <label for="catPriceMax">إلى</label>
+              <input type="range" id="catPriceMax" aria-label="أعلى سعر" />
+            </div>
+          </div>
+          <div class="cf-sort">
+            <label for="catSortSelect"><i class="fa-solid fa-arrow-down-wide-short"></i> ترتيب متقدم</label>
+            <select id="catSortSelect">
+              <option value="popular">الأكثر رواجًا</option>
+              <option value="price-asc">السعر: من الأقل للأعلى</option>
+              <option value="price-desc">السعر: من الأعلى للأقل</option>
+              <option value="rating">الأعلى تقييمًا</option>
+              <option value="discount">أكبر نسبة خصم</option>
+              <option value="newest">الأحدث أولًا</option>
+              <option value="name-asc">الاسم: أ — ي</option>
+            </select>
+          </div>
+          <button type="button" id="catFiltersReset" class="btn btn-outline-gold cf-reset">
+            <i class="fa-solid fa-rotate-left"></i> إعادة الضبط
+          </button>
+        </div>
+
+        <div class="products-grid" id="categoryProductsGrid"></div>
+        <div class="load-more-holder" id="catLoadMoreWrap"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ==================== 5.5 (was 5) RELATED REMOVED ==================== -->
+
+  <!-- ==================== 6. FOOTER ==================== -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <a href="index.html" class="brand-identity" style="margin-bottom:14px;">
+            <div class="brand-logo-img-wrap">
+              <img src="assets/logo.jpg" alt="Diamond Store" />
+            </div>
+            <div class="brand-name-group">
+              <div class="brand-name-en" id="footerStoreName" style="color:#ffffff;">Diamond <span>Store</span></div>
+              <span class="brand-tagline" id="footerStoreTagline" style="color:#FFE2CC;">أجهزة سوكاني المنزلية</span>
+            </div>
+          </a>
+          <p style="font-size:0.88rem; line-height:1.75; color:#e2d9d2; margin-bottom:14px;">
+            كل منتجات سوكاني الأصلية في مكان واحد، وثقة أكتر من 50 ألف عميل في <strong class="js-store-name-inline">Diamond Store</strong> مع <span class="js-warranty-text">ضمان معتمد رسمي من شركة المغربي لمدة سنة</span> وشحن مجاني لجميع المحافظات.
+          </p>
+          <a href="index.html#catalogSection" class="btn-brand" style="padding:9px 20px; font-size:0.84rem; margin-bottom:14px;">
+            <i class="fa-solid fa-bag-shopping"></i> تسوق الآن
+          </a>
+          <div class="footer-social-row">
+            <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" class="footer-social-btn" title="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+            <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" class="footer-social-btn" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+            <a href="#" onclick="openStoreWhatsappChat(); return false;" class="footer-social-btn" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+            <a href="https://www.tiktok.com" target="_blank" rel="noopener noreferrer" class="footer-social-btn" title="TikTok"><i class="fa-brands fa-tiktok"></i></a>
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-orange-heading">أقسام الموقع:</h4>
+          <ul class="footer-links">
+            <li><a href="index.html#catalogSection">المتجر</a></li>
+            <li><a href="index.html#categoriesSection">الأقسام</a></li>
+            <li><a href="index.html?cat=blender">أجهزة المطبخ</a></li>
+            <li><a href="index.html?cat=care">العناية الشخصية</a></li>
+            <li><a href="index.html?cat=home">الأجهزة المنزلية</a></li>
+            <li><a href="#" onclick="openStoreWhatsappChat(); return false;">اتصل بنا</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-orange-heading">صفحات تهمك:</h4>
+          <ul class="footer-links">
+            <li><a href="#policy-refund" onclick="openStorePolicyModal('refund'); return false;">سياسة الاسترجاع والاسترداد</a></li>
+            <li><a href="#policy-shipping" onclick="openStorePolicyModal('shipping'); return false;">سياسة الشحن والتوصيل</a></li>
+            <li><a href="#policy-privacy" onclick="openStorePolicyModal('privacy'); return false;">سياسة الخصوصية</a></li>
+            <li><a href="#policy-terms" onclick="openStorePolicyModal('terms'); return false;">الشروط والأحكام</a></li>
+            <li><a href="#policy-service" onclick="openStorePolicyModal('service'); return false;">عناوين مراكز صيانة سوكاني</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-orange-heading">اشترك في النشرة البريدية</h4>
+          <p style="font-size:0.86rem; line-height:1.7; color:#e2d9d2; margin-bottom:12px;">
+            كن أول من يعرف بالعروض الجديدة وأحدث المنتجات في <span class="js-store-name-inline">Diamond Store</span>.
+          </p>
+          <form class="footer-newsletter-form" onsubmit="submitNewsletterForm(event)">
+            <input type="email" required placeholder="البريد الإلكتروني" />
+            <button type="submit" class="btn-brand">اشتراك</button>
+          </form>
+          <div style="margin-top:16px;">
+            <span style="display:block; font-size:0.8rem; font-weight:800; color:#FFE2CC; margin-bottom:8px;">طرق الدفع:</span>
+            <div class="footer-pay-badges">
+              <span><i class="fa-solid fa-hand-holding-dollar"></i> الدفع عند الاستلام</span>
+              <span><i class="fa-solid fa-bolt"></i> InstaPay</span>
+              <span><i class="fa-solid fa-mobile-screen-button"></i> Vodafone Cash</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom-bar">
+        <div class="footer-copy-text">
+          © 2026 جميع الحقوق محفوظة <strong class="js-store-name-inline" style="color:var(--brand-light);">Diamond Store</strong> — شحن مجاني لجميع المحافظات و<span class="js-warranty-text">ضمان معتمد رسمي من شركة المغربي لمدة سنة</span>
+        </div>
+        <div class="footer-dev-credit">
+          <span>تم تصميم وتطوير الموقع بواسطة</span>
+          <a href="https://wa.me/201095688105?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%20SayedMohamed%D8%8C%20%D8%AA%D9%88%D8%A7%D8%B5%D9%84%D8%AA%20%D9%85%D8%B9%D9%83%20%D9%85%D9%86%20%D9%85%D9%88%D9%82%D8%B9%20Diamond%20Store"
+             target="_blank"
+             rel="noopener noreferrer"
+             class="dev-whatsapp-badge"
+             title="تواصل عبر واتساب مع المطور SayedMohamed (01095688105)">
+            <i class="fa-brands fa-whatsapp"></i>
+            <strong>SayedMohamed</strong>
+            <span class="dev-phone-pill">01095688105</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================== 7. MOBILE BOTTOM NAVIGATION BAR ==================== -->
+  <nav class="mobile-bottom-nav" aria-label="التنقل السريع للموبايل">
+    <a href="index.html" class="mob-nav-item">
+      <i class="fa-solid fa-house"></i>
+      <span>الرئيسية</span>
+    </a>
+    <a href="index.html#categoriesSection" class="mob-nav-item">
+      <i class="fa-solid fa-table-cells-large"></i>
+      <span>الأقسام</span>
+    </a>
+    <button type="button" class="mob-nav-item" onclick="focusMobileSearch()">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <span>البحث</span>
+    </button>
+    <button type="button" class="mob-nav-item" onclick="openWishlistModal()">
+      <i class="fa-regular fa-heart"></i>
+      <span>المفضلة</span>
+      <span class="mob-badge" id="mobWishBadge">0</span>
+    </button>
+    <button type="button" class="mob-nav-item" onclick="openDrawer('cartDrawer')">
+      <i class="fa-solid fa-bag-shopping"></i>
+      <span>السلة</span>
+      <span class="mob-badge" id="mobCartBadge">0</span>
+    </button>
+  </nav>
+
+  <!-- ==================== 8. DRAWERS & MODALS ==================== -->
+  <div class="overlay-backdrop" id="overlayBackdrop" onclick="closeAllOverlays()"></div>
+
+  <!-- Shopping Cart Drawer -->
+  <aside class="cart-drawer" id="cartDrawer">
+    <div class="drawer-head">
+      <h3 style="font-size:1.12rem; font-weight:900;">
+        <i class="fa-solid fa-bag-shopping" style="color:var(--brand);"></i> سلة التسوق
+      </h3>
+      <button class="tool-btn" style="width:36px; height:36px; padding:0;" onclick="closeAllOverlays()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="drawer-content" id="cartDrawerList"></div>
+
+    <div class="drawer-foot">
+      <div style="background:var(--brand-soft); border:1px solid var(--brand-tint); border-radius:10px; padding:8px 12px; margin-bottom:12px; font-size:0.8rem; font-weight:800; color:var(--brand-dark); display:flex; align-items:center; gap:8px;">
+        <i class="fa-solid fa-truck-fast"></i>
+        <span>شحن مجاني لجميع المحافظات + <span class="js-warranty-text">ضمان معتمد رسمي من شركة المغربي لمدة سنة</span></span>
+      </div>
+
+      <div style="display:flex; gap:8px; margin-bottom:14px;">
+        <input type="text" id="promoInput" placeholder="كود الخصم (مثال: DIAMOND10)"
+               style="flex:1; background:var(--bg-white); border:1.5px solid var(--border); padding:9px 12px; border-radius:10px; font-family:inherit; font-size:0.84rem;" />
+        <button class="btn-outline" style="padding:8px 14px; font-size:0.84rem;" onclick="applyPromoCoupon()">تطبيق</button>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; font-size:0.86rem; margin-bottom:6px;">
+        <span>المجموع الفرعي:</span>
+        <strong id="cartSubTotal">0 ج.م</strong>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:0.86rem; margin-bottom:6px; color:var(--brand-dark);">
+        <span>مصاريف الشحن:</span>
+        <strong>مجاني (0 ج.م)</strong>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:0.86rem; margin-bottom:8px; color:var(--brand-dark);">
+        <span>قيمة الخصم:</span>
+        <strong id="cartDiscountTotal">0 ج.م</strong>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:1.15rem; font-weight:900; padding-top:10px; border-top:1px solid var(--border); margin-bottom:16px;">
+        <span>الإجمالي النهائي:</span>
+        <strong id="cartGrandTotal" style="color:var(--brand-dark);">0 ج.م</strong>
+      </div>
+
+      <button class="btn-brand" style="width:100%; justify-content:center;" onclick="openCheckoutWindow()">
+        <span>إتمام الطلب الآن (شحن مجاني)</span>
+        <i class="fa-solid fa-arrow-left"></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Quick View Modal -->
+  <div class="center-modal" id="quickViewModal">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+      <span class="section-kicker" style="margin:0;">معاينة سريعة للجهاز</span>
+      <button class="tool-btn" style="width:36px; height:36px; padding:0;" onclick="closeAllOverlays()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    <div id="quickViewBody"></div>
+  </div>
+
+  <!-- Wishlist Modal -->
+  <div class="center-modal" id="wishlistModal">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+      <h3 style="font-size:1.2rem; font-weight:900;">قائمة المفضلة</h3>
+      <button class="tool-btn" style="width:36px; height:36px; padding:0;" onclick="closeAllOverlays()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    <div id="wishlistModalContent"></div>
+  </div>
+
+  <!-- Checkout Modal -->
+  <div class="center-modal" id="checkoutModal">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+      <h3 style="font-size:1.2rem; font-weight:900;">بيانات الشحن المجاني وإتمام الطلب</h3>
+      <button class="tool-btn" style="width:36px; height:36px; padding:0;" onclick="closeAllOverlays()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    <p id="checkoutSummaryBanner" style="color:var(--brand-dark); font-weight:800; margin-bottom:16px;"></p>
+
+    <form onsubmit="submitCustomerOrder(event)" style="display:grid; gap:14px;">
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
+        <input type="text" id="ordName" required placeholder="الاسم بالكامل"
+               style="background:var(--bg-page); border:1.5px solid var(--border); padding:12px; border-radius:10px; font-family:inherit;" />
+        <input type="tel" id="ordPhone" required placeholder="رقم الموبايل / واتساب (01xxxxxxxxx)"
+               style="background:var(--bg-page); border:1.5px solid var(--border); padding:12px; border-radius:10px; font-family:inherit;" />
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
+        <select id="ordGov" class="clean-select" style="padding:12px;">
+          <option value="القاهرة">القاهرة (شحن مجاني)</option>
+          <option value="الجيزة">الجيزة (شحن مجاني)</option>
+          <option value="الإسكندرية">الإسكندرية (شحن مجاني)</option>
+          <option value="القليوبية">القليوبية (شحن مجاني)</option>
+          <option value="الدقهلية">الدقهلية - المنصورة (شحن مجاني)</option>
+          <option value="الشرقية">الشرقية - الزقازيق (شحن مجاني)</option>
+          <option value="الغربية">الغربية - طنطا (شحن مجاني)</option>
+          <option value="المنوفية">المنوفية (شحن مجاني)</option>
+          <option value="البحيرة">البحيرة (شحن مجاني)</option>
+          <option value="كفر الشيخ">كفر الشيخ (شحن مجاني)</option>
+          <option value="دمياط">دمياط (شحن مجاني)</option>
+          <option value="بورسعيد">بورسعيد (شحن مجاني)</option>
+          <option value="الإسماعيلية">الإسماعيلية (شحن مجاني)</option>
+          <option value="السويس">السويس (شحن مجاني)</option>
+          <option value="الفيوم">الفيوم (شحن مجاني)</option>
+          <option value="بني سويف">بني سويف (شحن مجاني)</option>
+          <option value="المنيا">المنيا (شحن مجاني)</option>
+          <option value="أسيوط">أسيوط (شحن مجاني)</option>
+          <option value="سوهاج">سوهاج (شحن مجاني)</option>
+          <option value="قنا">قنا (شحن مجاني)</option>
+          <option value="الأقصر">الأقصر (شحن مجاني)</option>
+          <option value="أسوان">أسوان (شحن مجاني)</option>
+          <option value="البحر الأحمر">البحر الأحمر - الغردقة (شحن مجاني)</option>
+          <option value="مطروح">مرسى مطروح (شحن مجاني)</option>
+        </select>
+
+        <select id="ordPay" class="clean-select" style="padding:12px;" onchange="selectCheckoutPaymentMethod(this.value)">
+          <option value="الدفع عند الاستلام">الدفع نقداً عند الاستلام</option>
+          <option value="InstaPay">إنستا باي (InstaPay — لينك / رقم / QR)</option>
+          <option value="Vodafone Cash">فودافون كاش (Vodafone Cash)</option>
+        </select>
+      </div>
+
+      <input type="text" id="ordAddr" required placeholder="العنوان بالتفصيل (المنطقة، الشارع، رقم العقار، علامة مميزة)"
+             style="background:var(--bg-page); border:1.5px solid var(--border); padding:12px; border-radius:10px; font-family:inherit;" />
+
+      <!-- Interactive Payment Method Selector Cards -->
+      <div class="checkout-pay-section">
+        <div class="checkout-pay-title">
+          <i class="fa-solid fa-credit-card" style="color:var(--brand-dark);"></i>
+          <span>اختر وسيلة الدفع المفضلة لك:</span>
+        </div>
+        <div class="pay-methods-grid" id="payMethodsSelector">
+          <button type="button" class="pay-method-card active" data-pay="الدفع عند الاستلام" onclick="selectCheckoutPaymentMethod('الدفع عند الاستلام')">
+            <div class="pay-method-icon"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+            <div>
+              <strong>الدفع عند الاستلام</strong>
+              <span>معاينة الطلب قبل الدفع</span>
+            </div>
+          </button>
+
+          <button type="button" class="pay-method-card instapay-card" data-pay="InstaPay" onclick="selectCheckoutPaymentMethod('InstaPay')">
+            <div class="pay-method-icon instapay-icon"><i class="fa-solid fa-bolt"></i></div>
+            <div>
+              <strong>إنستا باي InstaPay</strong>
+              <span>لينك مباشر + رقم + QR</span>
+            </div>
+          </button>
+
+          <button type="button" class="pay-method-card wallet-card" data-pay="Vodafone Cash" onclick="selectCheckoutPaymentMethod('Vodafone Cash')">
+            <div class="pay-method-icon wallet-icon"><i class="fa-solid fa-mobile-screen-button"></i></div>
+            <div>
+              <strong>فودافون كاش</strong>
+              <span>تحويل محفظة إلكترونية</span>
+            </div>
+          </button>
+        </div>
+
+        <!-- Dynamic Payment Gateway Box (InstaPay Link, Number, QR & Screenshot Instructions) -->
+        <div id="paymentGatewayPanel"></div>
+      </div>
+
+      <button type="submit" class="btn-brand" style="justify-content:center; height:52px; font-size:1rem;">
+        <i class="fa-solid fa-check"></i> تأكيد وإرسال الطلب الآن (شحن مجاني + ضمان سنة)
+      </button>
+    </form>
+
+    <div id="checkoutResultBox" style="display:none; margin-top:16px; padding:16px; border-radius:14px; background:var(--brand-soft); border:1.5px solid var(--brand);"></div>
+  </div>
+
+  <!-- Product Comparison Modal -->
+  <div class="center-modal" id="compareModal" style="width:min(1040px, 95vw);">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+      <div>
+        <span class="section-kicker" style="margin:0;"><i class="fa-solid fa-scale-balanced"></i> مقارنة المواصفات والأسعار</span>
+        <h3 style="font-size:1.22rem; font-weight:900; margin-top:4px;">مقارنة أجهزة سوكاني جنباً إلى جنب</h3>
+      </div>
+      <button class="tool-btn" style="width:36px; height:36px; padding:0;" onclick="closeAllOverlays()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    <div id="compareModalBody"></div>
+  </div>
+
+  <!-- Store Policies & Important Pages Modal (سياسة الاسترجاع والاستبدال - صفحات تهمك) -->
+  <div class="center-modal policy-full-modal" id="storePolicyModal">
+    <div id="storePolicyModalBody"></div>
+  </div>
+
+  <!-- Sticky PDP Quick-Buy Bar -->
+  <div class="pdp-sticky-buybar" id="pdpStickyBuyBar"></div>
+
+  <!-- Floating Comparison Dock -->
+  <div class="compare-floating-bar" id="compareFloatingBar"></div>
+
+  <!-- Scroll To Top Progress Button -->
+  <button type="button" class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="العودة لأعلى الصفحة">
+    <i class="fa-solid fa-arrow-up"></i>
+  </button>
+
+  <!-- Floating WhatsApp Contact -->
+  <a href="https://wa.me/201000000000?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%20Diamond%20Store%D8%8C%20%D8%A3%D8%B1%D8%BA%D8%A8%20%D9%81%D9%8A%20%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%20%D8%A3%D8%AC%D9%87%D8%B2%D8%A9%20%D8%B3%D9%88%D9%83%D8%A7%D9%86%D9%8A"
+     id="floatingWhatsappLink" target="_blank" rel="noopener noreferrer" class="whatsapp-float" title="تواصل معنا عبر واتساب">
+    <i class="fa-brands fa-whatsapp"></i>
+  </a>
+
+  <!-- Toast Notifications -->
+  <div class="toast-stack" id="toastStack"></div>
+
+  <!-- Scripts -->
+  <script src="vendor/supabase.min.js"></script>
+  <script src="supabase-config.js"></script>
+  <script src="store-data.js?v=20261126d"></script>
+  <script src="products.js?v=20261115a"></script>
+  <script src="app.js?v=20261126d"></script>
+</body>
+</html>

@@ -8900,3 +8900,38 @@ h1, h2, h3, h4, h5, h6,
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
+
+/* ==================== CATEGORY PAGE (category.html) ==================== */
+.category-page-head { text-align: center; margin-bottom: 22px; }
+.category-page-head .section-kicker { display: inline-block; color: var(--gold, #c9a24b); font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+.category-page-head .section-title { font-size: clamp(1.5rem, 4vw, 2.2rem); margin: 0; }
+.cat-page-count { color: var(--text-dim, #9a9a9a); margin: 8px 0 2px; font-size: 0.95rem; }
+.cat-price-range-note { color: var(--text-dim, #9a9a9a); font-size: 0.8rem; margin: 0; min-height: 1em; }
+
+.category-filter-bar {
+  display: flex; flex-wrap: wrap; gap: 16px; align-items: stretch;
+  background: var(--panel, #14141a); border: 1px solid var(--border, #2a2a33);
+  border-radius: 14px; padding: 14px 16px; margin-bottom: 22px;
+}
+.category-filter-bar .cf-price { flex: 1 1 260px; min-width: 240px; }
+.cf-price-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 0.9rem; }
+.cf-price-head strong { color: var(--gold, #c9a24b); font-variant-numeric: tabular-nums; }
+.cf-slider-row { display: flex; align-items: center; gap: 10px; margin: 6px 0; }
+.cf-slider-row label { font-size: 0.8rem; color: var(--text-dim, #9a9a9a); width: 28px; flex-shrink: 0; }
+.cf-slider-row input[type="range"] { flex: 1; accent-color: var(--gold, #c9a24b); cursor: pointer; height: 4px; }
+.category-filter-bar .cf-sort { flex: 0 1 240px; min-width: 200px; display: flex; flex-direction: column; gap: 6px; }
+.category-filter-bar .cf-sort label { font-size: 0.85rem; color: var(--text-dim, #9a9a9a); }
+.category-filter-bar .cf-sort select {
+  background: var(--bg, #0d0d12); color: var(--text, #f1f1f1);
+  border: 1px solid var(--border, #2a2a33); border-radius: 10px;
+  padding: 10px 12px; font-size: 0.9rem; cursor: pointer;
+}
+.category-filter-bar .cf-reset { align-self: center; white-space: nowrap; }
+
+.catalog-empty { grid-column: 1 / -1; text-align: center; padding: 48px 16px; color: var(--text-dim, #9a9a9a); }
+.catalog-empty i { font-size: 2rem; color: var(--gold, #c9a24b); margin-bottom: 10px; display: block; }
+
+@media (max-width: 640px) {
+  .category-filter-bar { flex-direction: column; }
+  .category-filter-bar .cf-sort { flex: 1 1 auto; }
+}
