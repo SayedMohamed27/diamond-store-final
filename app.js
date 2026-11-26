@@ -233,6 +233,7 @@ function loadAllStoreData() {
         renderEditableSiteSections();
         if (document.getElementById('heroStudioStage')) renderHeroSlide(state.activeHeroSlide);
         if (document.getElementById('categoriesGrid')) renderCategoriesGrid();
+        if (document.getElementById('sectionsCatalogHost')) window.openSectionsCatalog();
         if (document.getElementById('productsGrid')) renderCatalogGrid();
         if (typeof renderCompareStudioTab === 'function') renderCompareStudioTab();
         if (document.getElementById('bundleItemsGrid')) renderBundleSection();
@@ -1183,37 +1184,52 @@ window.submitHeaderSearch = function() {
 window.openSectionsCatalog = function() {
   const host = document.getElementById('sectionsCatalogHost') || document.getElementById('categoriesGrid');
   if (!host) {
-    window.location.href = 'index.html#catalogSection';
+    window.location.href = 'index.html#sectionsCatalogHost';
     return;
   }
-  state.activeCategory = state.activeCategory === 'sections' ? state.activeCategory : state.activeCategory;
-  const cats = state.categories.length ? state.categories : DEFAULT_CATEGORIES;
-  const sectionsCat = cats.find(c => c.id === 'sections');
-  const subs = (sectionsCat && Array.isArray(sectionsCat.subItems)) ? sectionsCat.subItems : [];
+  const resolveAndRender = () => {
+    const cats = state.categories.length ? state.categories : DEFAULT_CATEGORIES;
+    const sectionsCat = cats.find(c => c.id === 'sections');
+    const subs = (sectionsCat && Array.isArray(sectionsCat.subItems)) ? sectionsCat.subItems : [];
+    if (!subs.length) return false;
 
-  host.innerHTML = `
-    <div class="sections-catalog-head">
-      <h2 class="sections-catalog-title">أقسام الموقع</h2>
-    </div>
-    <div class="sections-catalog-grid">
-      ${subs.map(sub => {
-        const img = sub.image || '';
-        const q = (sub.query || '').trim();
-        const cat = sub.cat || 'all';
-        const n = q
-          ? state.products.filter(p => smartProductSearchMatch(p, q)).length
-          : state.products.filter(p => doesProductMatchCategory(p, cat)).length;
-        return `
-          <button type="button" class="sections-cat-card" onclick="filterBySubCategory('${escapeHTML(cat)}', '${escapeHTML(q)}')">
-            <div class="sections-cat-img-wrap">
-              ${img ? `<img src="${escapeHTML(img)}" alt="${escapeHTML(sub.name || '')}" loading="lazy" decoding="async" width="300" height="300" onerror="this.style.display='none'" />` : `<i class="fa-solid fa-grip"></i>`}
-            </div>
-            <div class="sections-cat-name">${escapeHTML(sub.name || '')}</div>
-            <div class="sections-cat-count">${n} منتج</div>
-          </button>
-        `;
-      }).join('')}
-    </div>`;
+    host.innerHTML = `
+      <div class="sections-catalog-head" id="sectionsCatalogAnchor">
+        <h2 class="sections-catalog-title">أقسام الموقع</h2>
+      </div>
+      <div class="sections-catalog-grid">
+        ${subs.map(sub => {
+          const img = sub.image || '';
+          const q = (sub.query || '').trim();
+          const cat = sub.cat || 'all';
+          const n = q
+            ? state.products.filter(p => smartProductSearchMatch(p, q)).length
+            : state.products.filter(p => doesProductMatchCategory(p, cat)).length;
+          return `
+            <button type="button" class="sections-cat-card" onclick="filterBySubCategory('${escapeHTML(cat)}', '${escapeHTML(q)}')">
+              <div class="sections-cat-img-wrap">
+                ${img ? `<img src="${escapeHTML(img)}" alt="${escapeHTML(sub.name || '')}" loading="lazy" decoding="async" width="300" height="300" onerror="this.style.display='none'" />` : `<i class="fa-solid fa-grip"></i>`}
+              </div>
+              <div class="sections-cat-name">${escapeHTML(sub.name || '')}</div>
+              <div class="sections-cat-count">${n} منتج</div>
+            </button>
+          `;
+        }).join('')}
+      </div>`;
+    return true;
+  };
+
+  // Render now; if the Supabase catalog (with the sections sub-items) is still
+  // loading, render as soon as it arrives so the click always lands on a full grid.
+  if (!resolveAndRender() && state.catalogLoading) {
+    const timer = setInterval(() => {
+      if (resolveAndRender()) clearInterval(timer);
+    }, 200);
+    setTimeout(() => clearInterval(timer), 8000);
+  }
+  setTimeout(() => {
+    document.getElementById('sectionsCatalogAnchor')?.scrollIntoView({ behavior: 'smooth' });
+  }, 60);
 };
 
 function renderCategoriesGrid() {
