@@ -7615,7 +7615,7 @@ h1, h2, h3, h4, h5, h6,
 }
 
 .egy-review-card.egy-card-orange { background: #f4680c; border-color: #f4680c; }
-.egy-review-card.egy-card-navy { background: #12233c; border-color: #12233c; }
+.egy-review-card.egy-card-navy { background: #101010; border-color: #2a2a2a; }
 .egy-review-card.egy-card-orange .egy-review-text,
 .egy-review-card.egy-card-navy .egy-review-text { color: #ffffff; }
 .egy-review-card.egy-card-orange .egy-author-meta strong,
