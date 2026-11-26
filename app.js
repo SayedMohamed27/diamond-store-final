@@ -356,14 +356,15 @@ function initCategoryDetailsPage() {
   const titleEl = document.getElementById('catPageTitle');
   const bcEl = document.getElementById('catPageBreadcrumb');
   const name = catId === 'all' ? 'كل الأقسام' : resolveCategoryDisplayName(catId);
-  if (titleEl) titleEl.textContent = name;
+  const qLabel = q ? ` — "${q}"` : '';
+  if (titleEl) titleEl.textContent = name + qLabel;
   if (bcEl) {
     bcEl.innerHTML = `
       <li><a href="index.html">الرئيسية</a></li>
       <li><span class="bc-sep">/</span></li>
-      <li class="bc-current">${escapeHTML(name)}</li>`;
+      <li class="bc-current">${escapeHTML(name + qLabel)}</li>`;
   }
-  document.title = `${name} — Diamond Store`;
+  document.title = `${name}${qLabel} — Diamond Store`;
 
   const catProducts = state.products.filter(p => doesProductMatchCategory(p, catId));
   const prices = catProducts.map(p => Number(p.price)).filter(v => v > 0);
