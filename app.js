@@ -4039,17 +4039,17 @@ function renderEditableSiteSections() {
     if (track) {
       const starHTML = n => Array.from({ length: 5 }, (_, i) =>
         `<i class="fa-solid fa-star${i < n ? '' : ' fa-star-half-stroke opacity-star'}"></i>`).join('');
-      track.innerHTML = state.reviews.map(r => `
-        <article class="egy-review-card">
+      track.innerHTML = state.reviews.map((r, i) => `
+        <article class="egy-review-card ${i % 2 === 0 ? 'egy-card-orange' : 'egy-card-navy'}">
           <div class="egy-review-top">
             <div class="egy-avatar">${escapeHTML(r.initials || (r.name || 'م').trim().charAt(0))}</div>
             <div class="egy-author-meta">
               <strong>${escapeHTML(r.name)}</strong>
-              <span><i class="fa-solid fa-location-dot"></i> ${escapeHTML(r.meta)}</span>
+              <div class="egy-stars">${starHTML(r.rating || 5)}</div>
             </div>
-            <div class="egy-stars">${starHTML(r.rating || 5)}</div>
+            <span class="egy-verified-pill"><i class="fa-solid fa-check"></i> قرار موثوق</span>
           </div>
-          <p class="egy-review-text">${escapeHTML(r.text)}</p>
+          <p class="egy-review-text">${escapeHTML(String(r.short || r.text || '').split(/\s+/).slice(0, 12).join(' '))}</p>
           <div class="egy-review-foot">
             <span class="egy-prod-tag"><i class="fa-solid fa-circle-check"></i> ${escapeHTML(r.tag)}</span>
           </div>

@@ -7604,14 +7604,43 @@ h1, h2, h3, h4, h5, h6,
 .egy-review-card {
   background: #ffffff;
   border: 1.5px solid var(--border);
-  border-radius: 20px;
-  padding: 20px;
+  border-radius: 18px;
+  padding: 16px 18px;
   box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 14px;
+  gap: 10px;
   transition: transform 0.28s var(--ease-spring), border-color 0.28s ease, box-shadow 0.28s ease;
+}
+
+.egy-review-card.egy-card-orange { background: #f4680c; border-color: #f4680c; }
+.egy-review-card.egy-card-navy { background: #12233c; border-color: #12233c; }
+.egy-review-card.egy-card-orange .egy-review-text,
+.egy-review-card.egy-card-navy .egy-review-text { color: #ffffff; }
+.egy-review-card.egy-card-orange .egy-author-meta strong,
+.egy-review-card.egy-card-navy .egy-author-meta strong { color: #ffffff; }
+.egy-review-card.egy-card-orange .egy-stars,
+.egy-review-card.egy-card-navy .egy-stars { color: #ffd166; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35); }
+.egy-review-card.egy-card-orange .egy-review-foot { border-top-color: rgba(255, 255, 255, 0.35); }
+.egy-review-card.egy-card-navy .egy-review-foot { border-top-color: rgba(255, 255, 255, 0.25); }
+.egy-review-card.egy-card-orange .egy-prod-tag,
+.egy-review-card.egy-card-navy .egy-prod-tag { color: #ffffff; }
+.egy-review-card .egy-avatar { background: rgba(255, 255, 255, 0.18); box-shadow: none; color: #ffffff; }
+.egy-review-card.egy-card-navy .egy-avatar { background: rgba(244, 104, 12, 0.85); }
+
+.egy-verified-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #ffffff;
+  color: #1d9e52;
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 99px;
+  flex-shrink: 0;
+  align-self: flex-start;
 }
 
 .egy-review-card:hover {
@@ -7673,10 +7702,14 @@ h1, h2, h3, h4, h5, h6,
 }
 
 .egy-review-text {
-  font-size: 0.88rem;
-  line-height: 1.75;
+  font-size: 0.8rem;
+  line-height: 1.6;
   color: var(--text-body);
   font-weight: 500;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .egy-review-foot {
@@ -8240,10 +8273,10 @@ h1, h2, h3, h4, h5, h6,
 .egy-reviews-track .egy-review-card {
   direction: rtl;
   text-align: right;
-  flex: 0 0 365px;
-  width: 365px;
-  max-width: 365px;
-  margin-right: 18px;
+  flex: 0 0 295px;
+  width: 295px;
+  max-width: 295px;
+  margin-right: 16px;
 }
 
 @keyframes egyReviewsInfiniteGlideRight {
@@ -8257,10 +8290,10 @@ h1, h2, h3, h4, h5, h6,
 
 @media (max-width: 1024px) {
   .egy-reviews-track .egy-review-card {
-    flex: 0 0 320px;
-    width: 320px;
-    max-width: 320px;
-    margin-right: 14px;
+    flex: 0 0 272px;
+    width: 272px;
+    max-width: 272px;
+    margin-right: 12px;
   }
 }
 
@@ -8270,10 +8303,10 @@ h1, h2, h3, h4, h5, h6,
   }
   /* 270px width on mobile so 1 full review card + ~35% of the next review card are visible moving together! */
   .egy-reviews-track .egy-review-card {
-    flex: 0 0 270px;
-    width: 270px;
-    max-width: 270px;
-    margin-right: 12px;
+    flex: 0 0 240px;
+    width: 240px;
+    max-width: 240px;
+    margin-right: 10px;
   }
 }
 
