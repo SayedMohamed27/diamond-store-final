@@ -12,7 +12,7 @@
   <!-- FontAwesome 6 -->
   <link rel="stylesheet" href="vendor/css/all.min.css" />
   <!-- Main Stylesheet -->
-  <link rel="stylesheet" href="styles.css?v=20261129a" />
+  <link rel="stylesheet" href="styles.css?v=20261127d" />
 </head>
 <body>
 
@@ -104,183 +104,40 @@
     </nav>
   </header>
 
-  <!-- ==================== 3. INTERACTIVE PRODUCT EXHIBITION STAGE (HERO SHOWCASE) ==================== -->
-  <section class="hero-showcase" id="heroShowcaseSection">
-    <div class="hero-ambient-orb orb-1" aria-hidden="true"></div>
-    <div class="hero-ambient-orb orb-2" aria-hidden="true"></div>
-    <div class="hero-perspective-floor" aria-hidden="true"></div>
-
+  <!-- ==================== 3. HERO TRIPTYCH — THREE CATEGORIES ==================== -->
+  <section class="hero-triptych" id="heroShowcaseSection" aria-label="أقسام المتجر الرئيسية">
     <div class="container">
-      <div class="hero-layout hero-exhibition-layout">
-        <!-- Zone 1 (Right): Organized Product Identity, Specs & Prominent Price/CTA -->
-        <div class="hero-copy-col">
-          <div class="hero-identity-top">
-            <div class="hero-tag-badge">
-              <span class="hero-tag-dot"></span>
-              <span id="heroTagText">SOKANY EXHIBITION STAGE</span>
-            </div>
-            <span class="hero-sku-pill" id="heroMetricModel">SK-10085</span>
-          </div>
-
-          <div class="kinetic-mask">
-            <h1 class="hero-heading" id="heroHeading">
-              قلاية سوكاني الديجيتال الهوائية 360° موديل SK-10085
-            </h1>
-          </div>
-
-          <div class="kinetic-mask">
-            <p class="hero-description" id="heroDescription">
-              اكتشف أقوى أجهزة القلايات الديجيتال، الساندوتش ميكر، الخلاطات الاحترافية، والأفران الكهربائية بشحن مجاني لجميع المحافظات وضمان معتمد رسمي من شركة المغربي لمدة سنة.
-            </p>
-          </div>
-
-          <!-- Clean Technical Spec Chips (No Overlap with Product) -->
-          <div class="hero-specs-strip">
-            <div class="hero-spec-chip">
-              <i class="fa-solid fa-bolt"></i>
-              <div>
-                <small>القدرة الفعلية</small>
-                <strong id="heroMetricPower">2200W</strong>
-              </div>
-            </div>
-            <div class="hero-spec-chip">
-              <i class="fa-solid fa-cube"></i>
-              <div>
-                <small>السعة والمواصفات</small>
-                <strong id="heroMetricCap">7.5 Liters</strong>
-              </div>
-            </div>
-            <div class="hero-spec-chip">
-              <i class="fa-solid fa-shield-halved"></i>
-              <div>
-                <small>الضمان والشحن</small>
-                <strong id="heroFloatBottomText">ضمان معتمد رسمي من شركة المغربي لمدة سنة</strong>
-              </div>
-            </div>
-          </div>
-
-          <!-- Prominent Price & Primary CTA Bar -->
-          <div class="hero-price-cta-box">
-            <div class="hero-price-spotlight" id="heroFloatPriceBadge" onclick="document.getElementById('heroDetailBtn')?.click()">
-              <span class="price-spotlight-lbl">سعر العرض الحصري</span>
-              <div class="price-spotlight-val">
-                <strong id="heroMetricPrice">3,850 ج.م</strong>
-                <span id="heroFloatPriceVal" style="display:none;">3,850 ج.م</span>
-              </div>
-              <span class="price-spotlight-sub"><i class="fa-solid fa-truck-fast"></i> شامل الشحن المجاني لباب المنزل</span>
-            </div>
-
-            <div class="hero-actions">
-              <button type="button" class="btn-brand hero-main-cta" id="heroDetailBtn">
-                <i class="fa-regular fa-eye"></i>
-                <span>عرض المنتج والطلب</span>
-              </button>
-              <button type="button" class="btn-outline hero-secondary-cta" id="heroQuickAddBtn" onclick="addHeroActiveProductToCart(event)">
-                <i class="fa-solid fa-bag-shopping"></i>
-                <span>أضف للسلة</span>
-              </button>
-              <button type="button" class="btn-outline hero-cat-cta" id="heroShopCatBtn">
-                <span>تصفح القسم</span>
-                <i class="fa-solid fa-arrow-left"></i>
-              </button>
-              <button type="button" class="btn-outline hero-3d-explode-cta" id="heroToggleExplodeBtn" onclick="toggleHero3DExplodeMode()" style="display:none;">
-                <span id="heroExplodeCtaTxt">تفكيك المكونات 3D</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Zone 2 (Center): Free-Standing Interactive Product Stage & 3D Pedestal -->
-        <div class="hero-studio-stage" id="heroStudioStage">
-          <!-- Subtle Non-Overlapping Top Stage Bar -->
-          <div class="stage-top-hud">
-            <div class="stage-live-pill" id="heroFloatTop">
-              <span class="hud-pulse-dot"></span>
-              <span id="heroFloatTopText">موديل SK-10085 — 2200W</span>
-            </div>
-
-            <div class="stage-rotate-hint" id="stageRotateHint">
-              <i class="fa-solid fa-arrows-rotate"></i>
-              <span>حرّك أو اسحب لتدوير المنصة</span>
-            </div>
-
-            <div class="hero-slide-ctrl-pill" id="heroSlideCtrl">
-              <button type="button" class="hero-arrow-btn" onclick="stepHeroSlide(-1)" title="المنتج السابق">
-                <i class="fa-solid fa-chevron-right"></i>
-              </button>
-              <span id="heroSlideCounter">01 / 05</span>
-              <button type="button" class="hero-arrow-btn" onclick="stepHeroSlide(1)" title="المنتج التالي">
-                <i class="fa-solid fa-chevron-left"></i>
-              </button>
-            </div>
-          </div>
-
-          <!-- Free-Standing 3D Exhibition Rig (No Square Card Frame!) -->
-          <div class="hero-3d-rig" id="hero3DRig">
-            <div class="hero-gallery-card" id="heroGalleryCard">
-              <!-- Reactive Ambient Studio Backlight -->
-              <div class="stage-ambient-backlight" id="hero3DGlare" aria-hidden="true"></div>
-              <div class="hero-3d-halo" aria-hidden="true"></div>
-
-              <!-- Main Free-Standing Product Centerpiece -->
-              <div class="hero-product-frame" id="heroProductFrame"></div>
-
-              <!-- 3D Circular Exhibition Pedestal with Soft Olive-Green Rim Lighting & Realistic Shadows -->
-              <div class="stage-3d-pedestal-wrap" aria-hidden="true">
-                <div class="pedestal-upward-glow"></div>
-                <div class="pedestal-contact-shadow" id="heroPedestalShadow"></div>
-                <div class="pedestal-disc-top">
-                  <div class="pedestal-led-ring"></div>
-                  <div class="pedestal-inner-ring"></div>
-                </div>
-                <div class="pedestal-disc-side"></div>
-                <div class="pedestal-floor-shadow"></div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Compact Professional Stage Toolbar (Product Explanation Arrows, Components & Actions) -->
-          <div class="stage-toolbar-wrap">
-            <div class="hero-3d-mode-bar" id="hero3DModeBar">
-              <button type="button" class="hero-mode-btn active" data-mode="live" onclick="setHero3DViewMode('live')">
-                <i class="fa-solid fa-location-crosshairs"></i>
-                <span>شرح أجزاء الجهاز</span>
-              </button>
-              <button type="button" class="hero-mode-btn" data-mode="exploded" onclick="setHero3DViewMode('exploded')">
-                <i class="fa-solid fa-layer-group"></i>
-                <span id="heroExplodeBtnTxt">المكونات بالتفصيل</span>
-              </button>
-              <button type="button" class="hero-mode-btn" data-mode="photo" onclick="setHero3DViewMode('photo')">
-                <i class="fa-solid fa-camera"></i>
-                <span>عرض حر</span>
-              </button>
-
-              <span class="toolbar-divider" aria-hidden="true"></span>
-
-              <button type="button" class="hero-mode-btn toolbar-action-btn active" id="stageInspectBtn" onclick="toggleHero3DDrawer(event)" title="إظهار أو إخفاء أسهم شرح المنتج">
-                <i class="fa-solid fa-bullseye"></i>
-                <span>أسهم الشرح</span>
-              </button>
-              <button type="button" class="hero-mode-btn toolbar-action-btn" id="stageCompareBtn" onclick="compareHeroActiveProduct()" title="إضافة المنتج للمقارنة">
-                <i class="fa-solid fa-scale-balanced"></i>
-                <span>قارن</span>
-              </button>
-              <button type="button" class="hero-mode-btn" onclick="addHeroActiveProductToCart(event)" title="إضافة المنتج للسلة">
-                <i class="fa-solid fa-bag-shopping"></i>
-                <span>أضف للسلة</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Zone 3 (Left): Sleek Organized Vertical Thumbnail Sidebar -->
-        <aside class="hero-thumb-sidebar" aria-label="قائمة أجهزة العرض">
-          <div class="thumb-sidebar-header">
-            <span><i class="fa-solid fa-cubes"></i> أجهزة المعرض</span>
-            <small>اختر للمعاينة</small>
-          </div>
-          <div class="hero-thumb-dock" id="heroNavStrip"></div>
-        </aside>
+      <div class="triptych-grid">
+        <a class="trip-card" href="category.html?cat=kitchen" aria-label="تصفح أجهزة المطبخ">
+          <img class="trip-img" src="assets/products/hero-cat-kitchen.jpg" alt="أجهزة المطبخ: أفران وقلايات هوائية وخلاطات" />
+          <span class="trip-shade" aria-hidden="true"></span>
+          <span class="trip-body">
+            <span class="trip-eyebrow"><i class="fa-solid fa-kitchen-set"></i> أجهزة المطبخ</span>
+            <span class="trip-title">كل أجهزة المطبخ</span>
+            <span class="trip-sub">أفران • قلايات هوائية • خلاطات • ميكروويف</span>
+            <span class="trip-cta">ادخل القسم <i class="fa-solid fa-arrow-left"></i></span>
+          </span>
+        </a>
+        <a class="trip-card" href="category.html?cat=home" aria-label="تصفح الأجهزة المنزلية">
+          <img class="trip-img" src="assets/products/hero-cat-home.jpg" alt="الأجهزة المنزلية: مكنسة وبخار ملابس" />
+          <span class="trip-shade" aria-hidden="true"></span>
+          <span class="trip-body">
+            <span class="trip-eyebrow"><i class="fa-solid fa-house-chimney"></i> الأجهزة المنزلية</span>
+            <span class="trip-title">تنظيف وراحة البيت</span>
+            <span class="trip-sub">مكانس • بخار • مكاوي • منظفات</span>
+            <span class="trip-cta">ادخل القسم <i class="fa-solid fa-arrow-left"></i></span>
+          </span>
+        </a>
+        <a class="trip-card" href="category.html?cat=care" aria-label="تصفح العناية الشخصية">
+          <img class="trip-img" src="assets/products/hero-cat-care.jpg" alt="العناية الشخصية: سيشوار ومملس شعر" />
+          <span class="trip-shade" aria-hidden="true"></span>
+          <span class="trip-body">
+            <span class="trip-eyebrow"><i class="fa-solid fa-wand-magic-sparkles"></i> العناية الشخصية</span>
+            <span class="trip-title">جمالك يبدأ هنا</span>
+            <span class="trip-sub">سيشوار • مملس شعر • استشوار • تجفيف</span>
+            <span class="trip-cta">ادخل القسم <i class="fa-solid fa-arrow-left"></i></span>
+          </span>
+        </a>
       </div>
     </div>
   </section>
@@ -1042,6 +899,6 @@
   <script src="supabase-config.js"></script>
   <script src="store-data.js?v=20261127b"></script>
   <script src="products.js?v=20261115a"></script>
-  <script src="app.js?v=20261127c"></script>
+  <script src="app.js?v=20261127d"></script>
 </body>
 </html>
