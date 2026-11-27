@@ -1612,34 +1612,63 @@ function renderCategoriesGrid() {
   const cats = (state.categories.length ? state.categories : DEFAULT_CATEGORIES)
     .filter(cat => cat.id !== 'contact' && cat.id !== 'sections');
 
-  container.innerHTML = cats.map((cat, idx) => {
+  const groups = cats.map(cat => {
     const catProducts = state.products.filter(p => doesProductMatchCategory(p, cat.id));
-    const count = catProducts.length;
-    const image = cat.image || (catProducts[0] && catProducts[0].image) || 'assets/logo.jpg';
-    const icon = (cat.icon || 'fa-cube').replace(/[^a-zA-Z0-9_-]/g, '');
-    const badge = (cat.enName || '').split(' ')[0] || 'قسم';
-    const desc = cat.subtitle || `تشكيلة ${cat.name} الأصلية بضمان الشركة`;
+    const subs = Array.isArray(cat.subItems) && cat.subItems.length
+      ? cat.subItems
+      : [{ label: `كل ${cat.name}`, query: '', icon: cat.icon, image: cat.image }];
 
+    const items = subs.map(sub => {
+      const query = deriveQueryFromSubItem(sub);
+      const matched = query
+        ? catProducts.filter(p => smartProductSearchMatch(p, query))
+        : catProducts;
+      return {
+        label: sub.label || cat.name,
+        query,
+        icon: resolveSubItemIcon(sub, cat.icon || 'fa-cube'),
+        image: sub.image || (matched[0] && matched[0].image) || cat.image || 'assets/logo.jpg',
+        count: matched.length
+      };
+    });
+
+    return { cat, items };
+  }).filter(group => group.items.length);
+
+  container.innerHTML = groups.map(({ cat, items }) => {
+    const badge = (cat.enName || '').split(' ')[0] || 'قسم';
     return `
-      <a class="cat-showcard reveal-up" href="category.html?cat=${encodeURIComponent(cat.id)}"
-         style="--delay: ${idx * 40}ms">
-        <span class="cat-showcard-body">
-          <span class="cat-showcard-badge">${escapeHTML(badge)}</span>
-          <span class="cat-showcard-titlerow">
-            <span class="cat-showcard-title">${escapeHTML(cat.name)}</span>
-            <span class="cat-showcard-count"><i class="fa-solid fa-box-open" aria-hidden="true"></i> ${count.toLocaleString('ar-EG')} منتج</span>
-          </span>
-          <span class="cat-showcard-desc">${escapeHTML(desc)}</span>
-          <span class="cat-showcard-foot">
-            <span class="cat-showcard-btn">عرض قسم ${escapeHTML(cat.name)}</span>
-          </span>
-        </span>
-        <span class="cat-showcard-media">
-          <img src="${escapeHTML(image)}" alt="${escapeHTML(cat.name)}" loading="lazy" decoding="async" width="240" height="240"
-               onerror="this.onerror=null;this.remove();" />
-          <i class="fa-solid ${icon}" aria-hidden="true"></i>
-        </span>
-      </a>
+      <div class="cat-showcase-group">
+        <div class="cat-showcase-grouphead">
+          <span class="cat-showcase-grouptitle"><i class="fa-solid ${(cat.icon || 'fa-cube').replace(/[^a-zA-Z0-9_-]/g, '')}" aria-hidden="true"></i> ${escapeHTML(cat.name)}</span>
+          <span class="cat-showcase-groupcount">${items.length.toLocaleString('ar-EG')} قسم فرعي</span>
+          <a class="cat-showcase-groupall" href="category.html?cat=${encodeURIComponent(cat.id)}">عرض الكل <i class="fa-solid fa-arrow-left" aria-hidden="true"></i></a>
+        </div>
+        <div class="cat-showcase-grid">
+          ${items.map((it, idx) => `
+            <a class="cat-showcard reveal-up"
+               href="category.html?cat=${encodeURIComponent(cat.id)}${it.query ? `&q=${encodeURIComponent(it.query)}` : ''}"
+               style="--delay: ${idx * 30}ms">
+              <span class="cat-showcard-body">
+                <span class="cat-showcard-badge">${escapeHTML(badge)}</span>
+                <span class="cat-showcard-titlerow">
+                  <span class="cat-showcard-title">${escapeHTML(it.label)}</span>
+                  <span class="cat-showcard-count"><i class="fa-solid fa-box-open" aria-hidden="true"></i> ${it.count.toLocaleString('ar-EG')} منتج</span>
+                </span>
+                <span class="cat-showcard-desc">${escapeHTML(`كل موديلات ${it.label} المتوفرة الآن بأسعارها`)}</span>
+                <span class="cat-showcard-foot">
+                  <span class="cat-showcard-btn">عرض ${escapeHTML(it.label)}</span>
+                </span>
+              </span>
+              <span class="cat-showcard-media">
+                <img src="${escapeHTML(it.image)}" alt="${escapeHTML(it.label)}" loading="lazy" decoding="async" width="240" height="240"
+                     onerror="this.onerror=null;this.remove();" />
+                <i class="fa-solid ${it.icon}" aria-hidden="true"></i>
+              </span>
+            </a>
+          `).join('')}
+        </div>
+      </div>
     `;
   }).join('');
 
