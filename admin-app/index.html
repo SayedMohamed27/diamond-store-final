@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="styles.css?v=20261115b" />
   <script src="../vendor/supabase.min.js"></script>
   <script src="config.js"></script>
-  <script defer src="app.js?v=20261126a"></script>
+  <script defer src="app.js?v=20261127a"></script>
 </head>
 <body>
   <main class="page-shell" id="appShell">
@@ -305,18 +305,21 @@
       <section id="tab-hero" class="tab-section">
         <div class="section-card">
           <div class="section-header">
-            <h2><i class="fa-solid fa-images"></i> شرائح سلايدر الهيرو الرئيسي</h2>
-            <p class="muted" style="margin:0;">الـ 5 أجهزة المميزة المعروضة في مقدمة المتجر مع الأسعار والمواصفات.</p>
+            <div>
+              <h2><i class="fa-solid fa-images"></i> شرائح سلايدر الهيرو الرئيسي</h2>
+              <p class="muted" style="margin:0;">الأجهزة المميزة في مقدمة المتجر — اختر منتج من أقسامك وبياناته هتتعبّأ تلقائيًا.</p>
+            </div>
+            <button class="btn-brand" id="btnAddHeroSlide"><i class="fa-solid fa-plus"></i> إضافة شريحة</button>
           </div>
           <div class="table-responsive">
             <table>
               <thead>
                 <tr>
-                  <th>الرقم</th>
+                  <th>الترتيب</th>
                   <th>الصورة</th>
+                  <th>المنتج المرتبط</th>
                   <th>العنوان</th>
                   <th>الموديل</th>
-                  <th>القدرة / السعة</th>
                   <th>السعر</th>
                   <th>الحالة</th>
                   <th>إجراءات</th>
@@ -739,6 +742,15 @@
         <form id="heroSlideForm">
           <input type="hidden" id="hsIdInput" />
           <div class="form-grid">
+            <div class="form-group">
+              <label for="hsCategorySelect">القسم</label>
+              <select id="hsCategorySelect"><option value="">— اختر قسماً —</option></select>
+            </div>
+            <div class="form-group">
+              <label for="hsProductSelect">المنتج المرتبط</label>
+              <select id="hsProductSelect"><option value="">— اختر منتجاً —</option></select>
+            </div>
+            <p class="muted" style="grid-column:1/-1; margin:-6px 0 0; font-size:0.78rem;">اختيار المنتج يعبّئ العنوان والموديل والسعر والقدرة والسعة والصورة من بيانات المنتج، ويربط أزرار الشراء والتفاصيل في المتجر به.</p>
             <div class="form-group full">
               <label for="hsTitleInput">عنوان الشريحة الرئيسي</label>
               <input id="hsTitleInput" type="text" required />
@@ -746,6 +758,10 @@
             <div class="form-group full">
               <label for="hsSubtitleInput">الوصف التفصيلي للشريحة</label>
               <textarea id="hsSubtitleInput" rows="2"></textarea>
+            </div>
+            <div class="form-group full">
+              <label for="hsTagInput">الوسم العلوي (Tag)</label>
+              <input id="hsTagInput" type="text" placeholder="SOKANY FLAGSHIP SERIES • DIGITAL AIR FRYER" />
             </div>
             <div class="form-group">
               <label for="hsModelInput">رقم الموديل</label>
@@ -766,6 +782,19 @@
             <div class="form-group full">
               <label for="hsImageInput">رابط الصورة</label>
               <input id="hsImageInput" type="text" required />
+            </div>
+            <div class="form-group">
+              <label for="hsSortInput">الترتيب</label>
+              <input id="hsSortInput" type="number" min="1" step="1" />
+            </div>
+            <div class="form-group">
+              <label for="hsNumInput">الرقم المعروض</label>
+              <input id="hsNumInput" type="text" placeholder="06" />
+            </div>
+            <div class="form-group full">
+              <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                <input id="hsActiveInput" type="checkbox" checked style="width:auto;" /> مفعلة في المتجر
+              </label>
             </div>
           </div>
           <div style="margin-top:20px; display:flex; justify-content:flex-end; gap:10px;">

@@ -113,6 +113,27 @@
     };
   }
 
+  // Fill any empty hero slide field from the product it is linked to
+  function mergeHeroSlideWithProduct(slide, products) {
+    if (!slide) return null;
+    const product = slide.productId
+      ? (products || []).find(p => String(p.id) === String(slide.productId))
+      : null;
+    if (!product) return slide;
+    const price = Number(product.price);
+    return {
+      ...slide,
+      title: slide.title || product.name,
+      subtitle: slide.subtitle || String(product.shortDesc || '').split('\n')[0],
+      model: slide.model || product.model || '',
+      power: slide.power || product.wattage || '',
+      capacity: slide.capacity || product.capacity || '',
+      price: slide.price || (price > 0 ? price.toLocaleString('en-US') + ' ج.م' : ''),
+      image: slide.image || product.image || '',
+      categoryId: slide.categoryId || product.category || null
+    };
+  }
+
   // Map database hero slide row to frontend hero format
   function mapDbHeroSlideToLocal(dbSlide) {
     if (!dbSlide) return null;
@@ -268,7 +289,10 @@
 
         const hasDbHero = !heroRes.error && Array.isArray(heroRes.data) && heroRes.data.length > 0;
         const heroSlides = hasDbHero
-          ? heroRes.data.map(mapDbHeroSlideToLocal)
+          ? heroRes.data
+              .map(mapDbHeroSlideToLocal)
+              .map(slide => mergeHeroSlideWithProduct(slide, products))
+              .filter(Boolean)
           : getLocalFallbackHeroSlides();
 
         const defaultSettings = getLocalFallbackSettings();

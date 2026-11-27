@@ -182,6 +182,7 @@
     productsCache = data || [];
     $("badgeProductsCount").textContent = productsCache.length;
     renderProductsTable();
+    if (heroSlidesCache.length) renderHeroSlidesTable();
   }
 
   function renderProductsTable() {
@@ -1113,68 +1114,226 @@
     renderHeroSlidesTable();
   }
 
+  function heroProductById(productId) {
+    return productsCache.find(p => String(p.id) === String(productId)) || null;
+  }
+
+  function formatHeroPrice(value) {
+    const num = Number(value);
+    if (!Number.isFinite(num) || num <= 0) return "";
+    return num.toLocaleString("en-US") + " ج.م";
+  }
+
+  function populateHeroCategorySelect(selectedCategory) {
+    const sel = $("hsCategorySelect");
+    if (!sel) return;
+    const options = categoriesCache
+      .filter(c => c.id !== "contact")
+      .map(c => `<option value="${escapeHTML(c.id)}">${escapeHTML(c.name)}</option>`)
+      .join("");
+    sel.innerHTML = `<option value="">— اختر قسماً —</option>${options}`;
+    sel.value = selectedCategory || "";
+  }
+
+  function populateHeroProductSelect(categoryId, selectedProduct) {
+    const sel = $("hsProductSelect");
+    if (!sel) return;
+    const list = productsCache
+      .filter(p => !categoryId || p.category === categoryId)
+      .filter(p => p.is_active !== false)
+      .sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "ar"));
+    const options = list.map(p => {
+      const label = `${p.name || p.id}${p.model ? " · " + p.model : ""}`;
+      return `<option value="${escapeHTML(p.id)}">${escapeHTML(label)}</option>`;
+    }).join("");
+    sel.innerHTML = `<option value="">— بدون ربط بمنتج —</option>${options}`;
+    sel.value = selectedProduct || "";
+  }
+
+  function autofillHeroFromProduct(product) {
+    if (!product) return;
+    $("hsTitleInput").value = product.name || "";
+    $("hsSubtitleInput").value = String(product.short_desc || "").split("\n")[0].slice(0, 220);
+    $("hsModelInput").value = product.model || "";
+    $("hsPriceInput").value = formatHeroPrice(product.price);
+    $("hsPowerInput").value = product.wattage || "";
+    $("hsCapacityInput").value = product.capacity || "";
+    $("hsImageInput").value = product.image || "";
+    if (product.category) populateHeroCategorySelect(product.category);
+  }
+
   function renderHeroSlidesTable() {
     const body = $("heroSlidesTableBody");
     if (!body) return;
 
-    body.innerHTML = heroSlidesCache.map(s => `
+    if (!heroSlidesCache.length) {
+      body.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:24px;" class="muted">لا توجد شرائح — اضغط «إضافة شريحة».</td></tr>`;
+      return;
+    }
+
+    body.innerHTML = heroSlidesCache.map((s, idx) => {
+      const linked = s.product_id ? heroProductById(s.product_id) : null;
+      return `
       <tr>
-        <td><strong>#${escapeHTML(s.num)}</strong></td>
-        <td>
+        <td data-label="الترتيب">
+          <strong style="display:block;">#${escapeHTML(s.num || String(idx + 1))}</strong>
+          <div style="display:flex; gap:4px; margin-top:4px;">
+            <button type="button" class="btn-outline btn-sm" title="تحريك لأعلى" ${idx === 0 ? "disabled" : ""} onclick="moveHeroSlide('${escapeHTML(s.id)}', -1)"><i class="fa-solid fa-arrow-up"></i></button>
+            <button type="button" class="btn-outline btn-sm" title="تحريك لأسفل" ${idx === heroSlidesCache.length - 1 ? "disabled" : ""} onclick="moveHeroSlide('${escapeHTML(s.id)}', 1)"><i class="fa-solid fa-arrow-down"></i></button>
+          </div>
+        </td>
+        <td data-label="الصورة">
           <img src="${escapeHTML(resolveAdminImageUrl(s.image))}" alt="${escapeHTML(s.title)}" class="thumb-img" loading="lazy" decoding="async" width="64" height="64" onerror="this.src='../assets/products/airfryer.jpg'" />
         </td>
-        <td>
-          <div style="font-weight:800; max-width:280px;">${escapeHTML(s.title)}</div>
-          <div style="font-size:0.75rem; color:var(--text-muted);">${escapeHTML(s.subtitle || '')}</div>
+        <td data-label="المنتج" style="max-width:220px;">
+          ${linked
+            ? `<div style="font-weight:700; font-size:0.82rem;">${escapeHTML(linked.name)}</div><div style="font-size:0.72rem; color:var(--text-muted);">${escapeHTML(linked.category_label || linked.category || "")}</div>`
+            : `<span class="muted" style="font-size:0.8rem;">${s.product_id ? escapeHTML(s.product_id) : "غير مرتبطة بمنتج"}</span>`}
         </td>
-        <td><strong>${escapeHTML(s.model || '—')}</strong></td>
-        <td>${escapeHTML(s.power || '')} ${s.capacity ? `(${escapeHTML(s.capacity)})` : ''}</td>
-        <td><strong style="color:var(--brand-dark);">${escapeHTML(s.price || '')}</strong></td>
-        <td><span class="badge badge-success">مفعل</span></td>
-        <td>
-          <button type="button" class="btn-outline btn-sm" onclick="editHeroSlideModal(${Number(s.id)})">
-            <i class="fa-solid fa-pen"></i> تعديل
+        <td data-label="العنوان">
+          <div style="font-weight:800; max-width:280px;">${escapeHTML(s.title)}</div>
+          <div style="font-size:0.75rem; color:var(--text-muted);">${escapeHTML(s.subtitle || "")}</div>
+        </td>
+        <td data-label="الموديل"><strong>${escapeHTML(s.model || "—")}</strong></td>
+        <td data-label="السعر"><strong style="color:var(--brand-dark);">${escapeHTML(s.price || "")}</strong></td>
+        <td data-label="الحالة">
+          <button type="button" class="badge ${s.is_active === false ? "badge-danger" : "badge-success"}" style="border:0; cursor:pointer;" onclick="toggleHeroSlide('${escapeHTML(s.id)}', ${s.is_active === false})">
+            ${s.is_active === false ? "مخفية" : "مفعلة"}
           </button>
         </td>
-      </tr>
-    `).join("");
+        <td data-label="إجراءات" style="white-space:nowrap;">
+          <span class="hero-row-actions" style="display:flex; gap:8px; flex-wrap:nowrap;">
+          <button type="button" class="btn-outline btn-sm" onclick="editHeroSlideModal('${escapeHTML(s.id)}')">
+            <i class="fa-solid fa-pen"></i> تعديل
+          </button>
+          <button type="button" class="btn-outline btn-sm" style="color:var(--danger);" title="حذف" onclick="deleteHeroSlide('${escapeHTML(s.id)}')">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+          </span>
+        </td>
+      </tr>`;
+    }).join("");
   }
 
   window.editHeroSlideModal = function(slideId) {
-    const s = heroSlidesCache.find(x => Number(x.id) === Number(slideId));
+    const s = heroSlidesCache.find(x => String(x.id) === String(slideId));
     if (!s) return;
+    $("heroSlideModalTitle").innerHTML = `<i class="fa-solid fa-images"></i> تعديل شريحة الهيرو`;
     $("hsIdInput").value = s.id;
+    populateHeroCategorySelect(
+      (categoriesCache.some(c => c.id === s.category_id) ? s.category_id : "")
+      || heroProductById(s.product_id)?.category
+      || ""
+    );
+    populateHeroProductSelect($("hsCategorySelect").value, s.product_id || "");
     $("hsTitleInput").value = s.title || "";
     $("hsSubtitleInput").value = s.subtitle || "";
+    $("hsTagInput").value = s.tag || "";
     $("hsModelInput").value = s.model || "";
     $("hsPriceInput").value = s.price || "";
     $("hsPowerInput").value = s.power || "";
     $("hsCapacityInput").value = s.capacity || "";
     $("hsImageInput").value = s.image || "";
+    $("hsSortInput").value = Number(s.sort_order) || heroSlidesCache.length + 1;
+    $("hsNumInput").value = s.num || "";
+    $("hsActiveInput").checked = s.is_active !== false;
     window.openAdminModal("heroSlideModal");
   };
 
+  window.addHeroSlideModal = function() {
+    const nextSort = heroSlidesCache.reduce((m, s) => Math.max(m, Number(s.sort_order) || 0), 0) + 1;
+    $("heroSlideModalTitle").innerHTML = `<i class="fa-solid fa-plus"></i> شريحة هيرو جديدة`;
+    $("heroSlideForm").reset();
+    $("hsIdInput").value = `hero-${String(nextSort).padStart(2, "0")}-${Date.now().toString().slice(-5)}`;
+    populateHeroCategorySelect("");
+    populateHeroProductSelect("", "");
+    $("hsSortInput").value = nextSort;
+    $("hsNumInput").value = String(nextSort).padStart(2, "0");
+    $("hsActiveInput").checked = true;
+    window.openAdminModal("heroSlideModal");
+  };
+
+  window.deleteHeroSlide = async function(slideId) {
+    if (!window.confirm("حذف الشريحة نهائيًا من سلايدر الهيرو؟")) return;
+    const { error } = await client.from("hero_slides").delete().eq("id", slideId);
+    if (error) {
+      showAdminToast("تعذر حذف الشريحة: " + error.message, "error");
+      return;
+    }
+    markCatalogDirty();
+    showAdminToast("تم حذف الشريحة", "success");
+    await loadHeroSlides();
+  };
+
+  window.toggleHeroSlide = async function(slideId, nextActive) {
+    const { error } = await client.from("hero_slides").update({ is_active: nextActive }).eq("id", slideId);
+    if (error) {
+      showAdminToast("تعذر تغيير حالة الشريحة: " + error.message, "error");
+      return;
+    }
+    markCatalogDirty();
+    await loadHeroSlides();
+  };
+
+  window.moveHeroSlide = async function(slideId, direction) {
+    const idx = heroSlidesCache.findIndex(x => String(x.id) === String(slideId));
+    const swapIdx = idx + direction;
+    if (idx < 0 || swapIdx < 0 || swapIdx >= heroSlidesCache.length) return;
+    const a = heroSlidesCache[idx];
+    const b = heroSlidesCache[swapIdx];
+    const [errA, errB] = await Promise.all([
+      client.from("hero_slides").update({ sort_order: Number(b.sort_order) }).eq("id", a.id),
+      client.from("hero_slides").update({ sort_order: Number(a.sort_order) }).eq("id", b.id)
+    ]).then(rs => rs.map(r => r.error));
+    if (errA || errB) {
+      showAdminToast("تعذر تغيير الترتيب", "error");
+      return;
+    }
+    markCatalogDirty();
+    await loadHeroSlides();
+  };
+
+  $("btnAddHeroSlide")?.addEventListener("click", () => window.addHeroSlideModal());
+
+  $("hsCategorySelect")?.addEventListener("change", (e) => {
+    const currentProduct = $("hsProductSelect").value;
+    populateHeroProductSelect(e.target.value, currentProduct);
+  });
+
+  $("hsProductSelect")?.addEventListener("change", (e) => {
+    const product = heroProductById(e.target.value);
+    autofillHeroFromProduct(product);
+  });
+
   $("heroSlideForm")?.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const slideId = Number($("hsIdInput").value);
+    const slideId = $("hsIdInput").value.trim();
     if (!slideId) return;
 
     const btn = $("btnSaveHeroSlide");
     btn.disabled = true;
     btn.textContent = "جارٍ الحفظ...";
 
-    const { error } = await client
-      .from("hero_slides")
-      .update({
-        title: $("hsTitleInput").value.trim(),
-        subtitle: $("hsSubtitleInput").value.trim(),
-        model: $("hsModelInput").value.trim(),
-        price: $("hsPriceInput").value.trim(),
-        power: $("hsPowerInput").value.trim(),
-        capacity: $("hsCapacityInput").value.trim(),
-        image: $("hsImageInput").value.trim()
-      })
-      .eq("id", slideId);
+    const payload = {
+      title: $("hsTitleInput").value.trim(),
+      subtitle: $("hsSubtitleInput").value.trim(),
+      tag: $("hsTagInput").value.trim(),
+      model: $("hsModelInput").value.trim(),
+      price: $("hsPriceInput").value.trim(),
+      power: $("hsPowerInput").value.trim(),
+      capacity: $("hsCapacityInput").value.trim(),
+      image: $("hsImageInput").value.trim(),
+      product_id: $("hsProductSelect").value || null,
+      category_id: $("hsCategorySelect").value || heroProductById($("hsProductSelect").value)?.category || null,
+      sort_order: Number($("hsSortInput").value) || heroSlidesCache.length + 1,
+      num: $("hsNumInput").value.trim() || String(Number($("hsSortInput").value) || heroSlidesCache.length + 1).padStart(2, "0"),
+      is_active: $("hsActiveInput").checked
+    };
+
+    const isExisting = heroSlidesCache.some(s => String(s.id) === slideId);
+    const { error } = isExisting
+      ? await client.from("hero_slides").update(payload).eq("id", slideId)
+      : await client.from("hero_slides").insert({ id: slideId, ...payload });
 
     btn.disabled = false;
     btn.innerHTML = `<i class="fa-solid fa-check"></i> حفظ الشريحة`;
@@ -1182,7 +1341,8 @@
     if (error) {
       showAdminToast("تعذر حفظ الشريحة: " + error.message, "error");
     } else {
-      markCatalogDirty(); showAdminToast("تم تحديث شريحة الهيرو بنجاح", "success");
+      markCatalogDirty();
+      showAdminToast(isExisting ? "تم تحديث شريحة الهيرو بنجاح" : "تمت إضافة شريحة هيرو جديدة", "success");
       window.closeAdminModal("heroSlideModal");
       await loadHeroSlides();
     }
