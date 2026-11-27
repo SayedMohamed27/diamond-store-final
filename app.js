@@ -932,15 +932,17 @@ function buildHero3DApplianceHTML(s) {
   const simType = detectSlideSimType(s);
   const mode = state.hero3DViewMode || 'live';
 
-  // Prefer the background-removed (transparent) cutout so the product sits
-  // directly on the 3D pedestal with no white box behind it.
-  const heroImage = String(s.image || '').replace(/\.jpe?g$/i, '-cutout.png');
+  // Show the slide's own product photo. A cutout is only used when the slide
+  // actually has one — guessing `-cutout.png` from a .jpg URL 404s and made the
+  // stage fall back to a different product's picture.
+  const linkedProduct = (state.products || []).find(p => String(p.id) === String(s.productId));
+  const heroImage = String(s.cutoutImage || s.cutout || s.image || linkedProduct?.image || '').trim();
   const heroImgTag = (alt) => `
         <img id="hero-img-${escapeHTML(s.productId)}"
              src="${escapeHTML(heroImage)}"
              alt="${escapeHTML(alt)}"
              class="stage-centerpiece-img"
-             onerror="this.onerror=null;this.onerror=function(){this.style.display='none'};this.src='assets/products/hero-showcase.jpg'" />`;
+             onerror="this.onerror=null;this.style.display='none'" />`;
 
   // Support real interactive 3D <model-viewer> if a .glb/.gltf model URL is configured on the slide,
   // otherwise display the frameless real product on the 3D circular exhibition pedestal
@@ -970,7 +972,7 @@ function buildHero3DApplianceHTML(s) {
           <img id="hero-img-${escapeHTML(s.productId)}"
                src="${escapeHTML(heroImage)}"
                alt="${escapeHTML(s.model)}"
-               onerror="this.onerror=null;this.onerror=function(){this.style.display='none'};this.src='assets/products/hero-showcase.jpg'" />
+               onerror="this.onerror=null;this.style.display='none'" />
         </div>
         <div class="sim3d-exploded-stack">
           ${layers.map(l => `
