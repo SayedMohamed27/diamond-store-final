@@ -9344,7 +9344,7 @@ h1, h2, h3, h4, h5, h6,
 .trip-shade {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(6, 4, 2, 0) 34%, rgba(6, 4, 2, 0.72) 68%, rgba(6, 4, 2, 0.97) 100%);
+  background: linear-gradient(180deg, rgba(6, 4, 2, 0) 45%, rgba(6, 4, 2, 0.5) 72%, rgba(6, 4, 2, 0.9) 100%);
   pointer-events: none;
 }
 .trip-body {
