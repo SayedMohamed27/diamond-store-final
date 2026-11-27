@@ -837,19 +837,225 @@ window.toggleHero3DDrawer = function(evt) {
   renderHeroSlide(state.activeHeroSlide);
 };
 
-function detectSlideSimType(s) {
-  if (s.simType) return s.simType;
-  const cat = (s.categoryId || '').toLowerCase();
-  const mdl = (s.model || '').toLowerCase();
-  if (cat === 'airfryer' || mdl.includes('10085') || mdl.includes('8015')) return 'airfryer';
-  if (cat === 'sandwich' || mdl.includes('b907') || mdl.includes('907')) return 'sandwich';
-  if (cat === 'oven' || mdl.includes('10071')) return 'oven';
-  if (cat === 'mixer' || mdl.includes('05022') || mdl.includes('09122')) return 'mixer';
-  if (cat === 'blender' || mdl.includes('999')) return 'blender';
-  return 'airfryer';
+function detectSlideSimType(s, product) {
+  if (s && s.simType) return s.simType;
+  const p = product || {};
+  const cat = String((s && s.categoryId) || p.category || '').toLowerCase();
+  const text = [s && s.title, s && s.subtitle, s && s.model, p.name, p.model, p.shortDesc, p.categoryLabel]
+    .filter(Boolean).join(' ').toLowerCase();
+  const has = (...words) => words.some(w => text.includes(w));
+
+  if (has('مكنسة', 'vacuum', 'مكنس')) return 'vacuum';
+  if (has('ساندوتش', 'وافل', 'sandwich')) return 'sandwich';
+  if (has('قلاية', 'ايرفراير', 'air fryer', 'airfryer')) return 'airfryer';
+  if (has('قهوة', 'اسبريسو', 'إسبريسو', 'coffee', 'espresso')) return 'coffee';
+  if (has('عجان', 'عجانات', 'stand mixer')) return 'mixer';
+  if (has('خلاط', 'بلندر', 'blender')) return 'blender';
+  if (has('مفرمة', 'فرامة', 'كبة', 'chopper')) return 'chopper';
+  if (has('مطحنة', 'توابل', 'grinder')) return 'grinder';
+  if (has('عصارة', 'juicer')) return 'juicer';
+  if (has('غلاية', 'كاتل', 'kettle')) return 'kettle';
+  if (has('مكواة', 'iron', 'steamer')) return 'iron';
+  if (has('مجفف شعر', 'استشوار', 'سيشوار', 'hairdryer', 'hair dryer')) return 'hairdryer';
+  if (has('مروحة', 'fan')) return 'fan';
+  if (has('فرن', 'ميكروويف', 'oven', 'microwave')) return 'oven';
+  if (cat === 'airfryer') return 'airfryer';
+  return 'generic';
 }
 
-function getHotspotsForAppliance(type, s) {
+const APPLIANCE_PART_POSITIONS = ['top-right', 'mid-left', 'bottom-right'];
+
+function specValue(product, keys) {
+  const specs = (product && product.specs) || {};
+  const entries = Object.keys(specs).map(k => [k.trim(), String(specs[k] == null ? '' : specs[k]).trim()]);
+  for (const key of keys) {
+    const exact = entries.find(([k]) => k === key);
+    if (exact && exact[1]) return exact[1];
+  }
+  for (const key of keys) {
+    const partial = entries.find(([k, v]) => v && k.includes(key));
+    if (partial) return partial[1];
+  }
+  return '';
+}
+
+function partValue(template, s, product) {
+  let power = (product && product.wattage) || specValue(product, ['القدرة الكهربائية', 'القدرة', 'الوات']) || (s && s.power) || '';
+  if (/^\d+$/.test(String(power).trim())) power = `${String(power).trim()} وات`;
+  const capacity = (product && product.capacity) || specValue(product, ['السعة', 'سعة', 'الحجم']) || (s && s.capacity) || '';
+  const pressure = specValue(product, ['ضغط المضخة', 'الضغط', 'ضغط']);
+  const model = (product && product.model) || (s && s.model) || '';
+  return String(template)
+    .replace('{power}', power || 'حسب ملصق الجهاز')
+    .replace('{capacity}', capacity || 'قياسية')
+    .replace('{pressure}', pressure || 'ضغط عالي')
+    .replace('{model}', model || '—');
+}
+
+function productSpecRows(product, count) {
+  const specs = (product && product.specs) || {};
+  return Object.keys(specs)
+    .map(k => [k.trim(), String(specs[k] == null ? '' : specs[k]).trim()])
+    .filter(([k, v]) => v && !/^(الشحن|الضمان|الماركة|اللون)$/.test(k))
+    .slice(0, count);
+}
+
+const APPLIANCE_PARTS_LIBRARY = {
+  airfryer: {
+    hot: [
+      ['top-right', 'fa-tablet-screen-button', 'شاشة اللمس الذكية', 'برامج طهي متعددة بلمسة واحدة'],
+      ['mid-left', 'fa-fan', 'نظام التسخين الهوائي', 'توزيع 360° بقدرة {power}'],
+      ['bottom-right', 'fa-box-open', 'الدرج العائلي غير اللاصق', 'سعة {capacity} سهل التنظيف']
+    ],
+    layers: [
+      ['fa-tablet-screen-button', '40px', '01 • الشاشة الذكية', 'لوحة تحكم ديجيتال تاتش LED', 'برامج طهي جاهزة + ضبط وقت وحرارة'],
+      ['fa-fan', '30px', '02 • تكنولوجيا الهواء', 'مروحة تربو + هيتر ({power})', 'توزيع هواء ساخن 360° لقرمشة بدون زيت'],
+      ['fa-filter', '20px', '03 • تصفية الدهون', 'شبكة شوي لعزل الدهون', 'فتحات دوران هواء لتسوية متكاملة'],
+      ['fa-box-open', '10px', '04 • الحلة العائلية', 'درج غير لاصق ({capacity})', 'قابل للفك الكامل والغسيل السريع بأمان']
+    ]
+  },
+  vacuum: {
+    hot: [
+      ['top-right', 'fa-wind', 'محرك الشفط التوربيني', 'قوة شفط {power}'],
+      ['mid-left', 'fa-box-open', 'خزان الغبار القابل للفك', 'سعة {capacity} + فلتر قابل للغسل'],
+      ['bottom-right', 'fa-broom', 'رأس الفرشاة متعدد الاستخدام', 'أرضيات + سجاد + باركيه 3×1']
+    ],
+    layers: [
+      ['fa-wind', '40px', '01 • المحرك', 'موتور شفط عالي العزم', 'قوة شفط ثابتة مع مروحة تبريد ذاتية'],
+      ['fa-box-open', '30px', '02 • خزان الغبار', 'خزان شفاف سهل التفريغ', 'فصل سريع بضغطة واحدة بدون لمس الأتربة'],
+      ['fa-filter', '20px', '03 • نظام الفلترة', 'فلتر HEPA قابل للغسل', 'يحبس الغبار الدقيق والروائح قبل خروج الهواء'],
+      ['fa-broom', '10px', '04 • رأس التنظيف', 'رأس 3×1 متعدد الأسطح', 'باركيه + سجاد + زوايا بفرشاة مرنة']
+    ]
+  },
+  coffee: {
+    hot: [
+      ['top-right', 'fa-mug-hot', 'لوحة التحكم الذكية', 'طحن + إسبريسو + كابتشينو بلمسة'],
+      ['mid-left', 'fa-gauge-high', 'مضخة الضغط العالي', 'ضغط {pressure} وكريمة قهوة غنية'],
+      ['bottom-right', 'fa-droplet', 'خزان الماء وفوم الحليب', 'سعة {capacity} + صانعة رغوة']
+    ],
+    layers: [
+      ['fa-gear', '40px', '01 • المطحنة', 'مطحنة بن مدمجة متعددة الدرجات', 'طحن طازج قبل كل كوب للحفاظ على النكهة'],
+      ['fa-gauge-high', '30px', '02 • المضخة', 'مضخة ضغط عالي لاستخلاص كريمي', 'ضغط ثابت يحافظ على طعم الإسبريسو'],
+      ['fa-mug-hot', '20px', '03 • رأس التحضير', 'رأس 4×1 (إسبريسو/كابتشينو/لاتيه)', 'تحويل بين المشروبات بمجرد تدوير الرأس'],
+      ['fa-droplet', '10px', '04 • الخزان والفوم', 'خزان ماء قابل للفك + فوم حليب', 'تنظيف سهل ومقبض عازل للحرارة']
+    ]
+  },
+  iron: {
+    hot: [
+      ['top-right', 'fa-bolt', 'لوحة التحكم والبخار', 'بخار قوي + ضبط حرارة {power}'],
+      ['mid-left', 'fa-layer-group', 'القاعدة السيراميك', 'انزلاق سلس بدون التصاق أو حرق'],
+      ['bottom-right', 'fa-droplet', 'خزان الماء والرشاش', 'سعة {capacity} + رشاش ماء']
+    ],
+    layers: [
+      ['fa-fire-flame-curved', '40px', '01 • التسخين', 'قاعدة سيراميك حرارية متساوية', 'توزيع حراري موحد مع مؤشر جاهزية مضيء'],
+      ['fa-wind', '30px', '02 • البخار', 'فتحات بخار قوية ضد التجاعيد', 'ضربة بخار إضافية لطبقات القماش السميك'],
+      ['fa-droplet', '20px', '03 • خزان الماء', 'خزان شفاف قابل للتفريغ', 'رشاش أمامي لترطيب القماش قبل الكي'],
+      ['fa-shield-halved', '10px', '04 • الأمان', 'فصل أوتوماتيكي عند السكون', 'مقبض عازل وسلك دوار 360°']
+    ]
+  },
+  hairdryer: {
+    hot: [
+      ['top-right', 'fa-wind', 'الموتور ومجفف الهواء', 'قدرة {power} + موزع هواء مركّز'],
+      ['mid-left', 'fa-temperature-half', 'إعدادات الحرارة والسرعة', '3 حرارة × 2 سرعة + زر هواء بارد'],
+      ['bottom-right', 'fa-plug', 'المرفقات والسلك', 'ديفيوزر + سلك دوار وسلك تعليق']
+    ],
+    layers: [
+      ['fa-wind', '40px', '01 • الموتور', 'موتور نحاسي طويل العمر', 'تدفق هواء قوي مع تبريد ذاتي'],
+      ['fa-temperature-half', '30px', '02 • التسخين', 'ملفات تسخين متعددة الدرجات', 'حرارة متدرجة مع حماية ضد السخونة الزائدة'],
+      ['fa-spray-can-sparkles', '20px', '03 • الأيونات', 'تقنية أيونات ضد الكهرباء الساكنة', 'شعر ناعم ولامع بدون تطاير'],
+      ['fa-filter', '10px', '04 • الفلتر', 'شبكة سحب هواء قابلة للفك', 'تنظيف سريع يحافظ على قوة الهواء']
+    ]
+  },
+  kettle: {
+    hot: [
+      ['top-right', 'fa-temperature-half', 'مؤشر الحرارة والتحكم', 'غليان سريع بقدرة {power}'],
+      ['mid-left', 'fa-droplet', 'جسم الغلاية الاستانلس', 'سعة {capacity} بغطاء محكم'],
+      ['bottom-right', 'fa-shield-halved', 'قاعدة الأمان', 'فصل أوتوماتيكي + حماية من الجفاف']
+    ],
+    layers: [
+      ['fa-fire-flame-curved', '40px', '01 • التسخين', 'قاعدة تسخين مخفية', 'غليان سريع وصامت'],
+      ['fa-shield-halved', '30px', '02 • الأمان', 'فصل تلقائي عند الغليان', 'حماية مزدوجة ضد الحرارة الزائدة والجفاف'],
+      ['fa-droplet', '20px', '03 • الوعاء', 'جسم استانلس سهل التنظيف', 'فتحة صب مانعة للتنقيط'],
+      ['fa-plug', '10px', '04 • القاعدة', 'قاعدة دوارة 360°', 'سلك مختفي وقبضة باردة']
+    ]
+  },
+  juicer: {
+    hot: [
+      ['top-right', 'fa-blender-phone', 'ذراع الضغط والفلترة', 'عصر بارد يحفظ الفيتامينات'],
+      ['mid-left', 'fa-filter', 'المصفاة الدقيقة', 'فصل العصير عن اللب بكفاءة'],
+      ['bottom-right', 'fa-bolt', 'المحرك وفتحة التغذية', 'قدرة {power} + فتحة واسعة']
+    ],
+    layers: [
+      ['fa-bolt', '40px', '01 • الموتور', 'محرك قوي هادئ', 'دوران ثابت للعصر المتواصل'],
+      ['fa-filter', '30px', '02 • المصفاة', 'مصفاة استانلس دقيقة', 'استخلاص أعلى نسبة عصير'],
+      ['fa-blender-phone', '20px', '03 • الذراع', 'ذراع ضغط بعدة أوضاع', 'أوضاع مخصصة للحمضيات والتفاح'],
+      ['fa-box-open', '10px', '04 • الأوعية', 'أوعية عصير ولُبّ منفصلة', 'تنظيف سريع بعد الاستخدام']
+    ]
+  },
+  chopper: {
+    hot: [
+      ['top-right', 'fa-bowl-food', 'الوعاء الزجاجي', 'سعة {capacity} + غطاء مانع للطرطشة'],
+      ['mid-left', 'fa-dharmachakra', 'الشفرات الفولاذية', 'شفرات مزدوجة للفرم والتقطيع'],
+      ['bottom-right', 'fa-bolt', 'المحرك وأزرار التشغيل', 'قدرة {power} + تشغيل نبضي']
+    ],
+    layers: [
+      ['fa-bolt', '40px', '01 • الموتور', 'محرك نحاسي قوي', 'تشغيل هادئ مع حماية من السخونة'],
+      ['fa-dharmachakra', '30px', '02 • الشفرات', 'شفرات استانلس حادة', 'فرم اللحم والبصل في ثوانٍ'],
+      ['fa-bowl-food', '20px', '03 • الوعاء', 'وعاء شفاف سهل التنظيف', 'قاعدة مانعة للانزلاق'],
+      ['fa-shield-halved', '10px', '04 • الأمان', 'قفل أمان للغطاء', 'لا يعمل إلا بعد إحكام الغطاء']
+    ]
+  },
+  grinder: {
+    hot: [
+      ['top-right', 'fa-mortar-pestle', 'وعاء الطحن', 'سعة {capacity} استانلس'],
+      ['mid-left', 'fa-dharmachakra', 'شفرات الطحن', 'طحن ناعم للتوابل والقهوة'],
+      ['bottom-right', 'fa-bolt', 'المحرك والتحكم', 'قدرة {power} + تشغيل نبضي']
+    ],
+    layers: [
+      ['fa-bolt', '40px', '01 • الموتور', 'محرك سريع الدوران', 'طحن متجانس بدون حرارة زائدة'],
+      ['fa-dharmachakra', '30px', '02 • الشفرات', 'شفرات فولاذية 4 حواف', 'طحن التوابل والبن والمكسرات'],
+      ['fa-mortar-pestle', '20px', '03 • الوعاء', 'وعاء استانلس قابل للفك', 'غسيل سريع وآمن'],
+      ['fa-shield-halved', '10px', '04 • الأمان', 'قفل غطاء وحماية حرارية', 'تشغيل آمن بضغطة']
+    ]
+  },
+  fan: {
+    hot: [
+      ['top-right', 'fa-fan', 'المروحة والريش', 'تدفق هواء قوي بقدرة {power}'],
+      ['mid-left', 'fa-sliders', 'السرعات والتحكم', '3 سرعات + دوران تلقائي'],
+      ['bottom-right', 'fa-arrows-up-down', 'الحامل القابل للتعديل', 'ارتفاع وزاوية حسب الاستخدام']
+    ],
+    layers: [
+      ['fa-fan', '40px', '01 • الريش', 'ريش متوازنة قليلة الضوضاء', 'تيار هواء ثابت حتى على أقل سرعة'],
+      ['fa-bolt', '30px', '02 • الموتور', 'محرك نحاسي هادئ', 'تشغيل طويل بدون سخونة'],
+      ['fa-sliders', '20px', '03 • التحكم', 'مفاتيح سرعات وتأرجيح', 'تغطية الغرفة بحركة تلقائية'],
+      ['fa-shield-halved', '10px', '04 • الأمان', 'شبكة حماية وأرضية ثابتة', 'قاعدة موزونة تمنع الاهتزاز']
+    ]
+  }
+};
+
+
+function getHotspotsForAppliance(type, s, product) {
+  const lib = APPLIANCE_PARTS_LIBRARY[type];
+  if (lib) {
+    return lib.hot.map(([pos, icon, label, val]) => ({
+      pos,
+      icon,
+      label: partValue(label, s, product),
+      val: partValue(val, s, product)
+    }));
+  }
+  if (type === 'generic') {
+    const rows = productSpecRows(product, 3);
+    if (rows.length) {
+      const icons = ['fa-circle-info', 'fa-gears', 'fa-shield-halved'];
+      return rows.map((row, i) => ({ pos: APPLIANCE_PART_POSITIONS[i], icon: icons[i], label: row[0], val: row[1] }));
+    }
+    return [
+      { pos: 'top-right', icon: 'fa-tag', label: 'الموديل', val: partValue('{model}', s, product) },
+      { pos: 'mid-left', icon: 'fa-bolt', label: 'القدرة الكهربائية', val: partValue('{power}', s, product) },
+      { pos: 'bottom-right', icon: 'fa-shield-halved', label: 'الضمان', val: (product && product.warranty) || 'ضمان سنة معتمد من المغربي' }
+    ];
+  }
   if (type === 'sandwich') {
     return [
       { pos: 'top-right', icon: 'fa-fire-flame-curved', label: 'لمبات البيان والتسخين', val: `تسخين مزدوج ${s.power || '750W-1400W'}` },
@@ -886,7 +1092,37 @@ function getHotspotsForAppliance(type, s) {
   ];
 }
 
-function getExplodedLayersForAppliance(type, s) {
+function getExplodedLayersForAppliance(type, s, product) {
+  const lib = APPLIANCE_PARTS_LIBRARY[type];
+  if (lib) {
+    return lib.layers.map(([icon, z, tag, title, desc]) => ({
+      icon,
+      z,
+      tag,
+      title: partValue(title, s, product),
+      desc: partValue(desc, s, product)
+    }));
+  }
+  if (type === 'generic') {
+    const rows = productSpecRows(product, 4);
+    if (rows.length) {
+      const icons = ['fa-circle-info', 'fa-gears', 'fa-bolt', 'fa-shield-halved'];
+      const zs = ['40px', '30px', '20px', '10px'];
+      return rows.map((row, i) => ({
+        icon: icons[i],
+        z: zs[i],
+        tag: `0${i + 1} • ${row[0]}`,
+        title: `${row[0]}: ${row[1]}`,
+        desc: (product && product.name) || (s && s.title) || ''
+      }));
+    }
+    return [
+      { icon: 'fa-tag', z: '40px', tag: '01 • الموديل', title: partValue('{model}', s, product), desc: (product && product.name) || '' },
+      { icon: 'fa-bolt', z: '30px', tag: '02 • القدرة', title: partValue('{power}', s, product), desc: 'حسب بيانات المنتج المسجلة' },
+      { icon: 'fa-box-open', z: '20px', tag: '03 • السعة', title: partValue('{capacity}', s, product), desc: 'السعة المعلنة للموديل' },
+      { icon: 'fa-shield-halved', z: '10px', tag: '04 • الضمان', title: (product && product.warranty) || 'ضمان سنة معتمد', desc: 'ضمان رسمي من المغربي' }
+    ];
+  }
   if (type === 'sandwich') {
     return [
       { icon: 'fa-shield-halved', z: '40px', tag: '01 • الغطاء العلوي', title: 'غطاء عازل للحرارة + قفل أمان', desc: 'مقبض بارد الملمس مع لمبات بيان للجاهزية' },
@@ -929,13 +1165,13 @@ function getExplodedLayersForAppliance(type, s) {
 }
 
 function buildHero3DApplianceHTML(s) {
-  const simType = detectSlideSimType(s);
+  const linkedProduct = (state.products || []).find(p => String(p.id) === String(s.productId));
+  const simType = detectSlideSimType(s, linkedProduct);
   const mode = state.hero3DViewMode || 'live';
 
   // Show the slide's own product photo. A cutout is only used when the slide
   // actually has one — guessing `-cutout.png` from a .jpg URL 404s and made the
   // stage fall back to a different product's picture.
-  const linkedProduct = (state.products || []).find(p => String(p.id) === String(s.productId));
   const heroImage = String(s.cutoutImage || s.cutout || s.image || linkedProduct?.image || '').trim();
   const heroImgTag = (alt) => `
         <img id="hero-img-${escapeHTML(s.productId)}"
@@ -965,7 +1201,7 @@ function buildHero3DApplianceHTML(s) {
 
   // Mode 2: Detailed Component Breakdown View (Real Product + 4 Component Explanation Cards)
   if (mode === 'exploded') {
-    const layers = getExplodedLayersForAppliance(simType, s);
+    const layers = getExplodedLayersForAppliance(simType, s, linkedProduct);
     return `
       <div class="sim3d-stage exploded-anatomy-mode">
         <div class="exploded-center-preview" onclick="openProductPage('${escapeHTML(s.productId)}')">
@@ -993,7 +1229,7 @@ function buildHero3DApplianceHTML(s) {
   }
 
   // Mode 1 (Default): Interactive Exhibition Stage with Product Explanation Arrows & Callouts (No Fake Power/Steam)
-  const hotspots = getHotspotsForAppliance(simType, s);
+  const hotspots = getHotspotsForAppliance(simType, s, linkedProduct);
 
   return `
     <div class="sim3d-stage live-exhibition-mode">
