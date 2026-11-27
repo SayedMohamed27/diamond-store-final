@@ -1605,6 +1605,89 @@ window.submitHeaderSearch = function() {
   }
 };
 
+const SUB_LABEL_STOPWORDS = new Set([
+  'كل', 'جميع', 'موديلات', 'انواع', 'كافه', 'الان', 'المتوفره', 'عرض', 'منتج', 'و', 'في', 'من',
+  'استانلس', 'ستانلس', 'ستنلس', 'استنلس', 'ستيل', 'ديجيتال', 'ديچيتال', 'كهربائيه', 'كهرباييه', 'احترافيه', 'حراريه', 'سعه', 'وات'
+]);
+
+function normalizeArabicWords(text) {
+  return String(text || '')
+    .toLowerCase()
+    .replace(/[\u064B-\u0652\u0640]/g, '')
+    .replace(/[أإآ]/g, 'ا')
+    .replace(/[ىي]/g, 'ي')
+    .replace(/ة/g, 'ه')
+    .replace(/ؤ/g, 'و')
+    .replace(/ئ/g, 'ي')
+    .replace(/[^\u0621-\u064Aa-z0-9\s]/g, ' ')
+    .split(/\s+/)
+    .filter(Boolean);
+}
+
+function stemArabicWord(word) {
+  const stripped = word.replace(/(ات|ون|ين|ها|هم|ه)$/, '');
+  return stripped.length > 3 && stripped.endsWith('ا') ? stripped.slice(0, -1) : stripped;
+}
+
+function labelStems(text) {
+  return [...new Set(
+    normalizeArabicWords(text)
+      .filter(w => w.length > 1 && !SUB_LABEL_STOPWORDS.has(w))
+      .map(stemArabicWord)
+  )];
+}
+
+// "استشوار" vs "اسشوار", "افران" vs "فرن": tolerate one typo and a leading alef.
+function wordsClose(a, b) {
+  if (a === b) return true;
+  const x = a.length > 3 && a.startsWith('ا') ? a.slice(1) : a;
+  const y = b.length > 3 && b.startsWith('ا') ? b.slice(1) : b;
+  if (x === y) return true;
+  if (Math.min(x.length, y.length) < 4 || Math.abs(x.length - y.length) > 1) return false;
+  let i = 0, j = 0, diff = 0;
+  while (i < x.length && j < y.length) {
+    if (x[i] === y[j]) { i++; j++; continue; }
+    if (++diff > 1) return false;
+    if (x.length > y.length) i++;
+    else if (y.length > x.length) j++;
+    else { i++; j++; }
+  }
+  return true;
+}
+
+// Picks the product whose name best matches the sub-category label, so the card
+// image shows the device the label promises instead of an unrelated first match.
+// The label's own first word counts most, then the search query, then the rest.
+function pickBestImageProduct(products, label, query) {
+  const labelWords = labelStems(label);
+  const queryWords = labelStems(query);
+  const weighted = [];
+  if (labelWords[0]) weighted.push({ stem: labelWords[0], weight: 6 });
+  queryWords.forEach(stem => {
+    if (!weighted.some(w => w.stem === stem)) weighted.push({ stem, weight: 4 });
+  });
+  labelWords.slice(1).forEach(stem => {
+    if (!weighted.some(w => w.stem === stem)) weighted.push({ stem, weight: 2 });
+  });
+  if (!weighted.length) return null;
+
+  let best = null;
+  let bestScore = 0;
+  (products || []).forEach(p => {
+    if (!p || !p.image) return;
+    const titleWords = normalizeArabicWords(p.name).map(stemArabicWord);
+    let score = 0;
+    weighted.forEach(({ stem, weight }) => {
+      titleWords.forEach((word, index) => {
+        if (!wordsClose(word, stem)) return;
+        score += weight * (index === 0 ? 3 : index === 1 ? 2 : 1);
+      });
+    });
+    if (score > bestScore) { bestScore = score; best = p; }
+  });
+  return best;
+}
+
 function buildCategoryGridGroups(cats) {
   return cats.map(cat => {
     const catProducts = state.products.filter(p => doesProductMatchCategory(p, cat.id));
@@ -1621,7 +1704,8 @@ function buildCategoryGridGroups(cats) {
         label: sub.label || cat.name,
         query,
         icon: resolveSubItemIcon(sub, cat.icon || 'fa-cube'),
-        image: sub.image || (matched[0] && matched[0].image) || cat.image || 'assets/logo.jpg',
+        image: sub.image || (pickBestImageProduct(matched, sub.label || cat.name, query) || {}).image
+          || (matched[0] && matched[0].image) || cat.image || 'assets/logo.jpg',
         count: matched.length
       };
     });
