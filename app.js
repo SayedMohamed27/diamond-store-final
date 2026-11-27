@@ -1635,42 +1635,41 @@ function renderCategoriesGrid() {
     return { cat, items };
   }).filter(group => group.items.length);
 
-  container.innerHTML = groups.map(({ cat, items }) => {
+  const allItems = [];
+  groups.forEach(({ cat, items }) => {
     const badge = (cat.enName || '').split(' ')[0] || 'قسم';
-    return `
-      <div class="cat-showcase-group">
-        <div class="cat-showcase-grouphead">
-          <span class="cat-showcase-grouptitle"><i class="fa-solid ${(cat.icon || 'fa-cube').replace(/[^a-zA-Z0-9_-]/g, '')}" aria-hidden="true"></i> ${escapeHTML(cat.name)}</span>
-          <span class="cat-showcase-groupcount">${items.length.toLocaleString('ar-EG')} قسم فرعي</span>
-          <a class="cat-showcase-groupall" href="category.html?cat=${encodeURIComponent(cat.id)}">عرض الكل <i class="fa-solid fa-arrow-left" aria-hidden="true"></i></a>
-        </div>
-        <div class="cat-showcase-grid">
-          ${items.map((it, idx) => `
-            <a class="cat-showcard reveal-up"
-               href="category.html?cat=${encodeURIComponent(cat.id)}${it.query ? `&q=${encodeURIComponent(it.query)}` : ''}"
-               style="--delay: ${idx * 30}ms">
-              <span class="cat-showcard-body">
-                <span class="cat-showcard-badge">${escapeHTML(badge)}</span>
-                <span class="cat-showcard-titlerow">
-                  <span class="cat-showcard-title">${escapeHTML(it.label)}</span>
-                  <span class="cat-showcard-count"><i class="fa-solid fa-box-open" aria-hidden="true"></i> ${it.count.toLocaleString('ar-EG')} منتج</span>
-                </span>
-                <span class="cat-showcard-desc">${escapeHTML(`كل موديلات ${it.label} المتوفرة الآن بأسعارها`)}</span>
-                <span class="cat-showcard-foot">
-                  <span class="cat-showcard-btn">عرض ${escapeHTML(it.label)}</span>
-                </span>
-              </span>
-              <span class="cat-showcard-media">
-                <img src="${escapeHTML(it.image)}" alt="${escapeHTML(it.label)}" loading="lazy" decoding="async" width="240" height="240"
-                     onerror="this.onerror=null;this.remove();" />
-                <i class="fa-solid ${it.icon}" aria-hidden="true"></i>
-              </span>
-            </a>
-          `).join('')}
-        </div>
-      </div>
-    `;
-  }).join('');
+    items.forEach(it => allItems.push({ ...it, catId: cat.id, badge }));
+  });
+
+  const cardHTML = (it, isClone) => `
+    <a class="cat-showcard"
+       href="category.html?cat=${encodeURIComponent(it.catId)}${it.query ? `&q=${encodeURIComponent(it.query)}` : ''}"
+       ${isClone ? 'tabindex="-1" aria-hidden="true"' : ''}>
+      <span class="cat-showcard-body">
+        <span class="cat-showcard-badge">${escapeHTML(it.badge)}</span>
+        <span class="cat-showcard-titlerow">
+          <span class="cat-showcard-title">${escapeHTML(it.label)}</span>
+          <span class="cat-showcard-count"><i class="fa-solid fa-box-open" aria-hidden="true"></i> ${it.count.toLocaleString('ar-EG')} منتج</span>
+        </span>
+        <span class="cat-showcard-desc">${escapeHTML(`كل موديلات ${it.label} المتوفرة الآن بأسعارها`)}</span>
+        <span class="cat-showcard-foot">
+          <span class="cat-showcard-btn">عرض ${escapeHTML(it.label)}</span>
+        </span>
+      </span>
+      <span class="cat-showcard-media">
+        <img src="${escapeHTML(it.image)}" alt="${escapeHTML(it.label)}" loading="lazy" decoding="async" width="240" height="240"
+             onerror="this.onerror=null;this.remove();" />
+        <i class="fa-solid ${it.icon}" aria-hidden="true"></i>
+      </span>
+    </a>`;
+
+  // One continuous row: the set is duplicated so the loop has no visible jump
+  const seconds = Math.max(30, Math.round(allItems.length * 6));
+  container.innerHTML = `
+    <div class="cat-marquee-track" style="--marquee-duration: ${seconds}s">
+      ${allItems.map(it => cardHTML(it, false)).join('')}
+      ${allItems.map(it => cardHTML(it, true)).join('')}
+    </div>`;
 
   // Sync navbar active category state
   document.querySelectorAll('#headerCatNav a').forEach(link => {
