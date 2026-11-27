@@ -5328,9 +5328,8 @@ body {
   font-weight: 900;
   color: var(--text-dark);
   margin-top: 2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 /* Prominent Price & Action Box */
@@ -6606,15 +6605,17 @@ body {
   .hotspot-card small {
     display: block !important;
     font-size: 0.56rem !important;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    overflow-wrap: anywhere;
   }
   .hotspot-card strong {
     font-size: 0.63rem !important;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    overflow-wrap: anywhere;
   }
 
   /* Exploded view on mobile */
