@@ -6406,11 +6406,11 @@ body {
     white-space: nowrap;
   }
   .brand-tagline {
-    font-size: 0.6rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 145px;
+    font-size: 0.58rem;
+    line-height: 1.2;
+    white-space: normal;
+    overflow-wrap: break-word;
+    max-width: 150px;
     margin-top: 1px;
   }
 
