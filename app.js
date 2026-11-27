@@ -4351,12 +4351,13 @@ function renderEditableSiteSections() {
             <div class="egy-author-meta">
               <strong>${escapeHTML(r.name)}</strong>
               <div class="egy-stars">${starHTML(r.rating || 5)}</div>
+              ${(r.meta || r.date) ? `<span class="egy-review-loc"><i class="fa-solid fa-location-dot"></i> ${escapeHTML(r.meta)}${r.meta && r.date ? ' • ' : ''}${escapeHTML(r.date || '')}</span>` : ''}
             </div>
-            <span class="egy-verified-pill"><i class="fa-solid fa-check"></i> قرار موثوق</span>
           </div>
-          <p class="egy-review-text">${escapeHTML(String(r.short || r.text || '').split(/\s+/).slice(0, 12).join(' '))}</p>
+          <p class="egy-review-text">${escapeHTML(String(r.short || r.text || '').split(/\s+/).slice(0, 34).join(' '))}</p>
           <div class="egy-review-foot">
-            <span class="egy-prod-tag"><i class="fa-solid fa-circle-check"></i> ${escapeHTML(r.tag)}</span>
+            <span class="egy-verified-pill"><i class="fa-solid fa-check"></i> عملية شراء موثقة</span>
+            <span class="egy-prod-tag"><i class="fa-solid fa-cart-shopping"></i> ${escapeHTML(r.tag)}</span>
           </div>
         </article>
       `).join('');
