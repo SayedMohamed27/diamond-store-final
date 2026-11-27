@@ -1392,10 +1392,6 @@ function buildCategoryDropdownInnerHTML(cat) {
           ]
         : [{ label: `عرض كل ${cat.name}`, cat: cat.id, query: '', icon }]);
 
-  const catProducts = cat.id === 'contact'
-    ? []
-    : state.products.filter(p => doesProductMatchCategory(p, cat.id)).slice(0, 3);
-
   const subLinksHTML = subItems.map(sub => {
     const sIcon = resolveSubItemIcon(sub, icon);
     const sCat = sub.cat || cat.id;
@@ -1438,22 +1434,7 @@ function buildCategoryDropdownInnerHTML(cat) {
         </button>
       </div>
     </div>
-  ` : (catProducts.length ? `
-    <div class="cat-dropdown-models">
-      <div class="cat-dd-models-title">أبرز الأجهزة المتوفرة في القسم:</div>
-      <div class="cat-dd-models-grid">
-        ${catProducts.map(p => `
-          <a href="product.html?id=${encodeURIComponent(p.id)}" class="cat-dd-model-row">
-            <img ${getSafeImageAttr(p)} />
-            <div class="cat-dd-model-info">
-              <strong>${escapeHTML(normalizeDigits(p.name))}</strong>
-              <span>${formatEGP(p.price)}</span>
-            </div>
-          </a>
-        `).join('')}
-      </div>
-    </div>
-  ` : '');
+  ` : '';
 
   const viewAllAction = cat.id === 'contact'
     ? `onclick="handleContactCategoryAction('info'); event.stopPropagation();"`
