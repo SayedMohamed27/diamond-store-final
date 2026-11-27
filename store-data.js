@@ -264,7 +264,7 @@
       }
 
       try {
-        const [prodRes, catRes, heroRes, setRes, revRes, contentRes] = await Promise.all([
+        const queries = Promise.all([
           client.from('products').select('*').eq('is_active', true).order('sort_order', { ascending: true }),
           client.from('categories').select('*').eq('is_active', true).order('sort_order', { ascending: true }),
           client.from('hero_slides').select('*').eq('is_active', true).order('sort_order', { ascending: true }),
@@ -272,6 +272,14 @@
           client.from('customer_reviews').select('*').eq('is_active', true).order('sort_order', { ascending: true }),
           client.from('site_content').select('key, value')
         ]);
+        // Never leave the storefront stuck on its loading skeleton: if Supabase
+        // is unreachable or slow, fall back to the local catalog after 6s.
+        queries.catch(() => {});
+        const timeout = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('catalog fetch timeout')), 6000);
+        });
+        timeout.catch(() => {});
+        const [prodRes, catRes, heroRes, setRes, revRes, contentRes] = await Promise.race([queries, timeout]);
 
         const hasDbProducts = !prodRes.error && Array.isArray(prodRes.data) && prodRes.data.length > 0;
         const products = hasDbProducts
