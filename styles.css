@@ -5333,20 +5333,26 @@ body {
 
 .hero-specs-strip {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
   gap: 10px;
   margin-bottom: 20px;
 }
 
 .hero-spec-chip {
-  background: rgba(255, 255, 255, 0.88);
+  background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(8px);
   border: 1.5px solid var(--border);
   border-radius: 14px;
-  padding: 10px 12px;
+  padding: 12px 10px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 10px;
+  justify-content: flex-start;
+  text-align: center;
+  gap: 7px;
+  min-width: 0;
+  min-height: 116px;
   transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
@@ -5356,35 +5362,45 @@ body {
   box-shadow: 0 10px 20px rgba(232, 93, 4, 0.16);
 }
 
+.hero-spec-chip > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+}
+
 .hero-spec-chip i {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border-radius: 9px;
   background: var(--brand-soft);
   color: var(--brand-dark);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.9rem;
+  font-size: 0.82rem;
   flex-shrink: 0;
 }
 
 .hero-spec-chip small {
   display: block;
-  font-size: 0.68rem;
+  font-size: 0.66rem;
   font-weight: 700;
   color: var(--text-muted);
-  line-height: 1.2;
+  line-height: 1.25;
 }
 
 .hero-spec-chip strong {
   display: block;
-  font-size: 0.82rem;
+  font-size: 0.76rem;
   font-weight: 900;
   color: var(--text-dark);
-  margin-top: 2px;
+  line-height: 1.35;
+  margin-top: 3px;
   white-space: normal;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
+  word-break: normal;
 }
 
 /* Prominent Price & Action Box */
@@ -6173,7 +6189,8 @@ body {
   flex-direction: row;
   align-items: center;
   gap: 10px;
-  padding: 7px 9px;
+  padding: 8px 10px;
+  min-height: 76px;
   border-radius: 14px;
   background: var(--bg-white);
   border: 1.5px solid var(--border);
@@ -6219,9 +6236,9 @@ body {
 .thumb-sku-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   flex-wrap: wrap;
-  gap: 3px 4px;
+  gap: 3px 6px;
 }
 
 .thumb-model {
@@ -6230,6 +6247,7 @@ body {
   color: var(--text-dark);
   min-width: 0;
   overflow-wrap: anywhere;
+  line-height: 1.25;
 }
 
 .thumb-power {
@@ -6240,13 +6258,15 @@ body {
   padding: 1px 6px;
   border-radius: 6px;
   white-space: nowrap;
+  line-height: 1.35;
 }
 
 .thumb-price {
-  font-size: 0.72rem;
+  font-size: 0.74rem;
   font-weight: 800;
-  color: var(--text-muted);
-  margin-top: 2px;
+  color: var(--text-dark);
+  margin-top: 3px;
+  line-height: 1.25;
 }
 
 .hero-exhibition-layout .hero-thumb-item.active .thumb-price {
