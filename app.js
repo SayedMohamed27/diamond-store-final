@@ -548,7 +548,6 @@ function bind3DProductCards() {
 
 // ==================== INTERACTIVE PRODUCT EXHIBITION STAGE (3D PEDESTAL & REAL PRODUCT) ====================
 function initHeroShowcase() {
-  if (!document.getElementById('heroProductFrame')) return;
   renderHeroSlide(0);
   startHeroLoop();
 
