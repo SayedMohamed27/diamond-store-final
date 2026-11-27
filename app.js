@@ -1373,29 +1373,37 @@ function renderCategoriesGrid() {
   const container = document.getElementById('categoriesGrid');
   if (!container) return;
 
-  const cats = state.categories.length ? state.categories : DEFAULT_CATEGORIES;
+  const cats = (state.categories.length ? state.categories : DEFAULT_CATEGORIES)
+    .filter(cat => cat.id !== 'contact' && cat.id !== 'sections');
 
   container.innerHTML = cats.map((cat, idx) => {
-    const isContact = cat.id === 'contact';
-    const count = isContact
-      ? 0
-      : state.products.filter(p => doesProductMatchCategory(p, cat.id)).length;
-    const badgeLabel = isContact ? 'خدمة العملاء 24/7' : `${count} جهاز`;
+    const catProducts = state.products.filter(p => doesProductMatchCategory(p, cat.id));
+    const count = catProducts.length;
+    const image = cat.image || (catProducts[0] && catProducts[0].image) || 'assets/logo.jpg';
     const icon = (cat.icon || 'fa-cube').replace(/[^a-zA-Z0-9_-]/g, '');
+    const badge = (cat.enName || '').split(' ')[0] || 'قسم';
+    const desc = cat.subtitle || `تشكيلة ${cat.name} الأصلية بضمان الشركة`;
 
     return `
-      <div class="cat-visual-card reveal-up ${!isContact && state.activeCategory === cat.id ? 'active' : ''}"
-           style="--delay: ${idx * 40}ms"
-           onclick="selectCategory('${cat.id}', true)">
-        <div class="cat-thumb-circle">
-          ${cat.image
-            ? `<img src="${escapeHTML(cat.image)}" alt="${escapeHTML(cat.name)}" loading="lazy" decoding="async" width="400" height="300" onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex';" />
-               <i class="fa-solid ${icon}" style="display:none; font-size:2rem; color:var(--accent);"></i>`
-            : `<i class="fa-solid ${icon}" style="font-size:2rem; color:var(--accent);"></i>`}
-        </div>
-        <div class="cat-card-title">${escapeHTML(cat.name)}</div>
-        <span class="cat-card-count">${badgeLabel}</span>
-      </div>
+      <a class="cat-showcard reveal-up" href="category.html?cat=${encodeURIComponent(cat.id)}"
+         style="--delay: ${idx * 40}ms">
+        <span class="cat-showcard-body">
+          <span class="cat-showcard-badge">${escapeHTML(badge)}</span>
+          <span class="cat-showcard-titlerow">
+            <span class="cat-showcard-title">${escapeHTML(cat.name)}</span>
+            <span class="cat-showcard-count"><i class="fa-solid fa-box-open" aria-hidden="true"></i> ${count.toLocaleString('ar-EG')} منتج</span>
+          </span>
+          <span class="cat-showcard-desc">${escapeHTML(desc)}</span>
+          <span class="cat-showcard-foot">
+            <span class="cat-showcard-btn">عرض قسم ${escapeHTML(cat.name)}</span>
+          </span>
+        </span>
+        <span class="cat-showcard-media">
+          <img src="${escapeHTML(image)}" alt="${escapeHTML(cat.name)}" loading="lazy" decoding="async" width="240" height="240"
+               onerror="this.onerror=null;this.remove();" />
+          <i class="fa-solid ${icon}" aria-hidden="true"></i>
+        </span>
+      </a>
     `;
   }).join('');
 
