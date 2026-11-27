@@ -228,7 +228,7 @@ function loadAllStoreData() {
     if (document.getElementById('productsGrid')) renderCatalogSkeleton();
     window.DiamondStoreData.loadCatalog({ skipCache: true }).then(catalog => {
       state.catalogLoading = false;
-      if (catalog && catalog.source === 'supabase') {
+      if (catalog && Array.isArray(catalog.products) && catalog.products.length) {
         state.products = catalog.products;
         state.categories = catalog.categories;
         state.heroSlides = catalog.heroSlides;
@@ -257,6 +257,14 @@ function loadAllStoreData() {
     }).catch(err => {
       state.catalogLoading = false;
       console.warn('[Diamond] Catalog sync notice:', err);
+      renderHeaderCategoriesNav();
+      if (document.getElementById('productsGrid')) renderCatalogGrid();
+      if (document.getElementById('categoryPageRoot') && typeof initCategoryDetailsPage === 'function') {
+        initCategoryDetailsPage();
+      }
+      if (document.getElementById('productDetailPageRoot') && typeof initProductDetailsPage === 'function') {
+        initProductDetailsPage();
+      }
     });
   }
 }
