@@ -156,6 +156,20 @@
   }
 
   // Map database review row to frontend review format
+  function relDate(iso) {
+    if (!iso) return '';
+    const then = new Date(iso).getTime();
+    if (!then) return '';
+    const days = Math.floor((Date.now() - then) / 86400000);
+    if (days <= 0) return 'منذ ساعات';
+    if (days === 1) return 'منذ يوم';
+    if (days === 2) return 'منذ يومين';
+    if (days < 11) return `منذ ${days} أيام`;
+    if (days < 30) return `منذ ${Math.floor(days / 7)} أسابيع`;
+    const months = Math.floor(days / 30);
+    return months === 1 ? 'منذ شهر' : months === 2 ? 'منذ شهرين' : `منذ ${months} شهور`;
+  }
+
   function mapDbReviewToLocal(dbRev) {
     if (!dbRev) return null;
     return {
@@ -163,6 +177,7 @@
       name: dbRev.author_name || '',
       initials: dbRev.avatar_initials || (dbRev.author_name || 'م').trim().charAt(0),
       meta: dbRev.location_line || '',
+      date: relDate(dbRev.created_at),
       text: dbRev.review_text || '',
       tag: dbRev.product_tag || '',
       rating: Number(dbRev.rating) || 5,

@@ -7880,13 +7880,28 @@ h1, h2, h3, h4, h5, h6,
   gap: 5px;
   background: #ffffff;
   color: #1d9e52;
-  font-size: 0.68rem;
+  font-size: 0.63rem;
   font-weight: 800;
-  padding: 4px 10px;
+  padding: 4px 9px;
   border-radius: 99px;
   flex-shrink: 0;
   align-self: flex-start;
+  white-space: nowrap;
+  line-height: 1.2;
 }
+
+.egy-review-loc {
+  font-size: 0.7rem !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+  font-weight: 600;
+  margin-top: 2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.egy-review-card.egy-card-orange .egy-review-loc i,
+.egy-review-card.egy-card-navy .egy-review-loc i { color: #ffd166; }
 
 .egy-review-card:hover {
   transform: translateY(-5px);
