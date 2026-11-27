@@ -1749,6 +1749,7 @@ body {
 }
 
 .card-desc {
+  display: none;
   font-size: 0.82rem;
   color: var(--text-muted);
   margin-bottom: 14px;
