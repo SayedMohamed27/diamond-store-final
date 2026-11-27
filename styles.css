@@ -5452,9 +5452,12 @@ body {
 .hero-main-cta {
   flex: 1.3;
   justify-content: center;
-  padding: 12px 18px;
+  padding: 12px 14px;
   font-size: 0.9rem;
-  white-space: nowrap;
+  line-height: 1.25;
+  min-width: 0;
+  text-align: center;
+  white-space: normal;
 }
 
 .hero-secondary-cta,
