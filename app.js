@@ -1605,14 +1605,8 @@ window.submitHeaderSearch = function() {
   }
 };
 
-function renderCategoriesGrid() {
-  const container = document.getElementById('categoriesGrid');
-  if (!container) return;
-
-  const cats = (state.categories.length ? state.categories : DEFAULT_CATEGORIES)
-    .filter(cat => cat.id !== 'contact' && cat.id !== 'sections');
-
-  const groups = cats.map(cat => {
+function buildCategoryGridGroups(cats) {
+  return cats.map(cat => {
     const catProducts = state.products.filter(p => doesProductMatchCategory(p, cat.id));
     const subs = Array.isArray(cat.subItems) && cat.subItems.length
       ? cat.subItems
@@ -1634,12 +1628,42 @@ function renderCategoriesGrid() {
 
     return { cat, items };
   }).filter(group => group.items.length);
+}
+
+const GRID_SKIP_CATEGORIES = new Set(['contact', 'sections']);
+
+function renderCategoriesGrid() {
+  const container = document.getElementById('categoriesGrid');
+  if (!container) return;
+
+  const isGridCategory = cat => cat && !GRID_SKIP_CATEGORIES.has(cat.id);
+  const liveCats = (Array.isArray(state.categories) && state.categories.length
+    ? state.categories
+    : DEFAULT_CATEGORIES).filter(isGridCategory);
+  const fallbackCats = DEFAULT_CATEGORIES.filter(isGridCategory);
+
+  let groups = [];
+  try {
+    groups = buildCategoryGridGroups(liveCats);
+  } catch (err) {
+    groups = [];
+  }
+  if (!groups.length) {
+    try {
+      groups = buildCategoryGridGroups(fallbackCats);
+    } catch (err) {
+      groups = [];
+    }
+  }
+  // Never blank the strip: if nothing can be built, keep whatever is already rendered.
+  if (!groups.length) return;
 
   const allItems = [];
   groups.forEach(({ cat, items }) => {
     const badge = (cat.enName || '').split(' ')[0] || 'قسم';
     items.forEach(it => allItems.push({ ...it, catId: cat.id, badge }));
   });
+  if (!allItems.length) return;
 
   const cardHTML = (it, isClone) => `
     <a class="cat-showcard"
@@ -1678,6 +1702,18 @@ function renderCategoriesGrid() {
 
   observeNewElements();
 }
+
+// Safety net: if the strip is still empty (data arrived late or a renderer above failed),
+// paint it again from the built-in fallback so the section is never blank.
+function ensureCategoriesGrid() {
+  const container = document.getElementById('categoriesGrid');
+  if (!container) return;
+  const track = container.querySelector('.cat-marquee-track');
+  if (!track || track.children.length < 2) renderCategoriesGrid();
+}
+
+window.addEventListener('load', () => setTimeout(ensureCategoriesGrid, 800));
+setTimeout(ensureCategoriesGrid, 2500);
 
 window.selectCategory = function(catId, scroll = false) {
   if (catId === 'contact') {
