@@ -9232,3 +9232,59 @@ h1, h2, h3, h4, h5, h6,
   .category-filter-bar { width: 100%; justify-content: center; padding: 6px 8px; gap: 6px; }
   .cf-slider-row input[type="range"] { width: 64px; }
 }
+
+/* ============================================================
+   Palette lock: everything reads as orange shades + black.
+   Replaces leftover violet / red / green / gold accents.
+   ============================================================ */
+.pay-method-card.instapay-card.active { border-color: #ea580c; background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); }
+.pay-method-card.wallet-card.active { border-color: #181512; background: linear-gradient(135deg, #faf9f6 0%, #f4f1ec 100%); }
+.pay-method-icon.instapay-icon { background: linear-gradient(135deg, #ea580c, #9a3412); color: #ffedd5; }
+.pay-method-icon.wallet-icon { background: linear-gradient(135deg, #2b1406, #181512); color: #fb923c; }
+.instapay-pro-gateway { border-color: #ea580c; box-shadow: 0 14px 32px rgba(234, 88, 12, 0.14); }
+.instapay-pro-gateway.wallet-theme { border-color: #181512; box-shadow: 0 14px 32px rgba(24, 21, 18, 0.16); }
+.instapay-top-banner { border-bottom-color: #fed7aa; }
+.instapay-badge-pill { background: linear-gradient(135deg, #ea580c, #9a3412); }
+.instapay-badge-pill i { color: #ffedd5; }
+.instapay-amount-pill { background: #fff7ed; border-color: #fdba74; color: #9a3412; }
+.instapay-direct-btn { background: linear-gradient(135deg, #ea580c 0%, #9a3412 100%); box-shadow: 0 10px 22px rgba(234, 88, 12, 0.28); }
+.instapay-direct-btn:hover { box-shadow: 0 14px 28px rgba(234, 88, 12, 0.38); }
+.copy-mini-btn { background: #ffedd5; border-color: #fdba74; color: #9a3412; }
+.copy-mini-btn:hover { background: #ea580c; color: #ffffff; }
+.copy-field-row { background: #faf9f6; border-color: #eae4df; }
+.instapay-qr-stand { background: linear-gradient(180deg, #fff7ed 0%, #ffffff 100%); border-color: #fed7aa; }
+.instapay-qr-frame { border-color: #ea580c; box-shadow: 0 8px 20px rgba(234, 88, 12, 0.16); }
+.qr-center-badge { background: #181512; color: #fb923c; }
+.screenshot-upload-label { background: #fff7ed; border-color: #fdba74; color: #9a3412; }
+.screenshot-upload-label:hover { background: #ffedd5; border-color: #ea580c; }
+.screenshot-instructions-box { background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); border-color: #fdba74; }
+
+.hud-pulse-dot { background: #ea580c; }
+.pdp-btn-add-cart.added-flash { background: linear-gradient(135deg, #ea580c 0%, #9a3412 100%); }
+.pdp-whatsapp-btn { background: #fff7ed; border-color: #fdba74; color: #9a3412; }
+.pdp-whatsapp-btn:hover { background: #ffedd5; border-color: #ea580c; }
+.stage-telemetry-pill.is-on .telemetry-dot { background: #ea580c; box-shadow: 0 0 8px #ea580c; }
+.egy-verified-pill { color: #9a3412; }
+.sw3d-led-dot i.green-led { color: #ea580c; text-shadow: 0 0 8px #ea580c; }
+.af3d-screen { color: #ffedd5; }
+.af3d-temp { color: #fdba74; }
+.af3d-presets-dots { color: #fdba74; }
+.bl3d-dial { background: radial-gradient(circle, #3a2a1c, #0f130d); color: #fdba74; }
+.bl3d-vortex { background: conic-gradient(from 0deg, #ea580c, #c2410c, #fb923c, #9a3412, #ea580c); }
+.dev-phone-pill { color: #fdba74; }
+
+.pdp-stars,
+.egy-stars,
+.reviews-score-pill .score-stars { color: #ea580c; }
+.egy-review-card.egy-card-navy .egy-stars { color: #fb923c; }
+.compare-winner-crown { background: linear-gradient(135deg, #ffedd5, #fed7aa); border-color: #ea580c; }
+.sw3d-toast-piece { background: linear-gradient(135deg, #fb923c 0%, #c2410c 100%); border-color: #fed7aa; }
+.af3d-fry-stick { background: linear-gradient(180deg, #fdba74, #c2410c); }
+.af3d-coil-bars { box-shadow: 0 0 18px #ea580c, 0 0 32px #c2410c; }
+.category-page-head .section-kicker,
+.catalog-empty i { color: #c2410c; }
+
+.compare-thumb-chip button { background: #181512; }
+.sw3d-led-dot i.red-led { color: #c2410c; text-shadow: 0 0 8px #c2410c; }
+.video-live-dot { background: #ea580c; }
+.tool-btn[onclick*="openWishlistModal"]:hover i { color: #ea580c; }
