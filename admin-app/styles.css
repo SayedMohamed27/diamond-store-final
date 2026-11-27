@@ -96,7 +96,7 @@ body {
 }
 
 .eyebrow {
-  color: var(--brand);
+  color: #C2410C;
   font-size: 11px;
   font-weight: 900;
   letter-spacing: 0.12em;
@@ -152,7 +152,7 @@ button {
   border: 0;
   border-radius: 10px;
   padding: 12px 18px;
-  background: var(--brand);
+  background: #C2410C;
   color: white;
   font: inherit;
   font-size: 0.9rem;
@@ -166,7 +166,7 @@ button {
 }
 
 button:hover {
-  background: var(--brand-dark);
+  background: #9A3412;
 }
 
 button:disabled {
@@ -615,6 +615,47 @@ tr:hover td {
   .form-group.full { grid-column: span 1; }
   .dashboard-header { flex-direction: column; align-items: flex-start; }
   .kpi-grid { grid-template-columns: 1fr 1fr; }
+
+  /* Hero slides: card rows instead of a squeezed table */
+  #tab-hero .table-responsive { border: 0; overflow: visible; }
+  #tab-hero .table-responsive table,
+  #tab-hero .table-responsive tbody,
+  #tab-hero .table-responsive tr,
+  #tab-hero .table-responsive td { display: block; width: 100%; }
+  #tab-hero .table-responsive thead { display: none; }
+  #tab-hero .table-responsive tr {
+    border: 1px solid var(--border, #e7e3dc);
+    border-radius: 14px;
+    background: #fff;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+  }
+  #tab-hero .table-responsive td {
+    border: 0;
+    padding: 5px 0;
+    display: grid;
+    grid-template-columns: 62px minmax(0, 1fr);
+    gap: 10px;
+    align-items: start;
+    text-align: right;
+    max-width: none !important;
+  }
+  #tab-hero .table-responsive td::before {
+    content: attr(data-label);
+    color: var(--text-muted);
+    font-weight: 800;
+    font-size: 0.72rem;
+    padding-top: 3px;
+  }
+  #tab-hero .table-responsive td > * { grid-column: 2; min-width: 0; }
+  #tab-hero .table-responsive td > div,
+  #tab-hero .table-responsive td > strong,
+  #tab-hero .table-responsive td > img { max-width: none; min-width: 0; }
+  #tab-hero .table-responsive td[data-label="العنوان"] div,
+  #tab-hero .table-responsive td[data-label="المنتج"] div { max-width: none; }
+  #tab-hero .table-responsive td[data-label="العنوان"] { align-items: start; }
+  #tab-hero .table-responsive td[data-label="إجراءات"] { grid-template-columns: 62px 1fr; }
+  #tab-hero .table-responsive td[data-label="إجراءات"] > button { justify-self: start; }
 }
 
 /* Product gallery rows (product modal) */

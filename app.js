@@ -776,7 +776,9 @@ function renderHeroSlide(index) {
 
   const primaryBtn = document.getElementById('heroShopCatBtn');
   if (primaryBtn) {
-    primaryBtn.onclick = () => selectCategory(s.categoryId, true);
+    primaryBtn.onclick = () => s.categoryId
+      ? selectCategory(s.categoryId, true)
+      : document.getElementById('catalogSection')?.scrollIntoView({ behavior: 'smooth' });
   }
   const detailBtn = document.getElementById('heroDetailBtn');
   if (detailBtn) {
