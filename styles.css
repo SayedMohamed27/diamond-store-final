@@ -6331,11 +6331,27 @@ body {
   }
   .primary-nav {
     gap: 5px;
+    flex-wrap: nowrap;
+  }
+  .primary-nav li {
+    flex-shrink: 0;
   }
   .primary-nav a {
     padding: 4px 10px;
     font-size: 0.74rem;
     gap: 5px;
+    flex-shrink: 0;
+  }
+  .cat-bar-inner {
+    height: auto !important;
+    min-height: 46px;
+    padding: 4px 0;
+    overflow-x: auto;
+  }
+  .btn-brand {
+    white-space: normal;
+    line-height: 1.35;
+    height: auto !important;
   }
   /* Collapse category bar smoothly when scrolling down on mobile to save vertical space */
   .site-header.scrolled .header-cat-bar {
@@ -6679,15 +6695,24 @@ body {
   }
   .hero-spec-chip small {
     font-size: 0.58rem !important;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    line-height: 1.25;
   }
   .hero-spec-chip strong {
     font-size: 0.66rem !important;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    line-height: 1.3;
+  }
+  .hero-cat-cta {
+    white-space: normal;
+    font-size: 0.76rem;
+    line-height: 1.35;
+    padding: 10px 12px;
+    text-align: center;
   }
 
   .hero-price-cta-box {
