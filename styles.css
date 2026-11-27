@@ -1187,18 +1187,6 @@ body {
   color: var(--brand);
 }
 
-/* ==================== FULL-WIDTH SHOWCASE BANNER ==================== */
-.showcase-banner-section {
-  width: 100%;
-  overflow: hidden;
-}
-
-.showcase-banner-section img {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
 /* ==================== VISUAL CATEGORY SHOWCASE ==================== */
 .categories-section {
   padding: 60px 0 32px;
