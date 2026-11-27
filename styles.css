@@ -96,6 +96,12 @@ body {
   transform: translateY(0);
 }
 
+/* Headers fade in place: sliding them down made the text ride over the cards below */
+.section-head.reveal-up,
+.section-head.reveal-up.is-visible {
+  transform: none;
+}
+
 /* ==================== TOP UTILITY BAR ==================== */
 .top-utility-bar {
   background-color: var(--text-dark);
@@ -1183,6 +1189,63 @@ body {
 /* ==================== VISUAL CATEGORY SHOWCASE ==================== */
 .categories-section {
   padding: 60px 0 32px;
+}
+
+.cat-showcase-group {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 26px;
+}
+
+.cat-showcase-group:last-child {
+  margin-bottom: 0;
+}
+
+.cat-showcase-grouphead {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+}
+
+.cat-showcase-grouptitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-dark);
+}
+
+.cat-showcase-grouptitle i {
+  color: var(--brand);
+  font-size: 0.9rem;
+}
+
+.cat-showcase-groupcount {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: #f4f4f5;
+  border-radius: 99px;
+  padding: 3px 10px;
+  white-space: nowrap;
+}
+
+.cat-showcase-groupall {
+  margin-inline-start: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.76rem;
+  font-weight: 800;
+  color: var(--brand-dark);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.cat-showcase-groupall:hover {
+  text-decoration: underline;
 }
 
 .cat-showcase-grid {
