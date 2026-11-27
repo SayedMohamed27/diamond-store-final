@@ -1213,11 +1213,6 @@ body {
   margin-inline-end: 18px;
 }
 
-.cat-marquee:hover .cat-marquee-track,
-.cat-marquee:focus-within .cat-marquee-track {
-  animation-play-state: paused;
-}
-
 @keyframes cat-marquee-scroll {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
@@ -8423,11 +8418,6 @@ h1, h2, h3, h4, h5, h6,
   gap: 0;
   will-change: transform;
   animation: egyReviewsInfiniteGlideRight 42s linear infinite;
-}
-
-.egy-reviews-carousel-viewport:hover .egy-reviews-track,
-.egy-reviews-carousel-viewport:active .egy-reviews-track {
-  animation-play-state: paused;
 }
 
 .egy-reviews-track .egy-review-card {
