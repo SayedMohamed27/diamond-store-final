@@ -5,9 +5,9 @@
    ============================================================================ */
 
 :root {
-  --brand: #F97316;
-  --brand-dark: #EA580C;
-  --brand-strong: #EA580C;
+  --brand: #C2410C;
+  --brand-dark: #9A3412;
+  --brand-strong: #C2410C;
   --brand-light: #FB923C;
   --brand-soft: #FFF7ED;
   --brand-tint: #FFEDD5;
@@ -5773,20 +5773,26 @@ body {
 .hotspot-card {
   text-align: right;
   line-height: 1.2;
+  max-width: 175px;
+  min-width: 0;
 }
 
 .hotspot-card small {
   display: block;
   font-size: 0.62rem;
   font-weight: 700;
-  color: var(--text-muted);
+  color: #4b5563;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .hotspot-card strong {
   display: block;
   font-size: 0.74rem;
   font-weight: 900;
-  color: var(--text-dark);
+  color: #111827;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 /* Pointer Arrows Connecting Explanation Callouts to Product Parts */
@@ -7614,7 +7620,7 @@ h1, h2, h3, h4, h5, h6,
   transition: transform 0.28s var(--ease-spring), border-color 0.28s ease, box-shadow 0.28s ease;
 }
 
-.egy-review-card.egy-card-orange { background: #f4680c; border-color: #f4680c; }
+.egy-review-card.egy-card-orange { background: #C2410C; border-color: #C2410C; }
 .egy-review-card.egy-card-navy { background: #101010; border-color: #2a2a2a; }
 .egy-review-card.egy-card-orange .egy-review-text,
 .egy-review-card.egy-card-navy .egy-review-text { color: #ffffff; }
@@ -7626,8 +7632,8 @@ h1, h2, h3, h4, h5, h6,
 .egy-review-card.egy-card-navy .egy-review-foot { border-top-color: rgba(255, 255, 255, 0.25); }
 .egy-review-card.egy-card-orange .egy-prod-tag,
 .egy-review-card.egy-card-navy .egy-prod-tag { color: #ffffff; }
-.egy-review-card .egy-avatar { background: rgba(255, 255, 255, 0.18); box-shadow: none; color: #ffffff; }
-.egy-review-card.egy-card-navy .egy-avatar { background: rgba(244, 104, 12, 0.85); }
+.egy-review-card .egy-avatar { background: #FFF3E6; box-shadow: none; color: #7C2D12; }
+.egy-review-card.egy-card-navy .egy-avatar { background: #FFF3E6; color: #7C2D12; }
 
 .egy-verified-pill {
   display: inline-flex;
@@ -7652,14 +7658,16 @@ h1, h2, h3, h4, h5, h6,
 .egy-review-top {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  flex-wrap: wrap;
+  row-gap: 8px;
 }
 
 .egy-avatar {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+  background: linear-gradient(135deg, #C2410C 0%, #7C2D12 100%);
   color: #ffffff;
   font-weight: 800;
   font-size: 0.92rem;
@@ -7681,6 +7689,8 @@ h1, h2, h3, h4, h5, h6,
   font-size: 0.92rem;
   font-weight: 800;
   color: var(--text-dark);
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .egy-author-meta span {
@@ -7707,9 +7717,10 @@ h1, h2, h3, h4, h5, h6,
   color: var(--text-body);
   font-weight: 500;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  overflow-wrap: anywhere;
 }
 
 .egy-review-foot {
@@ -7717,6 +7728,8 @@ h1, h2, h3, h4, h5, h6,
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  flex-wrap: wrap;
+  row-gap: 6px;
   padding-top: 12px;
   border-top: 1px dashed var(--border);
   font-size: 0.75rem;
@@ -7728,6 +7741,8 @@ h1, h2, h3, h4, h5, h6,
   display: inline-flex;
   align-items: center;
   gap: 5px;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .egy-date {
@@ -8131,9 +8146,10 @@ h1, h2, h3, h4, h5, h6,
   display: flex;
   align-items: center;
   min-height: 26px;
-  overflow: hidden;
+  overflow: visible;
   flex: 1;
   min-width: 0;
+  padding: 2px 0;
 }
 
 .utility-ticker .utility-item,
@@ -8148,9 +8164,10 @@ h1, h2, h3, h4, h5, h6,
   font-weight: 800;
   font-size: 0.85rem;
   color: #ffffff;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  overflow: visible;
+  overflow-wrap: anywhere;
+  line-height: 1.35;
   will-change: transform, opacity;
   animation: topUtilityAutoLifecycle 3.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
