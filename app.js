@@ -1102,6 +1102,35 @@ function deriveQueryFromSubItem(sub) {
   return words[0] || lbl;
 }
 
+const SUB_CATEGORY_ICON_RULES = [
+  [/نسكافيه|كابتشينو|اسبريسو|إسبريسو/, 'fa-mug-hot'],
+  [/قهوة|قهوه/, 'fa-mug-hot'],
+  [/غلاي|كاتل/, 'fa-mug-saucer'],
+  [/هاند\s*بلندر/, 'fa-blender'],
+  [/عصار|عصير/, 'fa-lemon'],
+  [/حل[ةه]\s*ضغط/, 'fa-temperature-arrow-up'],
+  [/سخان|تسخين/, 'fa-fire-flame-simple'],
+  [/مضرب\s*بيض|خفق|بيض/, 'fa-egg'],
+  [/مطحن|طاحون|فرم/, 'fa-mortar-pestle'],
+  [/مراوح|مبرد|تكييف/, 'fa-fan'],
+  [/ازالة\s*شعر|إزالة\s*شعر/, 'fa-wand-magic-sparkles'],
+  [/حلاقة|حلاق/, 'fa-scissors'],
+  [/عناي[ةه]\s*شخصي/, 'fa-hand-sparkles'],
+  [/متنوع|أخرى|اخرى/, 'fa-shapes'],
+  [/قط[عا]ع\s*غيار|اكسسوار|إكسسوار/, 'fa-screwdriver-wrench']
+];
+
+function resolveSubItemIcon(sub, fallbackIcon) {
+  const raw = String((sub && sub.icon) || '').replace(/[^a-zA-Z0-9_-]/g, '');
+  const isGeneric = !raw || raw === 'fa-tag' || raw === 'fa-angle-left' || raw === 'fa-circle-info';
+  if (!isGeneric) return raw;
+  const label = String((sub && sub.label) || '');
+  for (const [pattern, iconName] of SUB_CATEGORY_ICON_RULES) {
+    if (pattern.test(label)) return iconName;
+  }
+  return raw || fallbackIcon || 'fa-tag';
+}
+
 function buildCategoryDropdownInnerHTML(cat) {
   const isHomePage = !!document.getElementById('catalogSection');
   const icon = (cat.icon || 'fa-cube').replace(/[^a-zA-Z0-9_-]/g, '');
@@ -1120,7 +1149,7 @@ function buildCategoryDropdownInnerHTML(cat) {
     : state.products.filter(p => doesProductMatchCategory(p, cat.id)).slice(0, 3);
 
   const subLinksHTML = subItems.map(sub => {
-    const sIcon = (sub.icon || 'fa-angle-left').replace(/[^a-zA-Z0-9_-]/g, '');
+    const sIcon = resolveSubItemIcon(sub, icon);
     const sCat = sub.cat || cat.id;
     const sQuery = sCat === 'contact' ? (sub.query || 'info') : deriveQueryFromSubItem(sub);
 
