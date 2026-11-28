@@ -5,15 +5,16 @@
    ============================================================================ */
 
 :root {
-  --brand: #C2410C;
-  --brand-dark: #9A3412;
-  --brand-strong: #C2410C;
-  --brand-light: #FB923C;
-  --brand-soft: #FFF7ED;
-  --brand-tint: #FFEDD5;
-  --brand-text: #9A3412;
-  --brand-glow: rgba(249, 115, 22, 0.22);
-  --accent-gold: #FB923C;
+  --brand: #ff7f00;
+  --brand-dark: #b34f00;
+  --brand-strong: #ff7f00;
+  --brand-light: #ffa64d;
+  --brand-soft: #fff5ea;
+  --brand-tint: #ffe2c2;
+  --brand-text: #b45309;
+  --brand-glow: rgba(255, 127, 0, 0.25);
+  --on-brand: #241300;
+  --accent-gold: #ffa64d;
 
   --bg-white: #ffffff;
   --bg-page: #faf9f6;
@@ -229,7 +230,7 @@ body {
 }
 
 .brand-name-en span {
-  color: var(--brand);
+  color: var(--brand-dark);
 }
 
 .brand-tagline {
@@ -334,19 +335,19 @@ body {
 .tool-btn.cart-trigger {
   background: var(--brand);
   border-color: var(--brand);
-  color: #ffffff;
+  color: var(--on-brand);
   padding: 0 18px;
   box-shadow: 0 8px 20px var(--brand-glow);
 }
 
 .tool-btn.cart-trigger i {
-  color: #ffffff;
+  color: var(--on-brand);
 }
 
 .tool-btn.cart-trigger:hover {
   background: var(--brand-dark);
   border-color: var(--brand-dark);
-  color: #ffffff;
+  color: var(--on-brand);
 }
 
 .count-pill {
@@ -364,8 +365,8 @@ body {
 }
 
 .tool-btn.cart-trigger .count-pill {
-  background: rgba(255, 255, 255, 0.24);
-  color: #ffffff;
+  background: rgba(36, 19, 0, 0.16);
+  color: var(--on-brand);
 }
 
 /* Tier 2: Dedicated Single-Line Category Bar */
@@ -1811,16 +1812,16 @@ body {
 
 /* Secondary "details" button inside product cards — orange instead of white */
 .card-footer-row .btn-outline {
-  background: #f97316;
-  color: #2b1203;
-  border-color: #c2410c;
+  background: var(--brand);
+  color: var(--on-brand);
+  border-color: var(--brand-dark);
   font-weight: 800;
 }
 
 .card-footer-row .btn-outline:hover {
-  background: #c2410c;
-  color: #ffffff;
-  border-color: #9a3412;
+  background: var(--brand-dark);
+  color: var(--on-brand);
+  border-color: var(--brand-dark);
 }
 
 /* ==================== BUNDLE BUILDER SECTION ==================== */
@@ -2331,7 +2332,7 @@ body {
   padding: 3px 9px;
   border-radius: 8px;
   background: var(--brand-soft);
-  color: var(--brand-dark);
+  color: var(--brand-text);
   border: 1px solid var(--brand-tint);
 }
 
@@ -5928,11 +5929,11 @@ body {
   border-radius: 50%;
   background: linear-gradient(
     90deg,
-    #C84B00 0%,
-    #E85D04 25%,
+    #e67300 0%,
+    #ff7f00 25%,
     #fde4cf 50%,
-    #E85D04 75%,
-    #C84B00 100%
+    #ff7f00 75%,
+    #e67300 100%
   );
   border-bottom: 2px solid rgba(24, 21, 18, 0.28);
   box-shadow: 0 12px 24px rgba(24, 21, 18, 0.18);
@@ -7910,17 +7911,19 @@ h1, h2, h3, h4, h5, h6,
   transition: transform 0.28s var(--ease-spring), border-color 0.28s ease, box-shadow 0.28s ease;
 }
 
-.egy-review-card.egy-card-orange { background: #C2410C; border-color: #C2410C; }
+.egy-review-card.egy-card-orange { background: var(--brand); border-color: var(--brand); }
 .egy-review-card.egy-card-navy { background: #101010; border-color: #2a2a2a; }
-.egy-review-card.egy-card-orange .egy-review-text,
+.egy-review-card.egy-card-orange .egy-review-text { color: var(--on-brand); }
 .egy-review-card.egy-card-navy .egy-review-text { color: #ffffff; }
+.egy-review-card.egy-card-orange .egy-author-meta,
 .egy-review-card.egy-card-orange .egy-author-meta strong,
+.egy-review-card.egy-card-orange .egy-review-loc { color: var(--on-brand) !important; }
 .egy-review-card.egy-card-navy .egy-author-meta strong { color: #ffffff; }
 .egy-review-card.egy-card-orange .egy-stars,
 .egy-review-card.egy-card-navy .egy-stars { color: #ffd166; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35); }
-.egy-review-card.egy-card-orange .egy-review-foot { border-top-color: rgba(255, 255, 255, 0.35); }
+.egy-review-card.egy-card-orange .egy-review-foot { border-top-color: rgba(36, 19, 0, 0.3); }
 .egy-review-card.egy-card-navy .egy-review-foot { border-top-color: rgba(255, 255, 255, 0.25); }
-.egy-review-card.egy-card-orange .egy-prod-tag,
+.egy-review-card.egy-card-orange .egy-prod-tag { color: var(--on-brand); }
 .egy-review-card.egy-card-navy .egy-prod-tag { color: #ffffff; }
 .egy-review-card .egy-avatar { background: #FFF3E6; box-shadow: none; color: #7C2D12; }
 .egy-review-card.egy-card-navy .egy-avatar { background: #FFF3E6; color: #7C2D12; }
@@ -7972,7 +7975,7 @@ h1, h2, h3, h4, h5, h6,
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #C2410C 0%, #7C2D12 100%);
+  background: linear-gradient(135deg, var(--brand-dark) 0%, #7a3600 100%);
   color: #ffffff;
   font-weight: 800;
   font-size: 0.92rem;
@@ -8327,10 +8330,10 @@ h1, h2, h3, h4, h5, h6,
 
 /* --- A. Warm Lighter Orange Background Behind Top Bar, Header & 3D Hero Showcase --- */
 .top-utility-bar {
-  background: linear-gradient(90deg, #D9530F 0%, #F97316 50%, #D9530F 100%) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.25) !important;
-  color: #ffffff !important;
-  box-shadow: 0 4px 16px rgba(249, 115, 22, 0.2);
+  background: linear-gradient(90deg, #e67300 0%, #ff7f00 50%, #e67300 100%) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.28) !important;
+  color: var(--on-brand) !important;
+  box-shadow: 0 4px 16px rgba(255, 127, 0, 0.2);
 }
 
 .site-header {
@@ -8352,53 +8355,53 @@ h1, h2, h3, h4, h5, h6,
 
 .header-search-wrap input {
   background: #ffffff !important;
-  border-color: rgba(249, 115, 22, 0.28) !important;
+  border-color: rgba(255, 127, 0, 0.28) !important;
 }
 
 .hero-showcase {
   background:
-    radial-gradient(circle at 20% 22%, rgba(249, 115, 22, 0.22) 0%, transparent 46%),
-    radial-gradient(circle at 78% 32%, rgba(251, 146, 60, 0.2) 0%, transparent 52%),
+    radial-gradient(circle at 20% 22%, rgba(255, 127, 0, 0.22) 0%, transparent 46%),
+    radial-gradient(circle at 78% 32%, rgba(255, 166, 77, 0.2) 0%, transparent 52%),
     linear-gradient(180deg, #FFE8D1 0%, #FFF2E4 52%, #FFF9F3 100%) !important;
-  border-bottom: 1.5px solid #F8CBA6 !important;
+  border-bottom: 1.5px solid #FFCFA1 !important;
 }
 
 .hero-exhibition-layout .hero-gallery-card {
   background:
     radial-gradient(circle at 50% 42%, #FFFAF5 0%, #FFEEE0 58%, #FFE0C4 100%) !important;
-  border: 2px solid rgba(249, 115, 22, 0.34) !important;
+  border: 2px solid rgba(255, 127, 0, 0.34) !important;
   box-shadow:
-    0 24px 56px rgba(249, 115, 22, 0.15),
+    0 24px 56px rgba(255, 127, 0, 0.15),
     inset 0 1px 0 rgba(255, 255, 255, 0.92) !important;
 }
 
 .stage-ambient-backlight {
-  background: radial-gradient(circle, rgba(249, 115, 22, 0.36) 0%, rgba(251, 146, 60, 0.15) 48%, transparent 72%) !important;
+  background: radial-gradient(circle, rgba(255, 127, 0, 0.36) 0%, rgba(255, 166, 77, 0.15) 48%, transparent 72%) !important;
 }
 
 .hero-exhibition-layout .hero-3d-halo {
-  border-color: rgba(249, 115, 22, 0.32) !important;
-  box-shadow: 0 0 55px rgba(249, 115, 22, 0.24), inset 0 0 35px rgba(249, 115, 22, 0.14) !important;
+  border-color: rgba(255, 127, 0, 0.32) !important;
+  box-shadow: 0 0 55px rgba(255, 127, 0, 0.24), inset 0 0 35px rgba(255, 127, 0, 0.14) !important;
 }
 
 .pedestal-upward-glow {
-  background: radial-gradient(ellipse at center, rgba(249, 115, 22, 0.36) 0%, rgba(251, 146, 60, 0.12) 55%, transparent 75%) !important;
+  background: radial-gradient(ellipse at center, rgba(255, 127, 0, 0.36) 0%, rgba(255, 166, 77, 0.12) 55%, transparent 75%) !important;
 }
 
 .pedestal-disc-top {
   background: radial-gradient(ellipse at 50% 42%, #ffffff 0%, #FFEDE0 62%, #F9C49A 100%) !important;
-  border-color: rgba(249, 115, 22, 0.48) !important;
-  box-shadow: 0 0 28px rgba(249, 115, 22, 0.26), inset 0 2px 8px rgba(255, 255, 255, 0.9) !important;
+  border-color: rgba(255, 127, 0, 0.48) !important;
+  box-shadow: 0 0 28px rgba(255, 127, 0, 0.26), inset 0 2px 8px rgba(255, 255, 255, 0.9) !important;
 }
 
 .pedestal-disc-side {
-  background: linear-gradient(90deg, #D9530F 0%, #F97316 30%, #FB923C 50%, #F97316 70%, #D9530F 100%) !important;
+  background: linear-gradient(90deg, #e67300 0%, #ff7f00 30%, #ffa64d 50%, #ff7f00 70%, #e67300 100%) !important;
 }
 
 .hero-exhibition-layout .hero-3d-mode-bar {
   background: linear-gradient(135deg, #2B1406 0%, #4A2008 100%) !important;
-  border: 1.5px solid rgba(251, 146, 60, 0.45) !important;
-  box-shadow: 0 14px 32px rgba(217, 83, 15, 0.22) !important;
+  border: 1.5px solid rgba(255, 166, 77, 0.45) !important;
+  box-shadow: 0 14px 32px rgba(200, 100, 0, 0.22) !important;
 }
 
 .stage-telemetry-pill {
@@ -9416,14 +9419,14 @@ h1, h2, h3, h4, h5, h6,
   padding: 4px 11px;
   border-radius: 999px;
   background: #ffffff;
-  border: 1px solid rgba(249, 115, 22, 0.6);
-  color: #c2410c;
+  border: 1px solid rgba(255, 127, 0, 0.6);
+  color: var(--brand-text);
   font-size: 0.73rem;
   font-weight: 700;
 }
 .trip-eyebrow i { font-size: 0.78rem; }
 .trip-title {
-  color: #9a3412;
+  color: var(--brand-text);
   font-size: 1.25rem;
   font-weight: 800;
   line-height: 1.25;
@@ -9440,7 +9443,7 @@ h1, h2, h3, h4, h5, h6,
   align-items: center;
   gap: 7px;
   margin-top: 6px;
-  color: #c2410c;
+  color: var(--brand-text);
   font-size: 0.82rem;
   font-weight: 800;
 }
@@ -9454,4 +9457,112 @@ h1, h2, h3, h4, h5, h6,
   .trip-title { font-size: 1.1rem; }
   .trip-sub { font-size: 0.76rem; }
   .trip-body { padding: 12px 14px 14px; }
+}
+
+/* ============================================================================
+   ON-BRAND TEXT — the brand orange is now bright (#ff7f00), so anything that
+   sits directly on it uses dark ink instead of white to keep AA contrast.
+   ============================================================================ */
+.top-utility-bar .utility-item,
+.top-utility-bar .utility-item i,
+.top-utility-bar .utility-links a,
+.top-utility-bar .utility-links a:hover,
+.top-utility-bar .utility-links i {
+  color: var(--on-brand) !important;
+}
+
+.primary-nav a.active,
+.hero-mode-btn.active,
+.cat-nav-item.dropdown-open > .cat-nav-link,
+.cat-dd-viewall-btn:hover,
+.btn-brand,
+.btn-card-add,
+.btn-card-add.is-added,
+.cat-showcard-btn,
+.pdp-btn-add-cart,
+.hero-3d-price-chip,
+.pdp-save-badge,
+.mob-badge,
+.ws-tab-badge,
+.thanks-badge,
+.exploded-layer-tag,
+.pdp-video-check-list .step-num,
+.policy-numbered-steps li span,
+.policy-wa-btn.exchange,
+.policy-wa-btn.refund,
+.footer-newsletter-form button,
+.category-filter-bar .cf-sort select,
+.copy-mini-btn:hover,
+.compare-thumb-chip button,
+.cart-plus-one-float,
+.tool-btn:not(.cart-trigger) .count-pill {
+  color: var(--on-brand) !important;
+}
+
+.search-submit-btn,
+.feature-icon,
+.pdp-trust-icon,
+.scroll-top-btn:hover,
+.policy-social-pills a:hover {
+  color: var(--on-brand) !important;
+}
+
+/* Filter bar + payment accents move with the brand orange */
+.category-filter-bar .cf-price-head strong { color: var(--brand-text); }
+.category-filter-bar .cf-reset:hover { color: var(--brand-text); background: rgba(255, 127, 0, 0.12); }
+.pay-method-card.instapay-card.active {
+  border-color: var(--brand);
+  background: linear-gradient(135deg, var(--brand-soft) 0%, var(--brand-tint) 100%);
+}
+
+/* ============================================================================
+   CONTRAST PASS — brand text on light surfaces (category page + footer logo)
+   #b45309 on the pale brand tint lands just under AA; #8a3d00 clears it.
+   ============================================================================ */
+.section-kicker,
+.category-page-head .section-kicker,
+.catalog-empty i {
+  color: #8a3d00;
+}
+
+.cat-page-count,
+.cat-price-range-note {
+  color: #6b4a2f;
+}
+
+/* The filter bar used to be a black pill; on the white/orange palette it is a
+   white capsule with brand borders so its labels read on light ground. */
+.category-filter-bar {
+  background: #ffffff;
+  border-color: var(--brand-tint);
+  box-shadow: 0 4px 14px var(--brand-glow);
+}
+
+.category-filter-bar .cf-price-head,
+.category-filter-bar .cf-price-head i {
+  color: #6b4a2f;
+}
+
+.category-filter-bar .cf-price-head strong {
+  color: #8a3d00;
+}
+
+.category-filter-bar .cf-slider-row input[type="range"] {
+  accent-color: var(--brand);
+}
+
+.category-filter-bar .cf-sort select {
+  background: var(--brand-soft);
+  color: #6b2f00;
+  border-color: var(--brand-tint);
+}
+
+.category-filter-bar .cf-reset {
+  color: #6b4a2f;
+}
+
+/* Footer wordmark sits on near-black, so its accent half must be the light tone */
+#footerStoreName span,
+.site-footer .brand-name-en span {
+  color: var(--brand-light);
 }
