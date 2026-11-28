@@ -9397,7 +9397,9 @@ h1, h2, h3, h4, h5, h6,
 .trip-card:hover .trip-cta i { transform: translateX(-4px); }
 @media (max-width: 900px) {
   .triptych-grid { grid-template-columns: 1fr; gap: 10px; }
-  .trip-card { aspect-ratio: 16 / 9; }
+  .trip-card { aspect-ratio: 4 / 5; }
+  .trip-img { object-position: center top; }
+  .trip-shade { background: linear-gradient(180deg, rgba(255, 255, 255, 0) 45%, rgba(255, 255, 255, 0.85) 62%, #ffffff 100%); }
   .trip-title { font-size: 1.1rem; }
   .trip-sub { font-size: 0.76rem; }
   .trip-body { padding: 12px 14px 14px; }
