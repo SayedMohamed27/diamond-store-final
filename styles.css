@@ -1600,8 +1600,8 @@ body {
 }
 
 .product-card {
-  background: linear-gradient(168deg, #fff8f2 0%, #ffeddc 100%);
-  border: 1.5px solid var(--brand-tint);
+  background: linear-gradient(168deg, #ffdfc2 0%, #ffcda3 100%);
+  border: 1.5px solid #f9a86a;
   border-radius: var(--radius-lg);
   padding: 18px;
   display: flex;
@@ -1759,7 +1759,7 @@ body {
 .card-footer-row {
   margin-top: auto;
   padding-top: 12px;
-  border-top: 1px solid var(--brand-tint);
+  border-top: 1px solid #f0a066;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1811,15 +1811,16 @@ body {
 
 /* Secondary "details" button inside product cards — orange instead of white */
 .card-footer-row .btn-outline {
-  background: var(--brand-light);
-  color: #3a1a05;
-  border-color: #f97316;
+  background: #f97316;
+  color: #2b1203;
+  border-color: #c2410c;
+  font-weight: 800;
 }
 
 .card-footer-row .btn-outline:hover {
-  background: var(--brand);
+  background: #c2410c;
   color: #ffffff;
-  border-color: var(--brand-dark);
+  border-color: #9a3412;
 }
 
 /* ==================== BUNDLE BUILDER SECTION ==================== */
