@@ -4310,11 +4310,14 @@ body {
 }
 
 .exploded-layer-tag {
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   font-weight: 800;
+  line-height: 1.45;
+  white-space: nowrap;
+  flex: 0 0 auto;
   background: var(--brand);
   color: #ffffff;
-  padding: 1px 7px;
+  padding: 2px 9px;
   border-radius: 99px;
 }
 
@@ -4323,6 +4326,10 @@ body {
   font-weight: 700;
   color: var(--text-muted);
   margin-top: 2px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 @media (max-width: 768px) {
@@ -6178,19 +6185,45 @@ body {
   gap: 8px;
   width: 100%;
   max-width: 470px;
+  align-items: stretch;
 }
 
 .exploded-anatomy-mode .exploded-layer-card {
-  padding: 8px 10px;
+  padding: 9px 10px;
   gap: 8px;
+  align-items: flex-start;
+  min-height: 92px;
+}
+
+.exploded-anatomy-mode .exploded-layer-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  font-size: 0.85rem;
+  margin-top: 2px;
 }
 
 .exploded-anatomy-mode .exploded-layer-title {
-  font-size: 0.76rem;
+  font-size: 0.74rem;
+  line-height: 1.45;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+}
+
+.exploded-anatomy-mode .exploded-layer-title > span:first-child {
+  order: 2;
+  flex: 1 1 100%;
+}
+
+.exploded-anatomy-mode .exploded-layer-tag {
+  order: 1;
 }
 
 .exploded-anatomy-mode .exploded-layer-desc {
   font-size: 0.68rem;
+  line-height: 1.5;
 }
 
 /* --- Compact Professional Stage Toolbar --- */
@@ -6823,7 +6856,10 @@ body {
     font-size: 0.68rem;
   }
   .exploded-layer-tag {
-    display: none;
+    display: inline-block;
+    font-size: 0.55rem;
+    padding: 1px 6px;
+    line-height: 1.4;
   }
   .exploded-anatomy-mode .exploded-layer-desc {
     font-size: 0.6rem;
